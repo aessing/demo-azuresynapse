@@ -1,0 +1,28 @@
+{
+	"name": "ESE_IDS_SNK_DimensionsFLW_CORE_SQL",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "demosynapsesws01-WorkspaceDefaultSqlServer",
+			"type": "LinkedServiceReference",
+			"parameters": {
+				"DBName": "SoccerEvents"
+			}
+		},
+		"folder": {
+			"name": "Europe Soccer Events"
+		},
+		"annotations": [],
+		"type": "AzureSqlDWTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": {
+				"value": "@item().DestinationSchema",
+				"type": "Expression"
+			},
+			"table": {
+				"value": "@item().DestinationTable",
+				"type": "Expression"
+			}
+		}
+	}
+}

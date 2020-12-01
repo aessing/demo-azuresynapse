@@ -1,0 +1,14 @@
+id,EventType
+0,Announcement
+1,Attempt
+2,Corner
+3,Foul
+4,Yellow card
+5,Second yellow card
+6,Red card
+7,Substitution
+8,Free kick won
+9,Offside
+10,Hand ball
+11,Penalty conceded
+99,NA
