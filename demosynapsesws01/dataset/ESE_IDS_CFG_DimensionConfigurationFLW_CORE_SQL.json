@@ -1,0 +1,43 @@
+{
+	"name": "ESE_IDS_CFG_DimensionConfigurationFLW_CORE_SQL",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "demosynapsesws01-WorkspaceDefaultSqlServer",
+			"type": "LinkedServiceReference",
+			"parameters": {
+				"DBName": "SoccerEvents"
+			}
+		},
+		"folder": {
+			"name": "Europe Soccer Events"
+		},
+		"annotations": [],
+		"type": "AzureSqlDWTable",
+		"schema": [
+			{
+				"name": "SourceSystem",
+				"type": "nvarchar"
+			},
+			{
+				"name": "SourceFolder",
+				"type": "nvarchar"
+			},
+			{
+				"name": "SourceFileName",
+				"type": "nvarchar"
+			},
+			{
+				"name": "SourceFileExtension",
+				"type": "nvarchar"
+			},
+			{
+				"name": "IsActive",
+				"type": "bit"
+			}
+		],
+		"typeProperties": {
+			"schema": "config",
+			"table": "etlConfiguration_DataFlow"
+		}
+	}
+}

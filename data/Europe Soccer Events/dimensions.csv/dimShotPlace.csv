@@ -1,0 +1,15 @@
+id,ShotPlace
+1,Bit too high
+2,Blocked
+3,Bottom left corner
+4,Bottom right corner
+5,Centre of the goal
+6,High and wide
+7,Hits the bar
+8,Misses to the left
+9,Misses to the right
+10,Too high
+11,Top centre of the goal
+12,Top left corner
+13,Top right corner
+99,NA
