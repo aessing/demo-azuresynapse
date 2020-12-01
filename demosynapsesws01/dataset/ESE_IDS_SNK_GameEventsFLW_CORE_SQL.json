@@ -1,0 +1,123 @@
+{
+	"name": "ESE_IDS_SNK_GameEventsFLW_CORE_SQL",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "demosynapsesws01-WorkspaceDefaultSqlServer",
+			"type": "LinkedServiceReference",
+			"parameters": {
+				"DBName": "SoccerEvents"
+			}
+		},
+		"folder": {
+			"name": "Soccer Events"
+		},
+		"annotations": [],
+		"type": "AzureSqlDWTable",
+		"schema": [
+			{
+				"name": "id_odsp",
+				"type": "nvarchar"
+			},
+			{
+				"name": "id_event",
+				"type": "nvarchar"
+			},
+			{
+				"name": "sort_order",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "time",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "text",
+				"type": "nvarchar"
+			},
+			{
+				"name": "event_type",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "event_type2",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "side",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "event_team",
+				"type": "nvarchar"
+			},
+			{
+				"name": "opponent",
+				"type": "nvarchar"
+			},
+			{
+				"name": "player",
+				"type": "nvarchar"
+			},
+			{
+				"name": "player2",
+				"type": "nvarchar"
+			},
+			{
+				"name": "player_in",
+				"type": "nvarchar"
+			},
+			{
+				"name": "player_out",
+				"type": "nvarchar"
+			},
+			{
+				"name": "shot_place",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "shot_outcome",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "is_goal",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "location",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "bodypart",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "assist_method",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "situation",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "country",
+				"type": "nvarchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "DataFlow",
+			"table": "factGameEvents"
+		}
+	}
+}

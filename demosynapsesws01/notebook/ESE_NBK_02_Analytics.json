@@ -1,0 +1,575 @@
+{
+	"name": "ESE_NBK_02_Analytics",
+	"properties": {
+		"folder": {
+			"name": "Europe Soccer Events"
+		},
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "SoccerEvents",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 2,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"kernelspec": {
+				"name": "synapse_sparksql",
+				"display_name": "Synapse SQL"
+			},
+			"language_info": {
+				"name": "sql"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/f6c0b928-7078-4332-a106-e7a9c5253249/resourceGroups/demo-synapse-rg/providers/Microsoft.Synapse/workspaces/demosynapsesws01/bigDataPools/SoccerEvents",
+				"name": "SoccerEvents",
+				"type": "Spark",
+				"endpoint": "https://demosynapsesws01.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/SoccerEvents",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "2.4",
+				"nodeCount": 3,
+				"cores": 4,
+				"memory": 28,
+				"automaticScaleJobs": false
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# European Soccer Events - Azure Synapse Analytics Demo\r\n",
+					"\r\n",
+					"#### Project URL\r\n",
+					"- <https://github.com/aessing/demo-azuresynapse>\r\n",
+					"\r\n",
+					"#### Developer\r\n",
+					"Andre Essing\r\n",
+					"- <https://www.andre-essing.de/>\r\n",
+					"- <https://github.com/aessing>\r\n",
+					"- <https://twitter.com/aessing>\r\n",
+					"- <https://www.linkedin.com/in/aessing/>\r\n",
+					"\r\n",
+					"> THIS CODE AND INFORMATION ARE PROVIDED \"AS IS\" WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.\r\n",
+					"\r\n",
+					"---"
+				]
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# European Soccer Events Analysis - Ad-hoc Data Analysis\r\n",
+					"\r\n",
+					"Now that the data shape and format is all set, it’s time to dig in and try and find answers to a few business questions. We’ll use plain-old super-strong SQL (Spark SQL) for that purpose, and create a second notebook from the perspective of data analysts.\r\n",
+					"\r\n",
+					"In this notebook, we'll analyze the transformed soccer game events to answer questions like:\r\n",
+					"\r\n",
+					"* What's the distribution of goals by shot place (place within the goal area)?\r\n",
+					"* What's the distribution of goals by different soccer leagues?\r\n",
+					"* What are the top locations (on-field player position) for each shot place in Spanish league?\r\n",
+					"* When/What time window are most goals scored within a game in each league?\r\n",
+					"\r\n",
+					"We'll also take a look at how to use third-party libraries for visualizations - like creating a 3D scatter-plot to see distribution of goals by shot place and location."
+				]
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Spark Packages required\r\n",
+					"\r\n",
+					"- plotly==2.0.15"
+				]
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Load data from Data Lake and create a TempView"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"microsoft": {
+						"language": "python"
+					}
+				},
+				"source": [
+					"%%pyspark\r\n",
+					"\r\n",
+					"gameEventsDf = spark.read.load('abfss://europesoccer@demosynapsedls01.dfs.core.windows.net/curated/game_events.parquet', format='parquet')\r\n",
+					"gameEventsDf.createOrReplaceTempView('gameEvents')"
+				],
+				"execution_count": 6
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"-- How many rows do we have?\r\n",
+					"\r\n",
+					"SELECT COUNT(1)\r\n",
+					"  FROM gameEvents"
+				],
+				"execution_count": 7
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Start analyzing the data"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"-- How does the table look like?\r\n",
+					"SELECT *\r\n",
+					"  FROM gameEvents\r\n",
+					" LIMIT 100"
+				],
+				"execution_count": 8
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"-- Take a peek at all GOALS!!!\r\n",
+					"SELECT *\r\n",
+					"  FROM gameEvents\r\n",
+					" WHERE is_goal = 1\r\n",
+					"LIMIT 100"
+				],
+				"execution_count": 9
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Built-in Visualizations\r\n",
+					"\r\n",
+					"For example, if one wants to see the distribution of goals by shot placement, then it could look like this simple query and resulting pie-chart (or alternatively viewable as a data-grid).\r\n",
+					"\r\n",
+					"> Pie chart - Key: shot_place, Values: TOT_GOALS, Aggregation: Sum"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"SELECT CASE WHEN shot_place_str == 'NA' THEN 'Unknown' ELSE shot_place_str END shot_place, COUNT(1) AS TOT_GOALS\r\n",
+					"  FROM gameEvents\r\n",
+					" WHERE is_goal = 1\r\n",
+					" GROUP BY shot_place_str"
+				],
+				"execution_count": 10
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Top 3 goal locations per shot placement in the Spanish League\r\n",
+					"\r\n",
+					"Once we observe that Spanish league has had most goals over the term of this data, we could find the top 3 goals locations per shot place from the games in Spain, by writing a more involved query using Window functions in Spark SQL. It would be a stepwise nested query.\r\n",
+					"\r\n",
+					"> Column chart - Keys: SHOT_PLACE_STR,Values: TOT_GOALS, Series groupings: LOCATION_STR, Aggregation: String: Sum, Stacked"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"SELECT SHOT_PLACE_STR, LOCATION_STR, TOT_GOALS\r\n",
+					"  FROM (\r\n",
+					"     SELECT SHOT_PLACE_STR, LOCATION_STR, TOT_GOALS,\r\n",
+					"            RANK() OVER (PARTITION BY SHOT_PLACE_STR ORDER BY TOT_GOALS DESC) goals_rank\r\n",
+					"       FROM (\r\n",
+					"              SELECT CASE WHEN LOCATION_STR == 'NA' THEN 'Unknown' ELSE LOCATION_STR END LOCATION_STR, \r\n",
+					"                    CASE WHEN SHOT_PLACE_STR == 'NA' THEN 'Unknown' ELSE SHOT_PLACE_STR END SHOT_PLACE_STR, \r\n",
+					"                    COUNT(1) AS TOT_GOALS\r\n",
+					"              FROM gameEvents\r\n",
+					"              WHERE is_goal = 1 AND COUNTRY_CODE = 'ESP' \r\n",
+					"             GROUP BY SHOT_PLACE_STR, LOCATION_STR\r\n",
+					"       ) tmp_in\r\n",
+					"       WHERE TOT_GOALS IS NOT NULL AND TOT_GOALS <> 0\r\n",
+					"     ) tmp_out\r\n",
+					"WHERE goals_rank <= 3 AND LOCATION_STR != 'Unknown' AND SHOT_PLACE_STR != 'Unknown'\r\n",
+					"ORDER BY SHOT_PLACE_STR"
+				],
+				"execution_count": 11
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Goals per time bin per country/league\r\n",
+					"\r\n",
+					"We could do time-based analysis as well, e.g. by observing the total number of goals over the course of a game (0-90+ minutes), across all games in the five leagues. We could use the “time_bin” column created as part of the transformation process earlier, rather than a continuous variable like “time”.\r\n",
+					"\r\n",
+					"> Line chart - Keys: TIME_BIN, Values: TOT_GOALS, Series groupings: COUNTRY_CODE, Aggregation: String: Sum"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"SELECT COUNTRY_CODE, TIME_BIN, COUNT(1) TOT_GOALS\r\n",
+					"  FROM gameEvents\r\n",
+					" WHERE is_goal = 1\r\n",
+					" GROUP BY COUNTRY_CODE, TIME_BIN\r\n",
+					" ORDER BY COUNTRY_CODE, TIME_BIN"
+				],
+				"execution_count": 12
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Third-party Visualization (Plotly)"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "python"
+					},
+					"collapsed": true
+				},
+				"source": [
+					"%%pyspark\r\n",
+					"\r\n",
+					"# Necessary imports\r\n",
+					"\r\n",
+					"from plotly.offline import download_plotlyjs, init_notebook_mode, plot, iplot\r\n",
+					"from plotly.graph_objs import *\r\n",
+					"import plotly.graph_objs as go\r\n",
+					"\r\n",
+					"import numpy as np\r\n",
+					"import json"
+				],
+				"execution_count": 13
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "python"
+					},
+					"collapsed": true
+				},
+				"source": [
+					"%%pyspark\r\n",
+					"\r\n",
+					"# Define a function to convert a dataframe into JSON\r\n",
+					"\r\n",
+					"def dfToJson(df):\r\n",
+					"  \"\"\"\r\n",
+					"  Dataframe as JSON.\r\n",
+					"  \"\"\"\r\n",
+					"  return (\r\n",
+					"   df\r\n",
+					"    .toJSON() # python api only\r\n",
+					"    .map(lambda r : json.loads(r))\r\n",
+					"  ).collect()\r\n",
+					"\r\n",
+					"def jsonColList(jlist, col, default_val, limit=10000):\r\n",
+					"  \"\"\"\r\n",
+					"  Convenience function for column list comprehension.\r\n",
+					"  \"\"\"\r\n",
+					"  result=[]\r\n",
+					"  c = 0\r\n",
+					"  for r in jlist:\r\n",
+					"    try:\r\n",
+					"        result.append(r[col])\r\n",
+					"    except Exception as e:\r\n",
+					"        result.append(default_val)\r\n",
+					"        pass\r\n",
+					"    \r\n",
+					"    c += 1\r\n",
+					"    if c >= limit:\r\n",
+					"      return result   \r\n",
+					"  return result"
+				],
+				"execution_count": 14
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "python"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%pyspark\r\n",
+					"\r\n",
+					"# Prep data for viz - distribution of goals by shot placement and location\r\n",
+					"\r\n",
+					"vizDf = spark.sql(\"SELECT shot_place_str, location_str, is_goal FROM gameEvents WHERE is_goal=1 AND location_str != 'NA' AND shot_place_str != 'NA'\")\r\n",
+					"\r\n",
+					"vizDf = vizDf.groupBy(\"shot_place_str\",\"location_str\").sum(\"is_goal\").withColumnRenamed(\"sum(is_goal)\",\"tot_goals\").na.fill(0)\r\n",
+					"\r\n",
+					"display(vizDf.limit(100))"
+				],
+				"execution_count": 15
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "python"
+					},
+					"collapsed": true
+				},
+				"source": [
+					"%%pyspark\r\n",
+					"\r\n",
+					"# Convert DataFrame to JSON\r\n",
+					"\r\n",
+					"vizJson = dfToJson(vizDf)\r\n",
+					"\r\n",
+					"vizJson[:5]"
+				],
+				"execution_count": 16
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "python"
+					},
+					"collapsed": true
+				},
+				"source": [
+					"%%pyspark\r\n",
+					"\r\n",
+					"# Create the 3-D scatter plot\r\n",
+					"\r\n",
+					"init_notebook_mode(connected=True)\r\n",
+					"\r\n",
+					"x= jsonColList(vizJson, 'location_str', 0)\r\n",
+					"y= jsonColList(vizJson, 'tot_goals', 0)\r\n",
+					"z= jsonColList(vizJson, 'shot_place_str', 0)\r\n",
+					"\r\n",
+					"trace1 = go.Scatter3d(\r\n",
+					"    x=x,\r\n",
+					"    y=y,\r\n",
+					"    z=z,\r\n",
+					"    mode='markers',\r\n",
+					"    marker=dict(\r\n",
+					"        size=3,\r\n",
+					"        #color=z,\r\n",
+					"        colorscale='Viridis'\r\n",
+					"    ),\r\n",
+					")\r\n",
+					"\r\n",
+					"data = [trace1]\r\n",
+					"layout = go.Layout(\r\n",
+					"    autosize=True,\r\n",
+					"    width=1100,\r\n",
+					"    height=600,\r\n",
+					"    margin=dict(\r\n",
+					"        l=0,\r\n",
+					"        r=0,\r\n",
+					"        b=0,\r\n",
+					"        t=0\r\n",
+					"    ),\r\n",
+					"    scene = dict(\r\n",
+					"    xaxis = dict(title=\"X:Location\"),\r\n",
+					"    yaxis = dict(title=\"Y:Goals\"),\r\n",
+					"    zaxis = dict(title=\"Z:ShotPlace\")\r\n",
+					"    )\r\n",
+					")\r\n",
+					"fig = go.Figure(data=data, layout=layout)\r\n",
+					"displayHTML(plot(fig, filename='3d-scatter-colorscale', output_type='div'))\r\n",
+					""
+				],
+				"execution_count": 17
+			}
+		]
+	}
+}
