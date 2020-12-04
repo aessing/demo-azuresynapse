@@ -1,0 +1,20 @@
+{
+	"name": "02 Soccer Events SELECT",
+	"properties": {
+		"description": "How does the table look like?",
+		"folder": {
+			"name": "Europe Sovcer Events"
+		},
+		"content": {
+			"query": "-- How does the table look like?\n\nSELECT *\nFROM\n    OPENROWSET(\n        BULK 'https://demosynapsedls01.dfs.core.windows.net/europesoccer/curated/game_events.parquet/part-00000-58db940b-487b-4302-98c3-fa612cd07044-c000.snappy.parquet',\n        FORMAT='PARQUET'\n    ) AS [result]\nLIMIT 100",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"name": "master",
+				"type": "SqlOnDemand"
+			}
+		},
+		"type": "SqlQuery"
+	}
+}
