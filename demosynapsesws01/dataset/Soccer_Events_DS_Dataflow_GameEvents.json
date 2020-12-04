@@ -1,0 +1,16 @@
+{
+	"name": "Soccer_Events_DS_Dataflow_GameEvents",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "demosynapsesws01-WorkspaceDefaultSqlServer",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlDWTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": "DataFlow",
+			"table": "factGameEvents"
+		}
+	}
+}
