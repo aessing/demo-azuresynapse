@@ -84,10 +84,8 @@
 				},
 				"source": [
 					"## Spark Packages required\r\n",
-					"<pre><code>\r\n",
-					"plotly==2.0.15\r\n",
-					"nbformat==4.2.0\r\n",
-					"</code></pre>"
+					"\r\n",
+					"- plotly==2.0.15"
 				]
 			},
 			{
@@ -116,7 +114,7 @@
 					"gameEventsDf = spark.read.load('abfss://europesoccer@demosynapsedls01.dfs.core.windows.net/curated/game_events.parquet', format='parquet')\r\n",
 					"gameEventsDf.createOrReplaceTempView('gameEvents')"
 				],
-				"execution_count": 35
+				"execution_count": 51
 			},
 			{
 				"cell_type": "code",
@@ -369,7 +367,7 @@
 					"import numpy as np\r\n",
 					"import json"
 				],
-				"execution_count": 29
+				"execution_count": 52
 			},
 			{
 				"cell_type": "code",
@@ -421,7 +419,7 @@
 					"      return result   \r\n",
 					"  return result"
 				],
-				"execution_count": 30
+				"execution_count": 53
 			},
 			{
 				"cell_type": "code",
@@ -451,7 +449,7 @@
 					"\r\n",
 					"display(vizDf.limit(100))"
 				],
-				"execution_count": 31
+				"execution_count": 54
 			},
 			{
 				"cell_type": "code",
@@ -479,7 +477,7 @@
 					"\r\n",
 					"vizJson[:5]"
 				],
-				"execution_count": 32
+				"execution_count": 55
 			},
 			{
 				"cell_type": "code",
@@ -503,7 +501,7 @@
 					"\r\n",
 					"# Create the 3-D scatter plot\r\n",
 					"\r\n",
-					"init_notebook_mode(connected=True)\r\n",
+					"#init_notebook_mode(connected=True)\r\n",
 					"\r\n",
 					"x= jsonColList(vizJson, 'location_str', 0)\r\n",
 					"y= jsonColList(vizJson, 'tot_goals', 0)\r\n",
@@ -539,10 +537,10 @@
 					"    )\r\n",
 					")\r\n",
 					"fig = go.Figure(data=data, layout=layout)\r\n",
-					"fig.show()\r\n",
-					"#displayHTML(plot(fig, filename='3d-scatter-colorscale', output_type='div'))"
+					"displayHTML(plot(fig, filename='3d-scatter-colorscale', output_type='div'))\r\n",
+					""
 				],
-				"execution_count": 33
+				"execution_count": 56
 			}
 		]
 	}
