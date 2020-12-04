@@ -501,7 +501,7 @@
 					"\r\n",
 					"# Create the 3-D scatter plot\r\n",
 					"\r\n",
-					"#init_notebook_mode(connected=True)\r\n",
+					"init_notebook_mode(connected=True)\r\n",
 					"\r\n",
 					"x= jsonColList(vizJson, 'location_str', 0)\r\n",
 					"y= jsonColList(vizJson, 'tot_goals', 0)\r\n",
@@ -540,7 +540,7 @@
 					"displayHTML(plot(fig, filename='3d-scatter-colorscale', output_type='div'))\r\n",
 					""
 				],
-				"execution_count": 56
+				"execution_count": 57
 			}
 		]
 	}
