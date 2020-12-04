@@ -15,11 +15,11 @@
 			"driverCores": 4,
 			"executorMemory": "28g",
 			"executorCores": 4,
-			"numExecutors": 7,
+			"numExecutors": 2,
 			"conf": {
 				"spark.dynamicAllocation.enabled": "false",
-				"spark.dynamicAllocation.minExecutors": "7",
-				"spark.dynamicAllocation.maxExecutors": "7"
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2"
 			}
 		},
 		"metadata": {
@@ -141,7 +141,7 @@
 					"gameEventsDf = spark.read.load('abfss://europesoccer@demosynapsedls01.dfs.core.windows.net/curated/game_events.parquet', format='parquet')\r\n",
 					"gameEventsDf.createOrReplaceTempView('gameEvents')"
 				],
-				"execution_count": 3
+				"execution_count": 6
 			},
 			{
 				"cell_type": "code",
@@ -163,7 +163,7 @@
 					"SELECT COUNT(1)\r\n",
 					"  FROM gameEvents"
 				],
-				"execution_count": null
+				"execution_count": 7
 			},
 			{
 				"cell_type": "markdown",
@@ -198,7 +198,7 @@
 					"  FROM gameEvents\r\n",
 					" LIMIT 100"
 				],
-				"execution_count": null
+				"execution_count": 8
 			},
 			{
 				"cell_type": "code",
@@ -221,7 +221,7 @@
 					" WHERE is_goal = 1\r\n",
 					"LIMIT 100"
 				],
-				"execution_count": null
+				"execution_count": 9
 			},
 			{
 				"cell_type": "markdown",
@@ -260,7 +260,7 @@
 					" WHERE is_goal = 1\r\n",
 					" GROUP BY shot_place_str"
 				],
-				"execution_count": null
+				"execution_count": 10
 			},
 			{
 				"cell_type": "markdown",
@@ -311,7 +311,7 @@
 					"WHERE goals_rank <= 3 AND LOCATION_STR != 'Unknown' AND SHOT_PLACE_STR != 'Unknown'\r\n",
 					"ORDER BY SHOT_PLACE_STR"
 				],
-				"execution_count": null
+				"execution_count": 11
 			},
 			{
 				"cell_type": "markdown",
@@ -351,7 +351,7 @@
 					" GROUP BY COUNTRY_CODE, TIME_BIN\r\n",
 					" ORDER BY COUNTRY_CODE, TIME_BIN"
 				],
-				"execution_count": null
+				"execution_count": 12
 			},
 			{
 				"cell_type": "markdown",
@@ -395,7 +395,7 @@
 					"import numpy as np\r\n",
 					"import json"
 				],
-				"execution_count": null
+				"execution_count": 13
 			},
 			{
 				"cell_type": "code",
@@ -447,7 +447,7 @@
 					"      return result   \r\n",
 					"  return result"
 				],
-				"execution_count": null
+				"execution_count": 14
 			},
 			{
 				"cell_type": "code",
@@ -477,7 +477,7 @@
 					"\r\n",
 					"display(vizDf.limit(100))"
 				],
-				"execution_count": null
+				"execution_count": 15
 			},
 			{
 				"cell_type": "code",
@@ -505,7 +505,7 @@
 					"\r\n",
 					"vizJson[:5]"
 				],
-				"execution_count": null
+				"execution_count": 16
 			},
 			{
 				"cell_type": "code",
@@ -568,7 +568,7 @@
 					"displayHTML(plot(fig, filename='3d-scatter-colorscale', output_type='div'))\r\n",
 					""
 				],
-				"execution_count": null
+				"execution_count": 17
 			}
 		]
 	}
