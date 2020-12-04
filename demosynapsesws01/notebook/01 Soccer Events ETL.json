@@ -127,7 +127,7 @@
 					}
 				},
 				"source": [
-					"# Extraction\r\n",
+					"## Extraction\r\n",
 					"The first task is to create a DataFrame schema for the larger game events dataset, so the read operation doesn’t spend time inferring it from the data. Once extracted, we’ll replace “null” values for interesting fields with data-type specific constants as noted in the code snippet below."
 				]
 			},
