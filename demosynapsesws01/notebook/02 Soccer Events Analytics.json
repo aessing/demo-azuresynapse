@@ -74,6 +74,23 @@
 				]
 			},
 			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Spark Packages required\r\n",
+					"<pre><code>\r\n",
+					"plotly==2.0.15\r\n",
+					"nbformat==4.2.0\r\n",
+					"</code></pre>"
+				]
+			},
+			{
 				"cell_type": "code",
 				"metadata": {
 					"microsoft": {
@@ -88,7 +105,7 @@
 					"gameEventsDf = spark.read.load('abfss://europesoccer@demosynapsedls01.dfs.core.windows.net/curated/game_events.parquet', format='parquet')\r\n",
 					"gameEventsDf.createOrReplaceTempView('gameEvents')"
 				],
-				"execution_count": 12
+				"execution_count": 35
 			},
 			{
 				"cell_type": "code",
@@ -285,6 +302,223 @@
 					" ORDER BY COUNTRY_CODE, TIME_BIN"
 				],
 				"execution_count": 18
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Third-party Visualization (Plotly)"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "python"
+					},
+					"collapsed": true
+				},
+				"source": [
+					"%%pyspark\r\n",
+					"\r\n",
+					"# Necessary imports\r\n",
+					"\r\n",
+					"from plotly.offline import download_plotlyjs, init_notebook_mode, plot, iplot\r\n",
+					"from plotly.graph_objs import *\r\n",
+					"import plotly.graph_objs as go\r\n",
+					"\r\n",
+					"import numpy as np\r\n",
+					"import json"
+				],
+				"execution_count": 29
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "python"
+					},
+					"collapsed": true
+				},
+				"source": [
+					"%%pyspark\r\n",
+					"\r\n",
+					"# Define a function to convert a dataframe into JSON\r\n",
+					"\r\n",
+					"def dfToJson(df):\r\n",
+					"  \"\"\"\r\n",
+					"  Dataframe as JSON.\r\n",
+					"  \"\"\"\r\n",
+					"  return (\r\n",
+					"   df\r\n",
+					"    .toJSON() # python api only\r\n",
+					"    .map(lambda r : json.loads(r))\r\n",
+					"  ).collect()\r\n",
+					"\r\n",
+					"def jsonColList(jlist, col, default_val, limit=10000):\r\n",
+					"  \"\"\"\r\n",
+					"  Convenience function for column list comprehension.\r\n",
+					"  \"\"\"\r\n",
+					"  result=[]\r\n",
+					"  c = 0\r\n",
+					"  for r in jlist:\r\n",
+					"    try:\r\n",
+					"        result.append(r[col])\r\n",
+					"    except Exception as e:\r\n",
+					"        result.append(default_val)\r\n",
+					"        pass\r\n",
+					"    \r\n",
+					"    c += 1\r\n",
+					"    if c >= limit:\r\n",
+					"      return result   \r\n",
+					"  return result"
+				],
+				"execution_count": 30
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "python"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%pyspark\r\n",
+					"\r\n",
+					"# Prep data for viz - distribution of goals by shot placement and location\r\n",
+					"\r\n",
+					"vizDf = spark.sql(\"SELECT shot_place_str, location_str, is_goal FROM gameEvents WHERE is_goal=1 AND location_str != 'NA' AND shot_place_str != 'NA'\")\r\n",
+					"\r\n",
+					"vizDf = vizDf.groupBy(\"shot_place_str\",\"location_str\").sum(\"is_goal\").withColumnRenamed(\"sum(is_goal)\",\"tot_goals\").na.fill(0)\r\n",
+					"\r\n",
+					"display(vizDf.limit(100))"
+				],
+				"execution_count": 31
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "python"
+					},
+					"collapsed": true
+				},
+				"source": [
+					"%%pyspark\r\n",
+					"\r\n",
+					"# Convert DataFrame to JSON\r\n",
+					"\r\n",
+					"vizJson = dfToJson(vizDf)\r\n",
+					"\r\n",
+					"vizJson[:5]"
+				],
+				"execution_count": 32
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "python"
+					},
+					"collapsed": true
+				},
+				"source": [
+					"%%pyspark\r\n",
+					"\r\n",
+					"# Create the 3-D scatter plot\r\n",
+					"\r\n",
+					"init_notebook_mode(connected=True)\r\n",
+					"\r\n",
+					"x= jsonColList(vizJson, 'location_str', 0)\r\n",
+					"y= jsonColList(vizJson, 'tot_goals', 0)\r\n",
+					"z= jsonColList(vizJson, 'shot_place_str', 0)\r\n",
+					"\r\n",
+					"trace1 = go.Scatter3d(\r\n",
+					"    x=x,\r\n",
+					"    y=y,\r\n",
+					"    z=z,\r\n",
+					"    mode='markers',\r\n",
+					"    marker=dict(\r\n",
+					"        size=3,\r\n",
+					"        #color=z,\r\n",
+					"        colorscale='Viridis'\r\n",
+					"    ),\r\n",
+					")\r\n",
+					"\r\n",
+					"data = [trace1]\r\n",
+					"layout = go.Layout(\r\n",
+					"    autosize=True,\r\n",
+					"    width=1100,\r\n",
+					"    height=600,\r\n",
+					"    margin=dict(\r\n",
+					"        l=0,\r\n",
+					"        r=0,\r\n",
+					"        b=0,\r\n",
+					"        t=0\r\n",
+					"    ),\r\n",
+					"    scene = dict(\r\n",
+					"    xaxis = dict(title=\"X:Location\"),\r\n",
+					"    yaxis = dict(title=\"Y:Goals\"),\r\n",
+					"    zaxis = dict(title=\"Z:ShotPlace\")\r\n",
+					"    )\r\n",
+					")\r\n",
+					"fig = go.Figure(data=data, layout=layout)\r\n",
+					"fig.show()\r\n",
+					"#displayHTML(plot(fig, filename='3d-scatter-colorscale', output_type='div'))"
+				],
+				"execution_count": 33
 			}
 		]
 	}
