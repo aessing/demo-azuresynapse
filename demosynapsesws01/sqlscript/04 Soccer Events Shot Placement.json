@@ -6,7 +6,7 @@
 			"name": "Europe Sovcer Events"
 		},
 		"content": {
-			"query": "-- If one wants to see the distribution of goals by shot placement, \n-- then it could look like this simple query and resulting pie-chart\n-- (or alternatively viewable as a data-grid).\n--\n-- Pie chart - Key: shot_place, Values: TOT_GOALS, Aggregation: Sum\n\nSELECT \n    CASE \n        WHEN \n            shot_place_str == 'NA'\n        THEN 'Unknown' \n        ELSE   \n            shot_place_str \n        END shot_place,\n    COUNT(1) AS TOT_GOALS\nFROM\n    OPENROWSET(\n        BULK 'https://demosynapsedls01.dfs.core.windows.net/europesoccer/curated/game_events.parquet',\n        FORMAT='PARQUET'\n    )  AS [result]\n WHERE is_goal = 1\n GROUP BY shot_place_str",
+			"query": "-- If one wants to see the distribution of goals by shot placement, \n-- then it could look like this simple query and resulting pie-chart\n-- (or alternatively viewable as a data-grid).\n--\n-- Pie chart - Key: shot_place, Values: TOT_GOALS, Aggregation: Sum\n\nSELECT \n    CASE \n        WHEN \n            shot_place_str = 'NA'\n        THEN 'Unknown' \n        ELSE   \n            shot_place_str \n        END shot_place,\n    COUNT(1) AS TOT_GOALS\nFROM\n    OPENROWSET(\n        BULK 'https://demosynapsedls01.dfs.core.windows.net/europesoccer/curated/game_events.parquet',\n        FORMAT='PARQUET'\n    )  AS [result]\n WHERE is_goal = 1\n GROUP BY shot_place_str",
 			"metadata": {
 				"language": "sql"
 			},
