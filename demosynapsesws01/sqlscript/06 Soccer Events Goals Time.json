@@ -1,0 +1,20 @@
+{
+	"name": "06 Soccer Events Goals Time",
+	"properties": {
+		"description": "We could do time-based analysis as well, e.g. by observing the total number of goals over the course of a game (0-90+ minutes), across all games in the five leagues. We could use the “time_bin” column created as part of the transformation process earlier, rather than a continuous variable like “time”.",
+		"folder": {
+			"name": "Europe Sovcer Events"
+		},
+		"content": {
+			"query": "-- Goals per time bin per country/league\n\n-- We could do time-based analysis as well, e.g. by observing the total number of\n-- goals over the course of a game (0-90+ minutes), across all games in the five\n-- leagues. We could use the “time_bin” column created as part of the transformation\n-- process earlier, rather than a continuous variable like “time”.\n\n-- Line chart - Keys: TIME_BIN, Values: TOT_GOALS, Series groupings: COUNTRY_CODE, Aggregation: String: Sum\n\nSELECT COUNTRY_CODE, TIME_BIN, COUNT(1) TOT_GOALS\n  FROM gameEvents\n WHERE is_goal = 1\n GROUP BY COUNTRY_CODE, TIME_BIN\n ORDER BY COUNTRY_CODE, TIME_BIN",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"name": "master",
+				"type": "SqlOnDemand"
+			}
+		},
+		"type": "SqlQuery"
+	}
+}
