@@ -6,7 +6,7 @@
 			"name": "Europe Sovcer Events"
 		},
 		"content": {
-			"query": "-- How many rows do we have?\n\nSELECT\n    COUNT(1)\nFROM\n    OPENROWSET(\n        BULK 'https://demosynapsedls01.dfs.core.windows.net/europesoccer/curated/game_events.parquet/part-00000-58db940b-487b-4302-98c3-fa612cd07044-c000.snappy.parquet',\n        FORMAT='PARQUET'\n    ) AS [result]",
+			"query": "-- How many rows do we have?\n\nSELECT\n    COUNT(1)\nFROM\n    OPENROWSET(\n        BULK 'https://demosynapsedls01.dfs.core.windows.net/europesoccer/curated/game_events.parquet',\n        FORMAT='PARQUET'\n    ) AS [result]",
 			"metadata": {
 				"language": "sql"
 			},
