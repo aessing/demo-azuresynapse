@@ -5,7 +5,7 @@
 			"name": "Europe Sovcer Events"
 		},
 		"content": {
-			"query": "-- How does the table look like?\n\n-- Take a peek at all GOALS!!!\nSELECT * \nFROM\n    OPENROWSET(\n        BULK 'https://demosynapsedls01.dfs.core.windows.net/europesoccer/curated/game_events.parquet',\n        FORMAT='PARQUET'\n    )  AS [result]\nWHERE is_goal = 1",
+			"query": "-- Take a peek at all GOALS!!!\n\nSELECT * \nFROM\n    OPENROWSET(\n        BULK 'https://demosynapsedls01.dfs.core.windows.net/europesoccer/curated/game_events.parquet',\n        FORMAT='PARQUET'\n    )  AS [result]\nWHERE is_goal = 1",
 			"metadata": {
 				"language": "sql"
 			},
