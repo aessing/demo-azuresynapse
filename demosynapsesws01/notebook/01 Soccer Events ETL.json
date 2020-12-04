@@ -148,7 +148,7 @@
 				"source": [
 					"# Specify the schema for game events data\r\n",
 					"\r\n",
-					"from pyspark.sql.types import *\r\n",
+					"from pyspark.sql.types import StringType, IntegerType\r\n",
 					"\r\n",
 					"schema = (StructType().\r\n",
 					"          add(\"id_odsp\", StringType()).\r\n",
@@ -175,7 +175,7 @@
 					"          add(\"fast_break\", IntegerType())\r\n",
 					"         )"
 				],
-				"execution_count": 1
+				"execution_count": 3
 			},
 			{
 				"cell_type": "code",
@@ -206,7 +206,7 @@
 					"\r\n",
 					"display(eventsDf.limit(100))"
 				],
-				"execution_count": 13
+				"execution_count": 4
 			},
 			{
 				"cell_type": "code",
@@ -232,7 +232,7 @@
 					"\r\n",
 					"display(gameInfDf.limit(100))"
 				],
-				"execution_count": 15
+				"execution_count": 5
 			},
 			{
 				"cell_type": "markdown",
@@ -268,12 +268,14 @@
 				"source": [
 					"# Define a generic dictionary/map lookup function\r\n",
 					"\r\n",
+					"from pyspark.sql.functions import udf, col\r\n",
+					"\r\n",
 					"def mapKeyToVal(mapping):\r\n",
 					"    def mapKeyToVal_(col):\r\n",
 					"        return mapping.get(col)\r\n",
 					"    return udf(mapKeyToVal_, StringType())"
 				],
-				"execution_count": 19
+				"execution_count": 6
 			},
 			{
 				"cell_type": "code",
@@ -312,7 +314,7 @@
 					"\r\n",
 					"countryCodeMap = {'germany':'DEU', 'france':'FRA', 'england':'GBR', 'spain':'ESP', 'italy':'ITA'}"
 				],
-				"execution_count": 20
+				"execution_count": 7
 			},
 			{
 				"cell_type": "markdown",
@@ -340,14 +342,14 @@
 							"deleting": false
 						}
 					},
-					"collapsed": true
+					"collapsed": false
 				},
 				"source": [
 					"gameInfDf = gameInfDf.withColumn('country_code', mapKeyToVal(countryCodeMap)('country'))\r\n",
 					"\r\n",
 					"display(gameInfDf['id_odsp','country','country_code'].limit(100))"
 				],
-				"execution_count": 21
+				"execution_count": 8
 			},
 			{
 				"cell_type": "markdown",
@@ -375,7 +377,7 @@
 							"deleting": false
 						}
 					},
-					"collapsed": true
+					"collapsed": false
 				},
 				"source": [
 					"eventsDf = (\r\n",
@@ -398,7 +400,7 @@
 					"\r\n",
 					"display(joinedDf.limit(100))"
 				],
-				"execution_count": 22
+				"execution_count": 9
 			},
 			{
 				"cell_type": "code",
@@ -412,7 +414,7 @@
 							"deleting": false
 						}
 					},
-					"collapsed": true
+					"collapsed": false
 				},
 				"source": [
 					"# Create time bins for game events\r\n",
@@ -423,7 +425,7 @@
 					"\r\n",
 					"display(joinedDf)"
 				],
-				"execution_count": null
+				"execution_count": 10
 			},
 			{
 				"cell_type": "markdown",
@@ -454,10 +456,30 @@
 					"collapsed": true
 				},
 				"source": [
+					"# Write game event data as a csv into the data lake\r\n",
+					"joinedDf.repartition(1).write.format('csv').mode('overwrite').save('abfss://europesoccer@demosynapsedls01.dfs.core.windows.net/curated/game_events.csv')"
+				],
+				"execution_count": 13
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": true
+				},
+				"source": [
 					"# Write game event data as a parquet file into the data lake\r\n",
 					"joinedDf.repartition(1).write.format('parquet').mode('overwrite').save('abfss://europesoccer@demosynapsedls01.dfs.core.windows.net/curated/game_events.parquet')"
 				],
-				"execution_count": 28
+				"execution_count": 11
 			},
 			{
 				"cell_type": "code",
@@ -475,29 +497,9 @@
 				},
 				"source": [
 					"# Write game event data as a delta lake into the data lake\r\n",
-					"joinedDf.repartition(1).write.format('delta').mode('overwrite').save('abfss://europesoccer@demosynapsedls01.dfs.core.windows.net/curated/game_events.delta')"
+					"joinedDf.write.format('delta').mode('overwrite').save('abfss://europesoccer@demosynapsedls01.dfs.core.windows.net/curated/game_events.delta')"
 				],
-				"execution_count": 30
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					},
-					"collapsed": true
-				},
-				"source": [
-					"# Write game event data as a csv into the data lake\r\n",
-					"joinedDf.repartition(1).write.format('csv').mode('overwrite').save('abfss://europesoccer@demosynapsedls01.dfs.core.windows.net/curated/game_events.csv')"
-				],
-				"execution_count": 31
+				"execution_count": 14
 			}
 		]
 	}
