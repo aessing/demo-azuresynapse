@@ -52,7 +52,7 @@
 							"type": "AzureBlobFSReadSettings",
 							"recursive": true,
 							"wildcardFolderPath": "curated/game_events.dataflow.parquet",
-							"wildcardFileName": "*.parquet"
+							"wildcardFileName": "*"
 						}
 					},
 					"sink": {
