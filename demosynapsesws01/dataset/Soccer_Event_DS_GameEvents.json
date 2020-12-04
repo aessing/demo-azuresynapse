@@ -2,7 +2,7 @@
 	"name": "Soccer_Event_DS_GameEvents",
 	"properties": {
 		"linkedServiceName": {
-			"referenceName": "demosynapsedls01",
+			"referenceName": "demosynapsesws01-WorkspaceDefaultStorage",
 			"type": "LinkedServiceReference"
 		},
 		"folder": {
