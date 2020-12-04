@@ -1,0 +1,20 @@
+{
+	"name": "Soccer_Event_DS_GameEvents",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "demosynapsedls01",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"folderPath": "curated/game_events.dataflow.parquet",
+				"fileSystem": "europesoccer"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": []
+	}
+}
