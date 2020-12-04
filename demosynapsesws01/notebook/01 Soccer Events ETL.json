@@ -193,7 +193,7 @@
 				},
 				"source": [
 					"# Extract game events data into DataFrame and display with defined schema\r\n",
-					"eventsDf = spark.read.load('abfss://europesoccer@demosynapsedls01.dfs.core.windows.net/raw/events.csv/*', format='csv',\r\n",
+					"eventsDf = spark.read.load('abfss://europesoccer@demosynapsedls01.dfs.core.windows.net/raw/events.csv', format='csv',\r\n",
 					"                         schema=schema, header=True, \r\n",
 					"                         ignoreLeadingWhiteSpace=True, \r\n",
 					"                         ignoreTrailingWhiteSpace=True,\r\n",
@@ -206,7 +206,7 @@
 					"\r\n",
 					"display(eventsDf.limit(100))"
 				],
-				"execution_count": null
+				"execution_count": 22
 			},
 			{
 				"cell_type": "code",
@@ -224,7 +224,7 @@
 				},
 				"source": [
 					"# Extract game aggregate info into dataframe and display automatically define schema\r\n",
-					"gameInfDf = spark.read.load('abfss://europesoccer@demosynapsedls01.dfs.core.windows.net/raw/gameinfo.csv/*', format='csv',\r\n",
+					"gameInfDf = spark.read.load('abfss://europesoccer@demosynapsedls01.dfs.core.windows.net/raw/gameinfo.csv', format='csv',\r\n",
 					"                         inferSchema=True, header=True, \r\n",
 					"                         ignoreLeadingWhiteSpace=True, \r\n",
 					"                         ignoreTrailingWhiteSpace=True,\r\n",
@@ -232,7 +232,7 @@
 					"\r\n",
 					"display(gameInfDf.limit(100))"
 				],
-				"execution_count": null
+				"execution_count": 24
 			},
 			{
 				"cell_type": "markdown",
