@@ -24,10 +24,6 @@
 		},
 		"metadata": {
 			"saveOutput": true,
-			"kernelspec": {
-				"name": "synapse_pyspark",
-				"display_name": "Synapse PySpark"
-			},
 			"language_info": {
 				"name": "python"
 			},
@@ -49,6 +45,31 @@
 			"sessionKeepAliveTimeout": 30
 		},
 		"cells": [
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# European Soccer Events - Azure Synapse Analytics Demo\r\n",
+					"\r\n",
+					"#### Project URL\r\n",
+					"- <https://github.com/aessing/demo-azuresynapse>\r\n",
+					"\r\n",
+					"#### Developer\r\n",
+					"Andre Essing\r\n",
+					"- <https://www.andre-essing.de/>\r\n",
+					"- <https://github.com/aessing>\r\n",
+					"- <https://twitter.com/aessing>\r\n",
+					"- <https://www.linkedin.com/in/aessing/>\r\n",
+					"\r\n",
+					"> THIS CODE AND INFORMATION ARE PROVIDED \"AS IS\" WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE."
+				]
+			},
 			{
 				"cell_type": "markdown",
 				"metadata": {
