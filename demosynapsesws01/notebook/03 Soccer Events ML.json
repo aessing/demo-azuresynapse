@@ -1,0 +1,58 @@
+{
+	"name": "03 Soccer Events ML",
+	"properties": {
+		"folder": {
+			"name": "Europe Soccer Events"
+		},
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 2,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"language_info": {
+				"name": "python"
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# European Soccer Events - Azure Synapse Analytics Demo\r\n",
+					"\r\n",
+					"#### Project URL\r\n",
+					"- <https://github.com/aessing/demo-azuresynapse>\r\n",
+					"\r\n",
+					"#### Developer\r\n",
+					"Andre Essing\r\n",
+					"- <https://www.andre-essing.de/>\r\n",
+					"- <https://github.com/aessing>\r\n",
+					"- <https://twitter.com/aessing>\r\n",
+					"- <https://www.linkedin.com/in/aessing/>\r\n",
+					"\r\n",
+					"> THIS CODE AND INFORMATION ARE PROVIDED \"AS IS\" WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.\r\n",
+					"\r\n",
+					"---"
+				]
+			}
+		]
+	}
+}
