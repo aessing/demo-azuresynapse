@@ -1,0 +1,10 @@
+{
+	"name": "demosynapseakv01",
+	"properties": {
+		"annotations": [],
+		"type": "AzureKeyVault",
+		"typeProperties": {
+			"baseUrl": "https://demosynapseakv01.vault.azure.net/"
+		}
+	}
+}
