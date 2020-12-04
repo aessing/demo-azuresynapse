@@ -91,6 +91,19 @@
 				]
 			},
 			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Load data from Data Lake and create a TempView"
+				]
+			},
+			{
 				"cell_type": "code",
 				"metadata": {
 					"microsoft": {
@@ -99,8 +112,6 @@
 				},
 				"source": [
 					"%%pyspark\r\n",
-					"\r\n",
-					"# Load data from Data Lake and create a TempView\r\n",
 					"\r\n",
 					"gameEventsDf = spark.read.load('abfss://europesoccer@demosynapsedls01.dfs.core.windows.net/curated/game_events.parquet', format='parquet')\r\n",
 					"gameEventsDf.createOrReplaceTempView('gameEvents')"
@@ -128,6 +139,19 @@
 					"  FROM gameEvents"
 				],
 				"execution_count": 13
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Start analyzing the data"
+				]
 			},
 			{
 				"cell_type": "code",
