@@ -24,10 +24,6 @@
 		},
 		"metadata": {
 			"saveOutput": true,
-			"kernelspec": {
-				"name": "synapse_pyspark",
-				"display_name": "Synapse PySpark"
-			},
 			"language_info": {
 				"name": "sql"
 			},
