@@ -212,9 +212,10 @@
 				},
 				"source": [
 					"-- Take a peek at all GOALS!!!\r\n",
-					"SELECT * FROM gameEvents\r\n",
-					"         WHERE is_goal = 1\r\n",
-					"         LIMIT 100"
+					"SELECT *\r\n",
+					"  FROM gameEvents\r\n",
+					" WHERE is_goal = 1\r\n",
+					"LIMIT 100"
 				],
 				"execution_count": 15
 			},
