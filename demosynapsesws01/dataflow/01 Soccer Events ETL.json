@@ -1,6 +1,9 @@
 {
 	"name": "01 Soccer Events ETL",
 	"properties": {
+		"folder": {
+			"name": "Europe Soccer Events"
+		},
 		"type": "MappingDataFlow",
 		"typeProperties": {
 			"sources": [
