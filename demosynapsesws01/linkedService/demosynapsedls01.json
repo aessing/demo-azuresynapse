@@ -1,0 +1,15 @@
+{
+	"name": "demosynapsedls01",
+	"properties": {
+		"description": "Default Data Lake",
+		"annotations": [],
+		"type": "AzureBlobFS",
+		"typeProperties": {
+			"url": "https://demosynapsedls01.dfs.core.windows.net"
+		},
+		"connectVia": {
+			"referenceName": "AutoResolveIntegrationRuntime",
+			"type": "IntegrationRuntimeReference"
+		}
+	}
+}
