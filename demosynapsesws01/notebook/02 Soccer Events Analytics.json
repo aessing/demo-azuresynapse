@@ -1,0 +1,291 @@
+{
+	"name": "02 Soccer Events Analytics",
+	"properties": {
+		"folder": {
+			"name": "Europe Soccer Events"
+		},
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "SoccerEvents",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 2,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "sql"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/f6c0b928-7078-4332-a106-e7a9c5253249/resourceGroups/demo-synapse-rg/providers/Microsoft.Synapse/workspaces/demosynapsesws01/bigDataPools/SoccerEvents",
+				"name": "SoccerEvents",
+				"type": "Spark",
+				"endpoint": "https://demosynapsesws01.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/SoccerEvents",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "2.4",
+				"nodeCount": 3,
+				"cores": 4,
+				"memory": 28,
+				"automaticScaleJobs": false
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# European Soccer Events Analysis - Ad-hoc Data Analysis\r\n",
+					"\r\n",
+					"Now that the data shape and format is all set, it’s time to dig in and try and find answers to a few business questions. We’ll use plain-old super-strong SQL (Spark SQL) for that purpose, and create a second notebook from the perspective of data analysts.\r\n",
+					"\r\n",
+					"In this notebook, we'll analyze the transformed soccer game events to answer questions like:\r\n",
+					"\r\n",
+					"* What's the distribution of goals by shot place (place within the goal area)?\r\n",
+					"* What's the distribution of goals by different soccer leagues?\r\n",
+					"* What are the top locations (on-field player position) for each shot place in Spanish league?\r\n",
+					"* When/What time window are most goals scored within a game in each league?\r\n",
+					"\r\n",
+					"We'll also take a look at how to use third-party libraries for visualizations - like creating a 3D scatter-plot to see distribution of goals by shot place and location."
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"microsoft": {
+						"language": "python"
+					}
+				},
+				"source": [
+					"%%pyspark\r\n",
+					"\r\n",
+					"# Load data from Data Lake and create a TempView\r\n",
+					"\r\n",
+					"gameEventsDf = spark.read.load('abfss://europesoccer@demosynapsedls01.dfs.core.windows.net/curated/game_events.parquet', format='parquet')\r\n",
+					"gameEventsDf.createOrReplaceTempView('gameEvents')"
+				],
+				"execution_count": 12
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"-- How many rows do we have?\r\n",
+					"\r\n",
+					"SELECT COUNT(1)\r\n",
+					"  FROM gameEvents"
+				],
+				"execution_count": 13
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"-- How does the table look like?\r\n",
+					"SELECT *\r\n",
+					"  FROM gameEvents\r\n",
+					" LIMIT 100"
+				],
+				"execution_count": 14
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"-- Take a peek at all GOALS!!!\r\n",
+					"SELECT * FROM gameEvents\r\n",
+					"         WHERE is_goal = 1\r\n",
+					"         LIMIT 100"
+				],
+				"execution_count": 15
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Built-in Visualizations\r\n",
+					"\r\n",
+					"For example, if one wants to see the distribution of goals by shot placement, then it could look like this simple query and resulting pie-chart (or alternatively viewable as a data-grid).\r\n",
+					"\r\n",
+					"> Pie chart - Key: shot_place, Values: TOT_GOALS, Aggregation: Sum"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"SELECT CASE WHEN shot_place_str == 'NA' THEN 'Unknown' ELSE shot_place_str END shot_place, COUNT(1) AS TOT_GOALS\r\n",
+					"  FROM gameEvents\r\n",
+					" WHERE is_goal = 1\r\n",
+					" GROUP BY shot_place_str"
+				],
+				"execution_count": 16
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Top 3 goal locations per shot placement in the Spanish League\r\n",
+					"\r\n",
+					"Once we observe that Spanish league has had most goals over the term of this data, we could find the top 3 goals locations per shot place from the games in Spain, by writing a more involved query using Window functions in Spark SQL. It would be a stepwise nested query.\r\n",
+					"\r\n",
+					"> Column chart - Keys: SHOT_PLACE_STR,Values: TOT_GOALS, Series groupings: LOCATION_STR, Aggregation: String: Sum, Stacked"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"SELECT SHOT_PLACE_STR, LOCATION_STR, TOT_GOALS\r\n",
+					"  FROM (\r\n",
+					"     SELECT SHOT_PLACE_STR, LOCATION_STR, TOT_GOALS,\r\n",
+					"            RANK() OVER (PARTITION BY SHOT_PLACE_STR ORDER BY TOT_GOALS DESC) goals_rank\r\n",
+					"       FROM (\r\n",
+					"              SELECT CASE WHEN LOCATION_STR == 'NA' THEN 'Unknown' ELSE LOCATION_STR END LOCATION_STR, \r\n",
+					"                    CASE WHEN SHOT_PLACE_STR == 'NA' THEN 'Unknown' ELSE SHOT_PLACE_STR END SHOT_PLACE_STR, \r\n",
+					"                    COUNT(1) AS TOT_GOALS\r\n",
+					"              FROM gameEvents\r\n",
+					"              WHERE is_goal = 1 AND COUNTRY_CODE = 'ESP' \r\n",
+					"             GROUP BY SHOT_PLACE_STR, LOCATION_STR\r\n",
+					"       ) tmp_in\r\n",
+					"       WHERE TOT_GOALS IS NOT NULL AND TOT_GOALS <> 0\r\n",
+					"     ) tmp_out\r\n",
+					"WHERE goals_rank <= 3 AND LOCATION_STR != 'Unknown' AND SHOT_PLACE_STR != 'Unknown'\r\n",
+					"ORDER BY SHOT_PLACE_STR"
+				],
+				"execution_count": 17
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Goals per time bin per country/league\r\n",
+					"\r\n",
+					"We could do time-based analysis as well, e.g. by observing the total number of goals over the course of a game (0-90+ minutes), across all games in the five leagues. We could use the “time_bin” column created as part of the transformation process earlier, rather than a continuous variable like “time”.\r\n",
+					"\r\n",
+					"> Line chart - Keys: TIME_BIN, Values: TOT_GOALS, Series groupings: COUNTRY_CODE, Aggregation: String: Sum"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"SELECT COUNTRY_CODE, TIME_BIN, COUNT(1) TOT_GOALS\r\n",
+					"  FROM gameEvents\r\n",
+					" WHERE is_goal = 1\r\n",
+					" GROUP BY COUNTRY_CODE, TIME_BIN\r\n",
+					" ORDER BY COUNTRY_CODE, TIME_BIN"
+				],
+				"execution_count": 18
+			}
+		]
+	}
+}
