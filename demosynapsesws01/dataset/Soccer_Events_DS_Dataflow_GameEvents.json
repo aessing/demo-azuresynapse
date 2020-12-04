@@ -3,7 +3,10 @@
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "demosynapsesws01-WorkspaceDefaultSqlServer",
-			"type": "LinkedServiceReference"
+			"type": "LinkedServiceReference",
+			"parameters": {
+				"DBName": "SoccerEvents"
+			}
 		},
 		"annotations": [],
 		"type": "AzureSqlDWTable",
