@@ -1,0 +1,7 @@
+{
+	"name": "demosynapseakv01",
+	"properties": {
+		"privateLinkResourceId": "/subscriptions/f6c0b928-7078-4332-a106-e7a9c5253249/resourceGroups/demo-synapse-rg/providers/Microsoft.KeyVault/vaults/demosynapseakv01",
+		"groupId": "vault"
+	}
+}
