@@ -15,11 +15,11 @@
 			"driverCores": 4,
 			"executorMemory": "28g",
 			"executorCores": 4,
-			"numExecutors": 7,
+			"numExecutors": 2,
 			"conf": {
 				"spark.dynamicAllocation.enabled": "false",
-				"spark.dynamicAllocation.minExecutors": "7",
-				"spark.dynamicAllocation.maxExecutors": "7"
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2"
 			}
 		},
 		"metadata": {
@@ -202,7 +202,7 @@
 					"          add(\"fast_break\", IntegerType())\r\n",
 					"         )"
 				],
-				"execution_count": 3
+				"execution_count": 14
 			},
 			{
 				"cell_type": "code",
@@ -233,7 +233,7 @@
 					"\r\n",
 					"display(eventsDf.limit(100))"
 				],
-				"execution_count": 4
+				"execution_count": 15
 			},
 			{
 				"cell_type": "code",
@@ -259,7 +259,7 @@
 					"\r\n",
 					"display(gameInfDf.limit(100))"
 				],
-				"execution_count": 5
+				"execution_count": 16
 			},
 			{
 				"cell_type": "markdown",
@@ -302,7 +302,7 @@
 					"        return mapping.get(col)\r\n",
 					"    return udf(mapKeyToVal_, StringType())"
 				],
-				"execution_count": 6
+				"execution_count": 17
 			},
 			{
 				"cell_type": "code",
@@ -341,7 +341,7 @@
 					"\r\n",
 					"countryCodeMap = {'germany':'DEU', 'france':'FRA', 'england':'GBR', 'spain':'ESP', 'italy':'ITA'}"
 				],
-				"execution_count": 7
+				"execution_count": 18
 			},
 			{
 				"cell_type": "markdown",
@@ -376,7 +376,7 @@
 					"\r\n",
 					"display(gameInfDf['id_odsp','country','country_code'].limit(100))"
 				],
-				"execution_count": 8
+				"execution_count": 19
 			},
 			{
 				"cell_type": "markdown",
@@ -427,7 +427,7 @@
 					"\r\n",
 					"display(joinedDf.limit(100))"
 				],
-				"execution_count": 9
+				"execution_count": 20
 			},
 			{
 				"cell_type": "code",
@@ -452,7 +452,7 @@
 					"\r\n",
 					"display(joinedDf)"
 				],
-				"execution_count": 10
+				"execution_count": 21
 			},
 			{
 				"cell_type": "markdown",
@@ -486,7 +486,7 @@
 					"# Write game event data as a csv into the data lake\r\n",
 					"joinedDf.repartition(1).write.format('csv').mode('overwrite').save('abfss://europesoccer@demosynapsedls01.dfs.core.windows.net/curated/game_events.csv')"
 				],
-				"execution_count": 11
+				"execution_count": 22
 			},
 			{
 				"cell_type": "code",
@@ -506,7 +506,7 @@
 					"# Write game event data as a parquet file into the data lake\r\n",
 					"joinedDf.repartition(1).write.format('parquet').mode('overwrite').save('abfss://europesoccer@demosynapsedls01.dfs.core.windows.net/curated/game_events.parquet')"
 				],
-				"execution_count": 12
+				"execution_count": 23
 			},
 			{
 				"cell_type": "code",
@@ -526,7 +526,7 @@
 					"# Write game event data as a delta lake into the data lake\r\n",
 					"joinedDf.write.format('delta').mode('overwrite').save('abfss://europesoccer@demosynapsedls01.dfs.core.windows.net/curated/game_events.delta')"
 				],
-				"execution_count": 13
+				"execution_count": 24
 			}
 		]
 	}
