@@ -126,7 +126,7 @@
 					"gameEventsDf = spark.read.load('abfss://europesoccer@demosynapsedls01.dfs.core.windows.net/curated/game_events.parquet', format='parquet')\r\n",
 					"gameEventsDf.createOrReplaceTempView('gameEvents')"
 				],
-				"execution_count": 13
+				"execution_count": 19
 			},
 			{
 				"cell_type": "markdown",
@@ -284,7 +284,7 @@
 					"featureAssembler.setInputCols([baseFeature + \"_vec\" for baseFeature in categFeatures])\r\n",
 					"featureAssembler.setOutputCol(\"features\")"
 				],
-				"execution_count": 7
+				"execution_count": null
 			},
 			{
 				"cell_type": "markdown",
@@ -321,7 +321,7 @@
 					"pipelineStages = stringIndexers + encoders + [featureAssembler, gbtClassifier]\r\n",
 					"pipeline = Pipeline(stages=pipelineStages)"
 				],
-				"execution_count": 8
+				"execution_count": null
 			},
 			{
 				"cell_type": "markdown",
@@ -354,7 +354,7 @@
 					"(trainingData, testData) = gameEventsDf.randomSplit([0.75, 0.25])\r\n",
 					"model = pipeline.fit(trainingData)"
 				],
-				"execution_count": 10
+				"execution_count": null
 			},
 			{
 				"cell_type": "markdown",
