@@ -8,6 +8,9 @@
 				"DBName": "SoccerEvents"
 			}
 		},
+		"folder": {
+			"name": "Soccer Events"
+		},
 		"annotations": [],
 		"type": "AzureSqlDWTable",
 		"schema": [],

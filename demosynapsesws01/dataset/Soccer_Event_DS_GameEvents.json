@@ -5,6 +5,9 @@
 			"referenceName": "demosynapsedls01",
 			"type": "LinkedServiceReference"
 		},
+		"folder": {
+			"name": "Soccer Events"
+		},
 		"annotations": [],
 		"type": "Parquet",
 		"typeProperties": {
