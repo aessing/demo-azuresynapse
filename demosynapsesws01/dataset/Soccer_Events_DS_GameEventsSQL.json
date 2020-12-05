@@ -145,8 +145,8 @@
 			},
 			{
 				"name": "time_bin",
-				"type": "float",
-				"precision": 15
+				"type": "int",
+				"precision": 10
 			}
 		],
 		"typeProperties": {
