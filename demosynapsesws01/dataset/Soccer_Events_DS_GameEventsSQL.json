@@ -1,0 +1,19 @@
+{
+	"name": "Soccer_Events_DS_GameEventsSQL",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "demosynapsesws01-WorkspaceDefaultSqlServer",
+			"type": "LinkedServiceReference",
+			"parameters": {
+				"DBName": "SoccerEvents"
+			}
+		},
+		"annotations": [],
+		"type": "AzureSqlDWTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": "Spark",
+			"table": "GameEvents"
+		}
+	}
+}
