@@ -13,7 +13,13 @@
 					"secureOutput": false,
 					"secureInput": false
 				},
-				"userProperties": []
+				"userProperties": [],
+				"typeProperties": {
+					"notebook": {
+						"referenceName": "ESE_NBK_01_ETL",
+						"type": "NotebookReference"
+					}
+				}
 			},
 			{
 				"name": "Run Load Procedure",
@@ -34,6 +40,10 @@
 					"secureInput": false
 				},
 				"userProperties": [],
+				"sqlPool": {
+					"referenceName": "SoccerEvents",
+					"type": "SqlPoolReference"
+				},
 				"typeProperties": {
 					"storedProcedureName": "[Spark].[load_GameEvents]"
 				}
