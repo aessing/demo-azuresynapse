@@ -28,6 +28,278 @@
 					},
 					"traceLevel": "Fine"
 				}
+			},
+			{
+				"name": "Copy fact to SQL Pool",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Game Events ETL",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "ParquetSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true
+						}
+					},
+					"sink": {
+						"type": "SqlDWSink",
+						"allowCopyCommand": true,
+						"tableOption": "autoCreate"
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "id_odsp",
+									"type": "String"
+								},
+								"sink": {
+									"name": "id_odsp",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "id_event",
+									"type": "String"
+								},
+								"sink": {
+									"name": "id_event",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "sort_order",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "sort_order",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"name": "time",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "time",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"name": "text",
+									"type": "String"
+								},
+								"sink": {
+									"name": "text",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "event_type",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "event_type",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"name": "event_type2",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "event_type2",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"name": "side",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "side",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"name": "event_team",
+									"type": "String"
+								},
+								"sink": {
+									"name": "event_team",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "opponent",
+									"type": "String"
+								},
+								"sink": {
+									"name": "opponent",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "player",
+									"type": "String"
+								},
+								"sink": {
+									"name": "player",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "player2",
+									"type": "String"
+								},
+								"sink": {
+									"name": "player2",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "player_in",
+									"type": "String"
+								},
+								"sink": {
+									"name": "player_in",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "player_out",
+									"type": "String"
+								},
+								"sink": {
+									"name": "player_out",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "shot_place",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "shot_place",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"name": "shot_outcome",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "shot_outcome",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"name": "is_goal",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "is_goal",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"name": "location",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "location",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"name": "bodypart",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "bodypart",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"name": "assist_method",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "assist_method",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"name": "situation",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "situation",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"name": "country",
+									"type": "String"
+								},
+								"sink": {
+									"name": "country",
+									"type": "String"
+								}
+							}
+						]
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "Soccer_Event_DS_GameEvents",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "Soccer_Events_DS_Dataflow_GameEvents",
+						"type": "DatasetReference"
+					}
+				]
 			}
 		],
 		"folder": {
