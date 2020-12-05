@@ -19,6 +19,13 @@
 						"referenceName": "01 Soccer Events ETL",
 						"type": "DataFlowReference"
 					},
+					"staging": {
+						"linkedService": {
+							"referenceName": "demosynapsesws01-WorkspaceDefaultStorage",
+							"type": "LinkedServiceReference"
+						},
+						"folderPath": "europesoccer/staging"
+					},
 					"compute": {
 						"coreCount": 8,
 						"computeType": "General"
