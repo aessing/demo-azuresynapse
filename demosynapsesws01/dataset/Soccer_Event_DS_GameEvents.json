@@ -13,7 +13,8 @@
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobFSLocation",
-				"folderPath": "curated/game_events.parquet",
+				"fileName": "*",
+				"folderPath": "curated/game_events.dataflow.parquet",
 				"fileSystem": "europesoccer"
 			},
 			"compressionCodec": "snappy"
@@ -36,28 +37,20 @@
 				"type": "INT32"
 			},
 			{
-				"name": "event_type",
-				"type": "INT32"
+				"name": "text",
+				"type": "UTF8"
 			},
 			{
-				"name": "event_type_str",
-				"type": "UTF8"
+				"name": "event_type",
+				"type": "INT32"
 			},
 			{
 				"name": "event_type2",
 				"type": "INT32"
 			},
 			{
-				"name": "event_type2_str",
-				"type": "UTF8"
-			},
-			{
 				"name": "side",
 				"type": "INT32"
-			},
-			{
-				"name": "side_str",
-				"type": "UTF8"
 			},
 			{
 				"name": "event_team",
@@ -88,16 +81,8 @@
 				"type": "INT32"
 			},
 			{
-				"name": "shot_place_str",
-				"type": "UTF8"
-			},
-			{
 				"name": "shot_outcome",
 				"type": "INT32"
-			},
-			{
-				"name": "shot_outcome_str",
-				"type": "UTF8"
 			},
 			{
 				"name": "is_goal",
@@ -108,40 +93,20 @@
 				"type": "INT32"
 			},
 			{
-				"name": "location_str",
-				"type": "UTF8"
-			},
-			{
 				"name": "bodypart",
 				"type": "INT32"
-			},
-			{
-				"name": "bodypart_str",
-				"type": "UTF8"
 			},
 			{
 				"name": "assist_method",
 				"type": "INT32"
 			},
 			{
-				"name": "assist_method_str",
-				"type": "UTF8"
-			},
-			{
 				"name": "situation",
 				"type": "INT32"
 			},
 			{
-				"name": "situation_str",
+				"name": "country",
 				"type": "UTF8"
-			},
-			{
-				"name": "country_code",
-				"type": "UTF8"
-			},
-			{
-				"name": "time_bin",
-				"type": "DOUBLE"
 			}
 		]
 	}
