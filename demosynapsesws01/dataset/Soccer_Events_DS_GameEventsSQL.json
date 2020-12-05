@@ -10,7 +10,145 @@
 		},
 		"annotations": [],
 		"type": "AzureSqlDWTable",
-		"schema": [],
+		"schema": [
+			{
+				"name": "id_odsp",
+				"type": "nvarchar"
+			},
+			{
+				"name": "id_event",
+				"type": "nvarchar"
+			},
+			{
+				"name": "sort_order",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "time",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "event_type",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "event_type_str",
+				"type": "nvarchar"
+			},
+			{
+				"name": "event_type2",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "event_type2_str",
+				"type": "nvarchar"
+			},
+			{
+				"name": "side",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "side_str",
+				"type": "nvarchar"
+			},
+			{
+				"name": "event_team",
+				"type": "nvarchar"
+			},
+			{
+				"name": "opponent",
+				"type": "nvarchar"
+			},
+			{
+				"name": "player",
+				"type": "nvarchar"
+			},
+			{
+				"name": "player2",
+				"type": "nvarchar"
+			},
+			{
+				"name": "player_in",
+				"type": "nvarchar"
+			},
+			{
+				"name": "player_out",
+				"type": "nvarchar"
+			},
+			{
+				"name": "shot_place",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "shot_place_str",
+				"type": "nvarchar"
+			},
+			{
+				"name": "shot_outcome",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "shot_outcome_str",
+				"type": "nvarchar"
+			},
+			{
+				"name": "is_goal",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "location",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "location_str",
+				"type": "nvarchar"
+			},
+			{
+				"name": "bodypart",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "bodypart_str",
+				"type": "nvarchar"
+			},
+			{
+				"name": "assist_method",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "assist_method_str",
+				"type": "nvarchar"
+			},
+			{
+				"name": "situation",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "situation_str",
+				"type": "nvarchar"
+			},
+			{
+				"name": "country_code",
+				"type": "nchar"
+			},
+			{
+				"name": "time_bin",
+				"type": "float",
+				"precision": 15
+			}
+		],
 		"typeProperties": {
 			"schema": "Spark",
 			"table": "GameEvents"
