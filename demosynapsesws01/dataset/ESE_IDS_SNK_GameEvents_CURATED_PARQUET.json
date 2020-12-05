@@ -1,0 +1,112 @@
+{
+	"name": "ESE_IDS_SNK_GameEvents_CURATED_PARQUET",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "demosynapsesws01-WorkspaceDefaultStorage",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "Soccer Events"
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"folderPath": "curated/game_events.dataflow.parquet",
+				"fileSystem": "europesoccer"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": [
+			{
+				"name": "id_odsp",
+				"type": "UTF8"
+			},
+			{
+				"name": "id_event",
+				"type": "UTF8"
+			},
+			{
+				"name": "sort_order",
+				"type": "INT32"
+			},
+			{
+				"name": "time",
+				"type": "INT32"
+			},
+			{
+				"name": "text",
+				"type": "UTF8"
+			},
+			{
+				"name": "event_type",
+				"type": "INT32"
+			},
+			{
+				"name": "event_type2",
+				"type": "INT32"
+			},
+			{
+				"name": "side",
+				"type": "INT32"
+			},
+			{
+				"name": "event_team",
+				"type": "UTF8"
+			},
+			{
+				"name": "opponent",
+				"type": "UTF8"
+			},
+			{
+				"name": "player",
+				"type": "UTF8"
+			},
+			{
+				"name": "player2",
+				"type": "UTF8"
+			},
+			{
+				"name": "player_in",
+				"type": "UTF8"
+			},
+			{
+				"name": "player_out",
+				"type": "UTF8"
+			},
+			{
+				"name": "shot_place",
+				"type": "INT32"
+			},
+			{
+				"name": "shot_outcome",
+				"type": "INT32"
+			},
+			{
+				"name": "is_goal",
+				"type": "INT32"
+			},
+			{
+				"name": "location",
+				"type": "INT32"
+			},
+			{
+				"name": "bodypart",
+				"type": "INT32"
+			},
+			{
+				"name": "assist_method",
+				"type": "INT32"
+			},
+			{
+				"name": "situation",
+				"type": "INT32"
+			},
+			{
+				"name": "country",
+				"type": "UTF8"
+			}
+		]
+	}
+}
