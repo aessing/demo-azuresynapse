@@ -2,8 +2,11 @@
 	"name": "Soccer_Events_DS_Dataflow_GameEvents",
 	"properties": {
 		"linkedServiceName": {
-			"referenceName": "SoccerEvents",
-			"type": "LinkedServiceReference"
+			"referenceName": "demosynapsesws01-WorkspaceDefaultSqlServer",
+			"type": "LinkedServiceReference",
+			"parameters": {
+				"DBName": "SoccerEvents"
+			}
 		},
 		"folder": {
 			"name": "Soccer Events"
