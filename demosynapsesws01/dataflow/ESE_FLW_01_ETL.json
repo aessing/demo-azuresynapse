@@ -25,7 +25,7 @@
 			"sinks": [
 				{
 					"dataset": {
-						"referenceName": "Soccer_Event_DS_GameEvents",
+						"referenceName": "ESE_IDS_SNK_GameEvents_CURATED_PARQUET",
 						"type": "DatasetReference"
 					},
 					"name": "gameEvents"
