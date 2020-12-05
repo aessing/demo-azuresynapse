@@ -1,0 +1,16 @@
+{
+	"name": "99 Soccer Events Create Table Spark",
+	"properties": {
+		"content": {
+			"query": "-- =============================================================================\n-- European Soccer Events\n-- Azure Synapse Analytics Demo\n-- https://github.com/aessing/demo-azuresynapse\n-- -----------------------------------------------------------------------------\n-- Developer.......: Andre Essing (https://www.andre-essing.de/)\n--                                (https://github.com/aessing)\n--                                (https://twitter.com/aessing)\n--                                (https://www.linkedin.com/in/aessing/)\n-- -----------------------------------------------------------------------------\n-- THIS CODE AND INFORMATION ARE PROVIDED \"AS IS\" WITHOUT WARRANTY OF ANY KIND,\n-- EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED\n-- WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.\n-- =============================================================================\n\nIF NOT EXISTS (SELECT * FROM sys.objects WHERE NAME = 'GameEvents' AND TYPE = 'U')\nCREATE TABLE Spark.GameEvents\n\t(\n\t id_odsp nvarchar(32),\n\t id_event nvarchar(32),\n\t sort_order int,\n\t time int,\n\t event_type int,\n\t event_type_str nvarchar(32),\n\t event_type2 int,\n\t event_type2_str nvarchar(32),\n\t side int,\n\t side_str nvarchar(16),\n\t event_team nvarchar(128),\n\t opponent nvarchar(128),\n\t player nvarchar(128),\n\t player2 nvarchar(128),\n\t player_in nvarchar(128),\n\t player_out nvarchar(128),\n\t shot_place int,\n\t shot_place_str nvarchar(64),\n\t shot_outcome int,\n\t shot_outcome_str nvarchar(64),\n\t is_goal int,\n\t location int,\n\t location_str nvarchar(64),\n\t bodypart int,\n\t bodypart_str nvarchar(64),\n\t assist_method int,\n\t assist_method_str nvarchar(64),\n\t situation int,\n\t situation_str nvarchar(64),\n\t country_code nchar(3),\n\t time_bin float\n\t)\nWITH\n\t(\n\tDISTRIBUTION = ROUND_ROBIN,\n\tCLUSTERED COLUMNSTORE INDEX\n\t-- HEAP\n\t)\nGO",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"name": "SoccerEvents",
+				"type": "SqlPool"
+			}
+		},
+		"type": "SqlQuery"
+	}
+}
