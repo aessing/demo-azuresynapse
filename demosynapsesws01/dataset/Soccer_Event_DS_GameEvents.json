@@ -13,6 +13,7 @@
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobFSLocation",
+				"fileName": "*",
 				"folderPath": "curated/game_events.parquet",
 				"fileSystem": "europesoccer"
 			},
