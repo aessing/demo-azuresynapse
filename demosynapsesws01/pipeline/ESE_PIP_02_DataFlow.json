@@ -51,7 +51,7 @@
 						"storeSettings": {
 							"type": "AzureBlobFSReadSettings",
 							"recursive": true,
-							"wildcardFolderPath": "curated/game_events.dataflow.parquet",
+							"wildcardFolderPath": "curated/game_events.parquet",
 							"wildcardFileName": "*"
 						}
 					},
