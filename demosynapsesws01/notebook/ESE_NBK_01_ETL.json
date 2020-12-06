@@ -1,0 +1,533 @@
+{
+	"name": "ESE_NBK_01_ETL",
+	"properties": {
+		"folder": {
+			"name": "Europe Soccer Events"
+		},
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "SoccerEvents",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 2,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/f6c0b928-7078-4332-a106-e7a9c5253249/resourceGroups/demo-synapse-rg/providers/Microsoft.Synapse/workspaces/demosynapsesws01/bigDataPools/SoccerEvents",
+				"name": "SoccerEvents",
+				"type": "Spark",
+				"endpoint": "https://demosynapsesws01.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/SoccerEvents",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "2.4",
+				"nodeCount": 3,
+				"cores": 4,
+				"memory": 28,
+				"automaticScaleJobs": false
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# European Soccer Events - Azure Synapse Analytics Demo\r\n",
+					"\r\n",
+					"#### Project URL\r\n",
+					"- <https://github.com/aessing/demo-azuresynapse>\r\n",
+					"\r\n",
+					"#### Developer\r\n",
+					"Andre Essing\r\n",
+					"- <https://www.andre-essing.de/>\r\n",
+					"- <https://github.com/aessing>\r\n",
+					"- <https://twitter.com/aessing>\r\n",
+					"- <https://www.linkedin.com/in/aessing/>\r\n",
+					"\r\n",
+					"> THIS CODE AND INFORMATION ARE PROVIDED \"AS IS\" WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.\r\n",
+					"\r\n",
+					"---"
+				]
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# European Soccer Events Analysis - Data Engineering\r\n",
+					"\r\n",
+					"A soccer game or any other sport generates many events, which help solve a number of use cases across the Sports and Media & Entertainment industries:\r\n",
+					"  * Like what on-field playing conditions and events (passes, positions etc.) leads to more goals/touch-downs etc.*\r\n",
+					"  * Or what does the win-loss percentage looks like with different combinations of players in different on-field positions*\r\n",
+					"  * Or what does a sportsperson's performance graph look like across the years/seasons and teams etc.*\r\n",
+					"\r\n",
+					"![](https://databricks.com/wp-content/uploads/2018/07/European-Soccer-Events-Analysis-Diagram.png)\r\n",
+					"\r\n",
+					"This demo uses a European Soccer Games events dataset, and demonstrates:\r\n",
+					"  * End-to-end Data Engineering pipeline including data extraction, transformation and loading*\r\n",
+					"  * How to answer business questions by analyzing the transformed data - using a combination of Spark SQL and Visualizations*\r\n",
+					"  * Usage of Gradient-boosted tree classifier to predict events of most significance (goals in a soccer game)*\r\n",
+					"  \r\n",
+					"We start out by creating an ETL notebook, where the two CSV datasets are transformed and joined into a single Parquet data layer, which enables us to utilize DBIO caching feature for high-performance big data queries.\r\n",
+					"\r\n",
+					"> Blog Post: https://databricks.com/blog/2018/07/09/analyze-games-from-european-soccer-leagues-with-apache-spark-and-databricks.html"
+				]
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Data Sourcing/Extraction\r\n",
+					"\r\n",
+					"Dataset has been downloaded from [**Kaggle**](https://www.kaggle.com/secareanualin/football-events). It provides a granular view of 9,074 games, from the biggest 5 European football (soccer) leagues: England, Spain, Germany, Italy, France, from 2011/2012 season to 2016/2017 season as of 25.01.2017. This is what the schema looks like:\r\n",
+					"\r\n",
+					"| Column Name | Colum Description |\r\n",
+					"| ----------- | ----------------- |\r\n",
+					"| id_odsp | unique identifier of game (odsp stands from oddsportal.com) |\r\n",
+					"| id_event | unique identifier of event (id_odsp + sort_order) |\r\n",
+					"| sort_order | chronological sequence of events in a game |\r\n",
+					"| time | minute of the game |\r\n",
+					"| text | text commentary |\r\n",
+					"| event_type | primary event, 11 unique events |\r\n",
+					"| event_type2 | secondary event, 4 unique events |\r\n",
+					"| side | Home or Away team |\r\n",
+					"| event_team | team that produced the event. In case of Own goals, event team is the team that benefited from the own goal |\r\n",
+					"| opponent | opposing team |\r\n",
+					"| player | name of the player involved in main event |\r\n",
+					"| player2 | name of player involved in secondary event |\r\n",
+					"| player_in | player that came in (only applies to substitutions) |\r\n",
+					"| player_out | player substituted (only applies to substitutions) |\r\n",
+					"| shot_place | placement of the shot, 13 possible placement locations |\r\n",
+					"| shot_outcome | 4 possible outcomes |\r\n",
+					"| is_goal | binary variable if the shot resulted in a goal (own goals included) |\r\n",
+					"| location | location on the pitch where the event happened, 19 possible locations |\r\n",
+					"| bodypart | 3 body parts |\r\n",
+					"| assist_method | in case of an assisted shot, 5 possible assist methods |\r\n",
+					"| situation | 4 types |"
+				]
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Extraction\r\n",
+					"The first task is to create a DataFrame schema for the larger game events dataset, so the read operation doesn’t spend time inferring it from the data. Once extracted, we’ll replace “null” values for interesting fields with data-type specific constants as noted in the code snippet below."
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": true
+				},
+				"source": [
+					"# Specify the schema for game events data\r\n",
+					"\r\n",
+					"from pyspark.sql.types import StringType, IntegerType, StructType\r\n",
+					"\r\n",
+					"schema = (StructType().\r\n",
+					"          add(\"id_odsp\", StringType()).\r\n",
+					"          add(\"id_event\", StringType()).\r\n",
+					"          add(\"sort_order\", IntegerType()).\r\n",
+					"          add(\"time\", IntegerType()).\r\n",
+					"          add(\"text\", StringType()).\r\n",
+					"          add(\"event_type\", IntegerType()).\r\n",
+					"          add(\"event_type2\", IntegerType()).\r\n",
+					"          add(\"side\", IntegerType()).\r\n",
+					"          add(\"event_team\", StringType()).\r\n",
+					"          add(\"opponent\", StringType()).\r\n",
+					"          add(\"player\", StringType()).\r\n",
+					"          add(\"player2\", StringType()).\r\n",
+					"          add(\"player_in\", StringType()).\r\n",
+					"          add(\"player_out\", StringType()).\r\n",
+					"          add(\"shot_place\", IntegerType()).\r\n",
+					"          add(\"shot_outcome\", IntegerType()).\r\n",
+					"          add(\"is_goal\", IntegerType()).\r\n",
+					"          add(\"location\", IntegerType()).\r\n",
+					"          add(\"bodypart\", IntegerType()).\r\n",
+					"          add(\"assist_method\", IntegerType()).\r\n",
+					"          add(\"situation\", IntegerType()).\r\n",
+					"          add(\"fast_break\", IntegerType())\r\n",
+					"         )"
+				],
+				"execution_count": 14
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"# Extract game events data into DataFrame and display with defined schema\r\n",
+					"eventsDf = spark.read.load('abfss://europesoccer@demosynapsedls01.dfs.core.windows.net/raw/events.csv', format='csv',\r\n",
+					"                         schema=schema, header=True, \r\n",
+					"                         ignoreLeadingWhiteSpace=True, \r\n",
+					"                         ignoreTrailingWhiteSpace=True,\r\n",
+					"                         nullValue='NA')\r\n",
+					"\r\n",
+					"eventsDf = eventsDf.na.fill({'player': 'NA', 'event_team': 'NA', 'opponent': 'NA', \r\n",
+					"                             'event_type': 99, 'event_type2': 99, 'shot_place': 99, \r\n",
+					"                             'shot_outcome': 99, 'location': 99, 'bodypart': 99, \r\n",
+					"                             'assist_method': 99, 'situation': 99})\r\n",
+					"\r\n",
+					"display(eventsDf.limit(100))"
+				],
+				"execution_count": 15
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"# Extract game aggregate info into dataframe and display automatically define schema\r\n",
+					"gameInfDf = spark.read.load('abfss://europesoccer@demosynapsedls01.dfs.core.windows.net/raw/gameinfo.csv', format='csv',\r\n",
+					"                         inferSchema=True, header=True, \r\n",
+					"                         ignoreLeadingWhiteSpace=True, \r\n",
+					"                         ignoreTrailingWhiteSpace=True,\r\n",
+					"                         nullValue=\"NA\")\r\n",
+					"\r\n",
+					"display(gameInfDf.limit(100))"
+				],
+				"execution_count": 16
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Transformation\r\n",
+					"\r\n",
+					"Convert the data to a format, such that one could gather meaningful insights from it.\r\n",
+					"\r\n",
+					"The next step is to transform and join the DataFrames into one. Many fields of interest in the game events DataFrame have numeric IDs, so we define a generic UDF that could use look-up tables for mapping IDs to descriptions."
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": true
+				},
+				"source": [
+					"# Define a generic dictionary/map lookup function\r\n",
+					"\r\n",
+					"from pyspark.sql.functions import udf, col\r\n",
+					"\r\n",
+					"def mapKeyToVal(mapping):\r\n",
+					"    def mapKeyToVal_(col):\r\n",
+					"        return mapping.get(col)\r\n",
+					"    return udf(mapKeyToVal_, StringType())"
+				],
+				"execution_count": 17
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": true
+				},
+				"source": [
+					"# Create dictionaries/maps for useful attributes (dictonary.txt)\r\n",
+					"\r\n",
+					"evtTypeMap = {0:'Announcement', 1:'Attempt', 2:'Corner', 3:'Foul', 4:'Yellow card', 5:'Second yellow card', 6:'Red card', 7:'Substitution', 8:'Free kick won', 9:'Offside', 10:'Hand ball', 11:'Penalty conceded', 99:'NA'}\r\n",
+					"\r\n",
+					"evtTyp2Map = {12:'Key Pass', 13:'Failed through ball', 14:'Sending off', 15:'Own goal', 99:'NA'}\r\n",
+					"\r\n",
+					"sideMap = {1:'Home', 2:'Away'}\r\n",
+					"\r\n",
+					"shotPlaceMap = {1:'Bit too high', 2:'Blocked', 3:'Bottom left corner', 4:'Bottom right corner', 5:'Centre of the goal', 6:'High and wide', 7:'Hits the bar', 8:'Misses to the left', 9:'Misses to the right', 10:'Too high', 11:'Top centre of the goal', 12:'Top left corner', 13:'Top right corner', 99:'NA'}\r\n",
+					"\r\n",
+					"shotOutcomeMap = {1:'On target', 2:'Off target', 3:'Blocked', 4:'Hit the bar', 99:'NA'}\r\n",
+					"\r\n",
+					"locationMap = {1:'Attacking half', 2:'Defensive half', 3:'Centre of the box', 4:'Left wing', 5:'Right wing', 6:'Difficult angle and long range', 7:'Difficult angle on the left', 8:'Difficult angle on the right', 9:'Left side of the box', 10:'Left side of the six yard box', 11:'Right side of the box', 12:'Right side of the six yard box', 13:'Very close range', 14:'Penalty spot', 15:'Outside the box', 16:'Long range', 17:'More than 35 yards', 18:'More than 40 yards', 19:'Not recorded', 99:'NA'}\r\n",
+					"\r\n",
+					"bodyPartMap = {1:'Right foot', 2:'Left foot', 3:'Head', 99:'NA'}\r\n",
+					"\r\n",
+					"assistMethodMap = {0:'None', 1:'Pass', 2:'Cross', 3:'Headed pass', 4:'Through ball', 99:'NA'}\r\n",
+					"\r\n",
+					"situationMap = {1:'Open play', 2:'Set piece', 3:'Corner', 4:'Free kick', 99:'NA'}\r\n",
+					"\r\n",
+					"countryCodeMap = {'germany':'DEU', 'france':'FRA', 'england':'GBR', 'spain':'ESP', 'italy':'ITA'}"
+				],
+				"execution_count": 18
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Map country names to codes\r\n",
+					"The mapped descriptions are stored in new columns in the DataFrame. So once the two DataFrames are joined, we’ll filter out the original numeric columns to keep it as sparse as possible. We’ll also use QuantileDiscretizer to add a categorical “time_bin” column based on “time” field."
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"gameInfDf = gameInfDf.withColumn('country_code', mapKeyToVal(countryCodeMap)('country'))\r\n",
+					"\r\n",
+					"display(gameInfDf['id_odsp','country','country_code'].limit(100))"
+				],
+				"execution_count": 19
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Transform game events data using lookups and join with high-level info\r\n",
+					"This next code snippet performs a lookup using UDFs and joining DataFrames."
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"eventsDf = (\r\n",
+					"             eventsDf.\r\n",
+					"             withColumn(\"event_type_str\", mapKeyToVal(evtTypeMap)(\"event_type\")).\r\n",
+					"             withColumn(\"event_type2_str\", mapKeyToVal(evtTyp2Map)(\"event_type2\")).\r\n",
+					"             withColumn(\"side_str\", mapKeyToVal(sideMap)(\"side\")).\r\n",
+					"             withColumn(\"shot_place_str\", mapKeyToVal(shotPlaceMap)(\"shot_place\")).\r\n",
+					"             withColumn(\"shot_outcome_str\", mapKeyToVal(shotOutcomeMap)(\"shot_outcome\")).\r\n",
+					"             withColumn(\"location_str\", mapKeyToVal(locationMap)(\"location\")).\r\n",
+					"             withColumn(\"bodypart_str\", mapKeyToVal(bodyPartMap)(\"bodypart\")).\r\n",
+					"             withColumn(\"assist_method_str\", mapKeyToVal(assistMethodMap)(\"assist_method\")).\r\n",
+					"             withColumn(\"situation_str\", mapKeyToVal(situationMap)(\"situation\"))\r\n",
+					"           )\r\n",
+					"\r\n",
+					"joinedDf = (\r\n",
+					"  eventsDf.join(gameInfDf, eventsDf.id_odsp == gameInfDf.id_odsp, 'inner').\r\n",
+					"  select(eventsDf.id_odsp, eventsDf.id_event, eventsDf.sort_order, eventsDf.time, eventsDf.event_type, eventsDf.event_type_str, eventsDf.event_type2, eventsDf.event_type2_str, eventsDf.side, eventsDf.side_str, eventsDf.event_team, eventsDf.opponent, eventsDf.player, eventsDf.player2, eventsDf.player_in, eventsDf.player_out, eventsDf.shot_place, eventsDf.shot_place_str, eventsDf.shot_outcome, eventsDf.shot_outcome_str, eventsDf.is_goal, eventsDf.location, eventsDf.location_str, eventsDf.bodypart, eventsDf.bodypart_str, eventsDf.assist_method, eventsDf.assist_method_str, eventsDf.situation, eventsDf.situation_str, gameInfDf.country_code)\r\n",
+					")\r\n",
+					"\r\n",
+					"display(joinedDf.limit(100))"
+				],
+				"execution_count": 20
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"# Create time bins for game events\r\n",
+					"\r\n",
+					"from pyspark.ml.feature import QuantileDiscretizer\r\n",
+					"\r\n",
+					"joinedDf = QuantileDiscretizer(numBuckets=10, inputCol=\"time\", outputCol=\"time_bin\").fit(joinedDf).transform(joinedDf)\r\n",
+					"\r\n",
+					"display(joinedDf)"
+				],
+				"execution_count": 21
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Loading\r\n",
+					"Once the data is in the desired shape, we’ll load it as Parquet into a Spark table that would reside in a domain-specific database. The database and table will be registered with internal Databricks metastore, and the data will be stored in DBFS. We’ll partition the Parquet data by “country_code” during write."
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": true
+				},
+				"source": [
+					"# Write game event data as a csv into the data lake\r\n",
+					"joinedDf.repartition(1).write.format('csv').mode('overwrite').save('abfss://europesoccer@demosynapsedls01.dfs.core.windows.net/curated/game_events.csv')"
+				],
+				"execution_count": 22
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": true
+				},
+				"source": [
+					"# Write game event data as a parquet file into the data lake\r\n",
+					"joinedDf.repartition(1).write.format('parquet').mode('overwrite').save('abfss://europesoccer@demosynapsedls01.dfs.core.windows.net/curated/game_events.parquet')"
+				],
+				"execution_count": 23
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": true
+				},
+				"source": [
+					"# Write game event data as a delta lake into the data lake\r\n",
+					"joinedDf.write.format('delta').mode('overwrite').save('abfss://europesoccer@demosynapsedls01.dfs.core.windows.net/curated/game_events.delta')"
+				],
+				"execution_count": 24
+			}
+		]
+	}
+}
