@@ -20,10 +20,6 @@
 						"type": "DataFlowReference"
 					},
 					"staging": {
-						"linkedService": {
-							"referenceName": "demosynapsesws01-WorkspaceDefaultStorage",
-							"type": "LinkedServiceReference"
-						},
 						"folderPath": "europesoccer/staging"
 					},
 					"compute": {
