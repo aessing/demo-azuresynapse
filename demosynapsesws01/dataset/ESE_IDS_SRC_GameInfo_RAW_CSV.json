@@ -21,6 +21,79 @@
 			"firstRowAsHeader": true,
 			"quoteChar": "\""
 		},
-		"schema": []
+		"schema": [
+			{
+				"name": "id_odsp",
+				"type": "String"
+			},
+			{
+				"name": "link_odsp",
+				"type": "String"
+			},
+			{
+				"name": "adv_stats",
+				"type": "String"
+			},
+			{
+				"name": "date",
+				"type": "String"
+			},
+			{
+				"name": "league",
+				"type": "String"
+			},
+			{
+				"name": "season",
+				"type": "String"
+			},
+			{
+				"name": "country",
+				"type": "String"
+			},
+			{
+				"name": "ht",
+				"type": "String"
+			},
+			{
+				"name": "at",
+				"type": "String"
+			},
+			{
+				"name": "fthg",
+				"type": "String"
+			},
+			{
+				"name": "ftag",
+				"type": "String"
+			},
+			{
+				"name": "odd_h",
+				"type": "String"
+			},
+			{
+				"name": "odd_d",
+				"type": "String"
+			},
+			{
+				"name": "odd_a",
+				"type": "String"
+			},
+			{
+				"name": "odd_over",
+				"type": "String"
+			},
+			{
+				"name": "odd_under",
+				"type": "String"
+			},
+			{
+				"name": "odd_bts",
+				"type": "String"
+			},
+			{
+				"name": "odd_bts_n",
+				"type": "String"
+			}
+		]
 	}
 }
