@@ -48,6 +48,7 @@
 				"typeProperties": {
 					"source": {
 						"type": "SqlDWSource",
+						"sqlReaderQuery": "SELECT\n    [SourceSystem]\n   ,[SourceFolder]\n   ,[SourceFileName]\n   ,[SourceFileExtension]\n   ,[IsActive]\n  FROM\n    [config].[etlConfiguration_DataFlow]\nWHERE\n    [IsActive] = 1;",
 						"queryTimeout": "02:00:00",
 						"partitionOption": "None"
 					},
