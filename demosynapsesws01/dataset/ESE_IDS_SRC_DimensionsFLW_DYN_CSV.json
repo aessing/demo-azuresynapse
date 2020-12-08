@@ -15,9 +15,10 @@
 				"type": "AzureBlobFSLocation"
 			},
 			"columnDelimiter": ",",
-			"escapeChar": "\\",
+			"rowDelimiter": "\r",
+			"escapeChar": "",
 			"firstRowAsHeader": true,
-			"quoteChar": "\""
+			"quoteChar": ""
 		},
 		"schema": []
 	}
