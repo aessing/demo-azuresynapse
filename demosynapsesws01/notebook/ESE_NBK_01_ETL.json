@@ -170,70 +170,75 @@
 							"deleting": false
 						}
 					},
+					"diagram": {
+						"activateDiagramType": 1,
+						"chartConfig": {
+							"category": "bar",
+							"keys": [
+								"id_odsp"
+							],
+							"values": [
+								"sort_order"
+							],
+							"yLabel": "sort_order",
+							"xLabel": "id_odsp",
+							"aggregation": "SUM",
+							"aggByBackend": false
+						},
+						"aggData": "{\"sort_order\":{\"UFot0hit/\":5050}}",
+						"isSummary": false,
+						"previewData": {
+							"filter": null
+						},
+						"isSql": false
+					},
 					"collapsed": true
 				},
 				"source": [
-					"# Specify the schema for game events data\r\n",
-					"\r\n",
-					"from pyspark.sql.types import StringType, IntegerType, StructType\r\n",
-					"\r\n",
-					"schema = (StructType().\r\n",
-					"          add(\"id_odsp\", StringType()).\r\n",
-					"          add(\"id_event\", StringType()).\r\n",
-					"          add(\"sort_order\", IntegerType()).\r\n",
-					"          add(\"time\", IntegerType()).\r\n",
-					"          add(\"text\", StringType()).\r\n",
-					"          add(\"event_type\", IntegerType()).\r\n",
-					"          add(\"event_type2\", IntegerType()).\r\n",
-					"          add(\"side\", IntegerType()).\r\n",
-					"          add(\"event_team\", StringType()).\r\n",
-					"          add(\"opponent\", StringType()).\r\n",
-					"          add(\"player\", StringType()).\r\n",
-					"          add(\"player2\", StringType()).\r\n",
-					"          add(\"player_in\", StringType()).\r\n",
-					"          add(\"player_out\", StringType()).\r\n",
-					"          add(\"shot_place\", IntegerType()).\r\n",
-					"          add(\"shot_outcome\", IntegerType()).\r\n",
-					"          add(\"is_goal\", IntegerType()).\r\n",
-					"          add(\"location\", IntegerType()).\r\n",
-					"          add(\"bodypart\", IntegerType()).\r\n",
-					"          add(\"assist_method\", IntegerType()).\r\n",
-					"          add(\"situation\", IntegerType()).\r\n",
-					"          add(\"fast_break\", IntegerType())\r\n",
-					"         )"
-				],
-				"execution_count": 14
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					},
-					"collapsed": false
-				},
-				"source": [
-					"# Extract game events data into DataFrame and display with defined schema\r\n",
-					"eventsDf = spark.read.load('abfss://europesoccer@demosynapsedls01.dfs.core.windows.net/raw/events.csv', format='csv',\r\n",
-					"                         schema=schema, header=True, \r\n",
-					"                         ignoreLeadingWhiteSpace=True, \r\n",
-					"                         ignoreTrailingWhiteSpace=True,\r\n",
-					"                         nullValue='NA')\r\n",
-					"\r\n",
-					"eventsDf = eventsDf.na.fill({'player': 'NA', 'event_team': 'NA', 'opponent': 'NA', \r\n",
-					"                             'event_type': 99, 'event_type2': 99, 'shot_place': 99, \r\n",
-					"                             'shot_outcome': 99, 'location': 99, 'bodypart': 99, \r\n",
-					"                             'assist_method': 99, 'situation': 99})\r\n",
-					"\r\n",
+					"# Specify the schema for game events data\n",
+					"\n",
+					"from pyspark.sql.types import StringType, IntegerType, StructType\n",
+					"\n",
+					"schema = (StructType().\n",
+					"          add(\"id_odsp\", StringType()).\n",
+					"          add(\"id_event\", StringType()).\n",
+					"          add(\"sort_order\", IntegerType()).\n",
+					"          add(\"time\", IntegerType()).\n",
+					"          add(\"text\", StringType()).\n",
+					"          add(\"event_type\", IntegerType()).\n",
+					"          add(\"event_type2\", IntegerType()).\n",
+					"          add(\"side\", IntegerType()).\n",
+					"          add(\"event_team\", StringType()).\n",
+					"          add(\"opponent\", StringType()).\n",
+					"          add(\"player\", StringType()).\n",
+					"          add(\"player2\", StringType()).\n",
+					"          add(\"player_in\", StringType()).\n",
+					"          add(\"player_out\", StringType()).\n",
+					"          add(\"shot_place\", IntegerType()).\n",
+					"          add(\"shot_outcome\", IntegerType()).\n",
+					"          add(\"is_goal\", IntegerType()).\n",
+					"          add(\"location\", IntegerType()).\n",
+					"          add(\"bodypart\", IntegerType()).\n",
+					"          add(\"assist_method\", IntegerType()).\n",
+					"          add(\"situation\", IntegerType()).\n",
+					"          add(\"fast_break\", IntegerType())\n",
+					"         )\n",
+					"\n",
+					"# Extract game events data into DataFrame and display with defined schema\n",
+					"eventsDf = spark.read.load('abfss://europesoccer@demosynapsedls01.dfs.core.windows.net/raw/events.csv', format='csv',\n",
+					"                         schema=schema, header=True, \n",
+					"                         ignoreLeadingWhiteSpace=True, \n",
+					"                         ignoreTrailingWhiteSpace=True,\n",
+					"                         nullValue='NA')\n",
+					"\n",
+					"eventsDf = eventsDf.na.fill({'player': 'NA', 'event_team': 'NA', 'opponent': 'NA', \n",
+					"                             'event_type': 99, 'event_type2': 99, 'shot_place': 99, \n",
+					"                             'shot_outcome': 99, 'location': 99, 'bodypart': 99, \n",
+					"                             'assist_method': 99, 'situation': 99})\n",
+					"\n",
 					"display(eventsDf.limit(100))"
 				],
-				"execution_count": 15
+				"execution_count": 19
 			},
 			{
 				"cell_type": "code",
@@ -246,6 +251,28 @@
 						"transient": {
 							"deleting": false
 						}
+					},
+					"diagram": {
+						"activateDiagramType": 1,
+						"chartConfig": {
+							"category": "bar",
+							"keys": [
+								"id_odsp"
+							],
+							"values": [
+								"date"
+							],
+							"yLabel": "date",
+							"xLabel": "id_odsp",
+							"aggregation": "SUM",
+							"aggByBackend": false
+						},
+						"aggData": "{\"date\":{\"0Ed6GSCi/\":0,\"0QSBhGQ1/\":0,\"0vWe9vtS/\":0,\"29kj1anI/\":0,\"2Pyjt8KA/\":0,\"2iMUPaQ8/\":0,\"4WY4SljB/\":0,\"4nHmUALb/\":0,\"4xCdEwYE/\":0,\"6F7IXGI1/\":0,\"84Llk2m6/\":0,\"8G9ykJld/\":0,\"A5DsExWN/\":0,\"ADHR3I3k/\":0,\"Aw5DflLH/\":0,\"C2F4CH2R/\":0,\"CQJ2BZ8q/\":0,\"CnFrLcl2/\":0,\"CtEdUSdJ/\":0,\"CzPV312a/\":0,\"CzqwqAzh/\":0,\"EXAMtLeF/\":0,\"Ea52eLBS/\":0,\"EkQZqjLo/\":0,\"GUOdmtII/\":0,\"I5sHJt2n/\":0,\"IV8qAKQL/\":0,\"K4vgcjya/\":0,\"KABIs1t9/\":0,\"KSGZOJuF/\":0,\"KhlsbNR9/\":0,\"M3FzCtd9/\":0,\"M7PhlM2C/\":0,\"MZT7gdBe/\":0,\"O0NQQuB2/\":0,\"O2rLz4Jh/\":0,\"OIjn2uXB/\":0,\"Q7zaeItq/\":0,\"QVCWNa4q/\":0,\"QeIqVj6h/\":0,\"QuWqjrYa/\":0,\"SEqvxt5j/\":0,\"StGWCMt3/\":0,\"SzFQuuBL/\":0,\"UBZQ4smg/\":0,\"UFot0hit/\":0,\"UPAXkaZk/\":0,\"WEEwFIGH/\":0,\"WMIN4blq/\":0,\"WQGN5NXn/\":0,\"WUdMGvn5/\":0,\"Wn69eU5B/\":0,\"WzGcd1dM/\":0,\"YBCVCpCG/\":0,\"YRfEE6s4/\":0,\"YeGvMwZe/\":0,\"YkXosl54/\":0,\"Yu8B9Dwd/\":0,\"bHbEI0Hh/\":0,\"bJFwOweL/\":0,\"bgY8R85H/\":0,\"bkjpaC6n/\":0,\"bw0Yaqcc/\":0,\"byqaawHU/\":0,\"dEc4HHIr/\":0,\"dUDqL6ro/\":0,\"fLN0n0XO/\":0,\"faYsrUkb/\":0,\"fqnr3LH5/\":0,\"fydAFnSc/\":0,\"htFsNcAR/\":0,\"hx7W2xJe/\":0,\"j3kJDQdA/\":0,\"jHI6AgOk/\":0,\"jRPmWlS6/\":0,\"lOpzwMkp/\":0,\"lShocssG/\":0,\"ljHSD2Rd/\":0,\"ljPYFb1B/\":0,\"lvg2H8co/\":0,\"nB6hTUz5/\":0,\"pYb2uSZG/\":0,\"pYve0J1O/\":0,\"pzdU0Psi/\":0,\"rNNmGa32/\":0,\"t2kwa3C3/\":0,\"tKCErsR2/\":0,\"tl4D8Ggo/\":0,\"vFrDKMnt/\":0,\"vZGzNJJk/\":0,\"vuIoDdoU/\":0,\"vwm9GyYl/\":0,\"x4HJ63It/\":0,\"x8cIHKWb/\":0,\"xQ65dAj5/\":0,\"xpXCQSKN/\":0,\"xtklbWLh/\":0,\"z3BTjuKq/\":0,\"z7JvB0BF/\":0,\"zeViBqAP/\":0}}",
+						"isSummary": false,
+						"previewData": {
+							"filter": null
+						},
+						"isSql": false
 					},
 					"collapsed": false
 				},
@@ -259,7 +286,7 @@
 					"\r\n",
 					"display(gameInfDf.limit(100))"
 				],
-				"execution_count": 16
+				"execution_count": 20
 			},
 			{
 				"cell_type": "markdown",
@@ -302,7 +329,7 @@
 					"        return mapping.get(col)\r\n",
 					"    return udf(mapKeyToVal_, StringType())"
 				],
-				"execution_count": 17
+				"execution_count": 21
 			},
 			{
 				"cell_type": "code",
@@ -341,7 +368,7 @@
 					"\r\n",
 					"countryCodeMap = {'germany':'DEU', 'france':'FRA', 'england':'GBR', 'spain':'ESP', 'italy':'ITA'}"
 				],
-				"execution_count": 18
+				"execution_count": 22
 			},
 			{
 				"cell_type": "markdown",
@@ -369,6 +396,28 @@
 							"deleting": false
 						}
 					},
+					"diagram": {
+						"activateDiagramType": 1,
+						"chartConfig": {
+							"category": "bar",
+							"keys": [
+								"id_odsp"
+							],
+							"values": [
+								"id_odsp"
+							],
+							"yLabel": "id_odsp",
+							"xLabel": "id_odsp",
+							"aggregation": "COUNT",
+							"aggByBackend": false
+						},
+						"aggData": "{\"id_odsp\":{\"0Ed6GSCi/\":1,\"0QSBhGQ1/\":1,\"0vWe9vtS/\":1,\"29kj1anI/\":1,\"2Pyjt8KA/\":1,\"2iMUPaQ8/\":1,\"4WY4SljB/\":1,\"4nHmUALb/\":1,\"4xCdEwYE/\":1,\"6F7IXGI1/\":1,\"84Llk2m6/\":1,\"8G9ykJld/\":1,\"A5DsExWN/\":1,\"ADHR3I3k/\":1,\"Aw5DflLH/\":1,\"C2F4CH2R/\":1,\"CQJ2BZ8q/\":1,\"CnFrLcl2/\":1,\"CtEdUSdJ/\":1,\"CzPV312a/\":1,\"CzqwqAzh/\":1,\"EXAMtLeF/\":1,\"Ea52eLBS/\":1,\"EkQZqjLo/\":1,\"GUOdmtII/\":1,\"I5sHJt2n/\":1,\"IV8qAKQL/\":1,\"K4vgcjya/\":1,\"KABIs1t9/\":1,\"KSGZOJuF/\":1,\"KhlsbNR9/\":1,\"M3FzCtd9/\":1,\"M7PhlM2C/\":1,\"MZT7gdBe/\":1,\"O0NQQuB2/\":1,\"O2rLz4Jh/\":1,\"OIjn2uXB/\":1,\"Q7zaeItq/\":1,\"QVCWNa4q/\":1,\"QeIqVj6h/\":1,\"QuWqjrYa/\":1,\"SEqvxt5j/\":1,\"StGWCMt3/\":1,\"SzFQuuBL/\":1,\"UBZQ4smg/\":1,\"UFot0hit/\":1,\"UPAXkaZk/\":1,\"WEEwFIGH/\":1,\"WMIN4blq/\":1,\"WQGN5NXn/\":1,\"WUdMGvn5/\":1,\"Wn69eU5B/\":1,\"WzGcd1dM/\":1,\"YBCVCpCG/\":1,\"YRfEE6s4/\":1,\"YeGvMwZe/\":1,\"YkXosl54/\":1,\"Yu8B9Dwd/\":1,\"bHbEI0Hh/\":1,\"bJFwOweL/\":1,\"bgY8R85H/\":1,\"bkjpaC6n/\":1,\"bw0Yaqcc/\":1,\"byqaawHU/\":1,\"dEc4HHIr/\":1,\"dUDqL6ro/\":1,\"fLN0n0XO/\":1,\"faYsrUkb/\":1,\"fqnr3LH5/\":1,\"fydAFnSc/\":1,\"htFsNcAR/\":1,\"hx7W2xJe/\":1,\"j3kJDQdA/\":1,\"jHI6AgOk/\":1,\"jRPmWlS6/\":1,\"lOpzwMkp/\":1,\"lShocssG/\":1,\"ljHSD2Rd/\":1,\"ljPYFb1B/\":1,\"lvg2H8co/\":1,\"nB6hTUz5/\":1,\"pYb2uSZG/\":1,\"pYve0J1O/\":1,\"pzdU0Psi/\":1,\"rNNmGa32/\":1,\"t2kwa3C3/\":1,\"tKCErsR2/\":1,\"tl4D8Ggo/\":1,\"vFrDKMnt/\":1,\"vZGzNJJk/\":1,\"vuIoDdoU/\":1,\"vwm9GyYl/\":1,\"x4HJ63It/\":1,\"x8cIHKWb/\":1,\"xQ65dAj5/\":1,\"xpXCQSKN/\":1,\"xtklbWLh/\":1,\"z3BTjuKq/\":1,\"z7JvB0BF/\":1,\"zeViBqAP/\":1}}",
+						"isSummary": false,
+						"previewData": {
+							"filter": null
+						},
+						"isSql": false
+					},
 					"collapsed": false
 				},
 				"source": [
@@ -376,7 +425,7 @@
 					"\r\n",
 					"display(gameInfDf['id_odsp','country','country_code'].limit(100))"
 				],
-				"execution_count": 19
+				"execution_count": 23
 			},
 			{
 				"cell_type": "markdown",
@@ -394,40 +443,22 @@
 			},
 			{
 				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					},
-					"collapsed": false
-				},
 				"source": [
-					"eventsDf = (\r\n",
-					"             eventsDf.\r\n",
-					"             withColumn(\"event_type_str\", mapKeyToVal(evtTypeMap)(\"event_type\")).\r\n",
-					"             withColumn(\"event_type2_str\", mapKeyToVal(evtTyp2Map)(\"event_type2\")).\r\n",
-					"             withColumn(\"side_str\", mapKeyToVal(sideMap)(\"side\")).\r\n",
-					"             withColumn(\"shot_place_str\", mapKeyToVal(shotPlaceMap)(\"shot_place\")).\r\n",
-					"             withColumn(\"shot_outcome_str\", mapKeyToVal(shotOutcomeMap)(\"shot_outcome\")).\r\n",
-					"             withColumn(\"location_str\", mapKeyToVal(locationMap)(\"location\")).\r\n",
-					"             withColumn(\"bodypart_str\", mapKeyToVal(bodyPartMap)(\"bodypart\")).\r\n",
-					"             withColumn(\"assist_method_str\", mapKeyToVal(assistMethodMap)(\"assist_method\")).\r\n",
-					"             withColumn(\"situation_str\", mapKeyToVal(situationMap)(\"situation\"))\r\n",
-					"           )\r\n",
-					"\r\n",
-					"joinedDf = (\r\n",
-					"  eventsDf.join(gameInfDf, eventsDf.id_odsp == gameInfDf.id_odsp, 'inner').\r\n",
-					"  select(eventsDf.id_odsp, eventsDf.id_event, eventsDf.sort_order, eventsDf.time, eventsDf.event_type, eventsDf.event_type_str, eventsDf.event_type2, eventsDf.event_type2_str, eventsDf.side, eventsDf.side_str, eventsDf.event_team, eventsDf.opponent, eventsDf.player, eventsDf.player2, eventsDf.player_in, eventsDf.player_out, eventsDf.shot_place, eventsDf.shot_place_str, eventsDf.shot_outcome, eventsDf.shot_outcome_str, eventsDf.is_goal, eventsDf.location, eventsDf.location_str, eventsDf.bodypart, eventsDf.bodypart_str, eventsDf.assist_method, eventsDf.assist_method_str, eventsDf.situation, eventsDf.situation_str, gameInfDf.country_code)\r\n",
-					")\r\n",
-					"\r\n",
-					"display(joinedDf.limit(100))"
+					"# Map other values\n",
+					"eventsDf = (\n",
+					"             eventsDf.\n",
+					"             withColumn(\"event_type_str\", mapKeyToVal(evtTypeMap)(\"event_type\")).\n",
+					"             withColumn(\"event_type2_str\", mapKeyToVal(evtTyp2Map)(\"event_type2\")).\n",
+					"             withColumn(\"side_str\", mapKeyToVal(sideMap)(\"side\")).\n",
+					"             withColumn(\"shot_place_str\", mapKeyToVal(shotPlaceMap)(\"shot_place\")).\n",
+					"             withColumn(\"shot_outcome_str\", mapKeyToVal(shotOutcomeMap)(\"shot_outcome\")).\n",
+					"             withColumn(\"location_str\", mapKeyToVal(locationMap)(\"location\")).\n",
+					"             withColumn(\"bodypart_str\", mapKeyToVal(bodyPartMap)(\"bodypart\")).\n",
+					"             withColumn(\"assist_method_str\", mapKeyToVal(assistMethodMap)(\"assist_method\")).\n",
+					"             withColumn(\"situation_str\", mapKeyToVal(situationMap)(\"situation\"))\n",
+					"           )"
 				],
-				"execution_count": 20
+				"execution_count": 24
 			},
 			{
 				"cell_type": "code",
@@ -441,6 +472,75 @@
 							"deleting": false
 						}
 					},
+					"diagram": {
+						"activateDiagramType": 1,
+						"chartConfig": {
+							"category": "bar",
+							"keys": [
+								"id_odsp"
+							],
+							"values": [
+								"sort_order"
+							],
+							"yLabel": "sort_order",
+							"xLabel": "id_odsp",
+							"aggregation": "SUM",
+							"aggByBackend": false
+						},
+						"aggData": "{\"sort_order\":{\"84iqdhso/\":1443,\"AcBjeS4n/\":3828}}",
+						"isSummary": false,
+						"previewData": {
+							"filter": null
+						},
+						"isSql": false
+					},
+					"collapsed": false
+				},
+				"source": [
+					"# Join the dataframes\n",
+					"joinedDf = (\n",
+					"  eventsDf.join(gameInfDf, eventsDf.id_odsp == gameInfDf.id_odsp, 'inner').\n",
+					"  select(eventsDf.id_odsp, eventsDf.id_event, eventsDf.sort_order, eventsDf.time, eventsDf.event_type, eventsDf.event_type_str, eventsDf.event_type2, eventsDf.event_type2_str, eventsDf.side, eventsDf.side_str, eventsDf.event_team, eventsDf.opponent, eventsDf.player, eventsDf.player2, eventsDf.player_in, eventsDf.player_out, eventsDf.shot_place, eventsDf.shot_place_str, eventsDf.shot_outcome, eventsDf.shot_outcome_str, eventsDf.is_goal, eventsDf.location, eventsDf.location_str, eventsDf.bodypart, eventsDf.bodypart_str, eventsDf.assist_method, eventsDf.assist_method_str, eventsDf.situation, eventsDf.situation_str, gameInfDf.country_code)\n",
+					")\n",
+					"\n",
+					"display(joinedDf.limit(100))"
+				],
+				"execution_count": 25
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"diagram": {
+						"activateDiagramType": 1,
+						"chartConfig": {
+							"category": "bar",
+							"keys": [
+								"id_odsp"
+							],
+							"values": [
+								"sort_order"
+							],
+							"yLabel": "sort_order",
+							"xLabel": "id_odsp",
+							"aggregation": "SUM",
+							"aggByBackend": false
+						},
+						"aggData": "{\"sort_order\":{\"Aw5DflLH/\":7503,\"CzPV312a/\":6555,\"GUOdmtII/\":4095,\"M7PhlM2C/\":6670,\"QuWqjrYa/\":7021,\"UBZQ4smg/\":1830,\"UFot0hit/\":6105,\"bkjpaC6n/\":9453,\"lOpzwMkp/\":9180}}",
+						"isSummary": false,
+						"previewData": {
+							"filter": null
+						},
+						"isSql": false
+					},
 					"collapsed": false
 				},
 				"source": [
@@ -452,7 +552,7 @@
 					"\r\n",
 					"display(joinedDf)"
 				],
-				"execution_count": 21
+				"execution_count": 26
 			},
 			{
 				"cell_type": "markdown",
@@ -464,8 +564,8 @@
 					}
 				},
 				"source": [
-					"## Loading\r\n",
-					"Once the data is in the desired shape, we’ll load it as Parquet into a Spark table that would reside in a domain-specific database. The database and table will be registered with internal Databricks metastore, and the data will be stored in DBFS. We’ll partition the Parquet data by “country_code” during write."
+					"## Loading\n",
+					"Once the data is in the desired shape, we’ll load it as Parquet and CSV into the data lake."
 				]
 			},
 			{
@@ -486,7 +586,7 @@
 					"# Write game event data as a csv into the data lake\r\n",
 					"joinedDf.repartition(1).write.format('csv').mode('overwrite').save('abfss://europesoccer@demosynapsedls01.dfs.core.windows.net/curated/game_events.csv')"
 				],
-				"execution_count": 22
+				"execution_count": 27
 			},
 			{
 				"cell_type": "code",
@@ -506,27 +606,7 @@
 					"# Write game event data as a parquet file into the data lake\r\n",
 					"joinedDf.repartition(1).write.format('parquet').mode('overwrite').save('abfss://europesoccer@demosynapsedls01.dfs.core.windows.net/curated/game_events.parquet')"
 				],
-				"execution_count": 23
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					},
-					"collapsed": true
-				},
-				"source": [
-					"# Write game event data as a delta lake into the data lake\r\n",
-					"joinedDf.write.format('delta').mode('overwrite').save('abfss://europesoccer@demosynapsedls01.dfs.core.windows.net/curated/game_events.delta')"
-				],
-				"execution_count": 24
+				"execution_count": 28
 			}
 		]
 	}
