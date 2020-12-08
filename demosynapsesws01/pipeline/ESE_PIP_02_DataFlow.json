@@ -80,7 +80,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"items": {
-						"value": "@activity('Get Dimension Table Config').output",
+						"value": "@activity('Get Dimension Table Config').output.value",
 						"type": "Expression"
 					},
 					"activities": [
@@ -101,7 +101,15 @@
 									"type": "DelimitedTextSource",
 									"storeSettings": {
 										"type": "AzureBlobFSReadSettings",
-										"recursive": true
+										"recursive": true,
+										"wildcardFolderPath": {
+											"value": "@item().SourceFolder",
+											"type": "Expression"
+										},
+										"wildcardFileName": {
+											"value": "@item().SourceFileName + \".\" + @item().SourceFileExtension",
+											"type": "Expression"
+										}
 									},
 									"formatSettings": {
 										"type": "DelimitedTextReadSettings"
