@@ -107,7 +107,7 @@
 											"type": "Expression"
 										},
 										"wildcardFileName": {
-											"value": "concat(@item().SourceFileName, '.', item().SourceFileExtension)",
+											"value": "@concat(@item().SourceFileName, '.', item().SourceFileExtension)",
 											"type": "Expression"
 										}
 									},
