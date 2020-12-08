@@ -110,13 +110,18 @@
 								},
 								"sink": {
 									"type": "SqlDWSink",
+									"preCopyScript": {
+										"value": "@{concat('TRUNCATE TABLE ', item().DestinationSchema, '.', item().DestinationTable)}",
+										"type": "Expression"
+									},
 									"allowPolyBase": true,
 									"polyBaseSettings": {
 										"rejectValue": 0,
 										"rejectType": "value",
 										"useTypeDefault": true
 									},
-									"tableOption": "autoCreate"
+									"tableOption": "autoCreate",
+									"disableMetricsCollection": false
 								},
 								"enableStaging": false
 							},
