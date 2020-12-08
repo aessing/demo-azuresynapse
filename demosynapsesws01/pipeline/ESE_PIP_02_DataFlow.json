@@ -103,7 +103,7 @@
 										"type": "AzureBlobFSReadSettings",
 										"recursive": true,
 										"wildcardFolderPath": {
-											"value": "@concat(item().SourceSystem, item().SourceFolder)",
+											"value": "@concat(item().SourceSystem, '/', item().SourceFolder)",
 											"type": "Expression"
 										},
 										"wildcardFileName": {
