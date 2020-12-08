@@ -12,23 +12,10 @@
 		"type": "DelimitedText",
 		"typeProperties": {
 			"location": {
-				"type": "AzureBlobFSLocation",
-				"fileName": {
-					"value": "@item().SourceFileName + \".\" + @item().SourceFileExtension",
-					"type": "Expression"
-				},
-				"folderPath": {
-					"value": "@item().SourceFolder",
-					"type": "Expression"
-				},
-				"fileSystem": {
-					"value": "@item().SourceSystem",
-					"type": "Expression"
-				}
+				"type": "AzureBlobFSLocation"
 			},
 			"columnDelimiter": ",",
-			"rowDelimiter": "\r",
-			"escapeChar": "\"",
+			"escapeChar": "\\",
 			"firstRowAsHeader": true,
 			"quoteChar": "\""
 		},
