@@ -3,7 +3,7 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "ETL Data Flow",
+				"name": "Load Facts",
 				"type": "ExecuteDataFlow",
 				"dependsOn": [],
 				"policy": {
