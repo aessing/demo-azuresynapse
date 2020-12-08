@@ -58,6 +58,19 @@
 					},
 					"firstRowOnly": false
 				}
+			},
+			{
+				"name": "Load Dimensions Loop",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "Get Dimension Table Config",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": []
 			}
 		],
 		"folder": {
