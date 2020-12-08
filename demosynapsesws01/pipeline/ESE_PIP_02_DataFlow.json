@@ -34,7 +34,7 @@
 				}
 			},
 			{
-				"name": "Get Dimension Tables",
+				"name": "Get Dimension Table Config",
 				"type": "Lookup",
 				"dependsOn": [],
 				"policy": {
