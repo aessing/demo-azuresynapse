@@ -78,7 +78,7 @@
 					},
 					"activities": [
 						{
-							"name": "Copy dimension to SQL Pool",
+							"name": "Load dimension to SQL Pool",
 							"type": "Copy",
 							"dependsOn": [],
 							"policy": {
