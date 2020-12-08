@@ -13,6 +13,16 @@
 		},
 		"annotations": [],
 		"type": "AzureSqlDWTable",
-		"schema": []
+		"schema": [],
+		"typeProperties": {
+			"schema": {
+				"value": "@item().DestinationSchema",
+				"type": "Expression"
+			},
+			"table": {
+				"value": "@item().DestinationTable",
+				"type": "Expression"
+			}
+		}
 	}
 }
