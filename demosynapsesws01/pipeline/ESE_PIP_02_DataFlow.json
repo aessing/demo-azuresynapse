@@ -109,7 +109,12 @@
 								},
 								"sink": {
 									"type": "SqlDWSink",
-									"allowCopyCommand": true
+									"allowPolyBase": true,
+									"polyBaseSettings": {
+										"rejectValue": 0,
+										"rejectType": "value",
+										"useTypeDefault": true
+									}
 								},
 								"enableStaging": false
 							},
