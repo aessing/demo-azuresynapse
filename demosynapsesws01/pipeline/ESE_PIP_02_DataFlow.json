@@ -101,32 +101,17 @@
 									"type": "DelimitedTextSource",
 									"storeSettings": {
 										"type": "AzureBlobFSReadSettings",
-										"recursive": true,
-										"wildcardFolderPath": {
-											"value": "@item().SourceFolder",
-											"type": "Expression"
-										},
-										"wildcardFileName": {
-											"value": "@item().SourceFileName + \".\" + @item().SourceFileExtension",
-											"type": "Expression"
-										}
+										"recursive": true
 									},
 									"formatSettings": {
 										"type": "DelimitedTextReadSettings"
 									}
 								},
 								"sink": {
-									"type": "SqlDWSink"
+									"type": "SqlDWSink",
+									"allowCopyCommand": true
 								},
-								"enableStaging": false,
-								"translator": {
-									"type": "TabularTranslator",
-									"typeConversion": true,
-									"typeConversionSettings": {
-										"allowDataTruncation": true,
-										"treatBooleanAsNumber": false
-									}
-								}
+								"enableStaging": false
 							},
 							"inputs": [
 								{
