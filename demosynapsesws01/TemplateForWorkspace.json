@@ -30,6 +30,13 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('workspaceName'), '/default')]",
+			"type": "Microsoft.Synapse/workspaces/managedVirtualNetworks",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('workspaceName'), '/ESE_PIP_01_Spark')]",
 			"type": "Microsoft.Synapse/workspaces/pipelines",
 			"apiVersion": "2019-06-01-preview",
@@ -85,7 +92,8 @@
 				"folder": {
 					"name": "Europe Soccer Events"
 				},
-				"annotations": []
+				"annotations": [],
+				"lastPublishTime": "2020-12-06T20:07:03Z"
 			},
 			"dependsOn": [
 				"[concat(variables('workspaceId'), '/notebooks/ESE_NBK_01_ETL')]",
@@ -99,7 +107,7 @@
 			"properties": {
 				"activities": [
 					{
-						"name": "ETL Data Flow",
+						"name": "Load Facts",
 						"type": "ExecuteDataFlow",
 						"dependsOn": [],
 						"policy": {
@@ -134,16 +142,226 @@
 							},
 							"traceLevel": "Fine"
 						}
+					},
+					{
+						"name": "Get Dimension Table Config",
+						"type": "Lookup",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "SqlDWSource",
+								"sqlReaderQuery": "SELECT\n    [SourceSystem]\n   ,[SourceFolder]\n   ,[SourceFileName]\n   ,[SourceFileExtension]\n   ,[DestinationSchema]\n   ,[DestinationTable]\n   ,[IsActive]\n  FROM\n    [config].[etlConfiguration_DataFlow]\nWHERE\n    [IsActive] = 1;",
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"dataset": {
+								"referenceName": "ESE_IDS_CFG_DimensionConfigurationFLW_CORE_SQL",
+								"type": "DatasetReference",
+								"parameters": {}
+							},
+							"firstRowOnly": false
+						}
+					},
+					{
+						"name": "Load Dimensions Loop",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "Get Dimension Table Config",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('Get Dimension Table Config').output.value",
+								"type": "Expression"
+							},
+							"activities": [
+								{
+									"name": "Load dimension to SQL Pool",
+									"type": "Copy",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "7.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "DelimitedTextSource",
+											"storeSettings": {
+												"type": "AzureBlobFSReadSettings",
+												"recursive": true,
+												"wildcardFolderPath": {
+													"value": "@concat(item().SourceSystem, '/', item().SourceFolder)",
+													"type": "Expression"
+												},
+												"wildcardFileName": {
+													"value": "@concat(item().SourceFileName, '.', item().SourceFileExtension)",
+													"type": "Expression"
+												}
+											},
+											"formatSettings": {
+												"type": "DelimitedTextReadSettings"
+											}
+										},
+										"sink": {
+											"type": "SqlDWSink",
+											"preCopyScript": {
+												"value": "@{concat('TRUNCATE TABLE ', item().DestinationSchema, '.', item().DestinationTable)}",
+												"type": "Expression"
+											},
+											"allowPolyBase": true,
+											"polyBaseSettings": {
+												"rejectValue": 0,
+												"rejectType": "value",
+												"useTypeDefault": true
+											},
+											"tableOption": "autoCreate",
+											"disableMetricsCollection": false
+										},
+										"enableStaging": false
+									},
+									"inputs": [
+										{
+											"referenceName": "ESE_IDS_SRC_DimensionsFLW_DYN_CSV",
+											"type": "DatasetReference",
+											"parameters": {}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "ESE_IDS_SNK_DimensionsFLW_CORE_SQL",
+											"type": "DatasetReference",
+											"parameters": {}
+										}
+									]
+								}
+							]
+						}
 					}
 				],
 				"folder": {
 					"name": "Europe Soccer Events"
 				},
-				"annotations": []
+				"annotations": [],
+				"lastPublishTime": "2020-12-08T18:19:16Z"
 			},
 			"dependsOn": [
 				"[concat(variables('workspaceId'), '/dataflows/ESE_FLW_01_ETL')]",
-				"[concat(variables('workspaceId'), '/linkedServices/demosynapsesws01-WorkspaceDefaultStorage')]"
+				"[concat(variables('workspaceId'), '/linkedServices/demosynapsesws01-WorkspaceDefaultStorage')]",
+				"[concat(variables('workspaceId'), '/datasets/ESE_IDS_CFG_DimensionConfigurationFLW_CORE_SQL')]",
+				"[concat(variables('workspaceId'), '/datasets/ESE_IDS_SRC_DimensionsFLW_DYN_CSV')]",
+				"[concat(variables('workspaceId'), '/datasets/ESE_IDS_SNK_DimensionsFLW_CORE_SQL')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/default/synapse-ws-sql--demosynapsesws01')]",
+			"type": "Microsoft.Synapse/workspaces/managedVirtualNetworks/managedPrivateEndpoints",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"privateLinkResourceId": "/subscriptions/f6c0b928-7078-4332-a106-e7a9c5253249/resourceGroups/demo-synapse-rg/providers/Microsoft.Synapse/workspaces/demosynapsesws01",
+				"groupId": "sql",
+				"fqdns": [
+					"demosynapsesws01.1d34c5a5-44a8-4359-af9c-4ee323131d4a.sql.azuresynapse.net"
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/managedVirtualNetworks/default')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/default/synapse-ws-sqlOnDemand--demosynapsesws01')]",
+			"type": "Microsoft.Synapse/workspaces/managedVirtualNetworks/managedPrivateEndpoints",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"privateLinkResourceId": "/subscriptions/f6c0b928-7078-4332-a106-e7a9c5253249/resourceGroups/demo-synapse-rg/providers/Microsoft.Synapse/workspaces/demosynapsesws01",
+				"groupId": "sqlOnDemand",
+				"fqdns": [
+					"demosynapsesws01-ondemand.1d34c5a5-44a8-4359-af9c-4ee323131d4a.sql.azuresynapse.net"
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/managedVirtualNetworks/default')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/WorkspaceSystemIdentity')]",
+			"type": "Microsoft.Synapse/workspaces/credentials",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"type": "ManagedIdentity",
+				"typeProperties": {}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/ESE_FLW_01_ETL')]",
+			"type": "Microsoft.Synapse/workspaces/dataflows",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"folder": {
+					"name": "Europe Soccer Events"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ESE_IDS_SRC_Events_RAW_CSV",
+								"type": "DatasetReference"
+							},
+							"name": "Events"
+						},
+						{
+							"dataset": {
+								"referenceName": "ESE_IDS_SRC_GameInfo_RAW_CSV",
+								"type": "DatasetReference"
+							},
+							"name": "GameInfo"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "ESE_IDS_SNK_GameEventsFLW_CORE_SQL",
+								"type": "DatasetReference"
+							},
+							"name": "gameEvents"
+						}
+					],
+					"transformations": [
+						{
+							"name": "CleanNULL"
+						},
+						{
+							"name": "JoinData"
+						},
+						{
+							"name": "SelectColumns"
+						}
+					],
+					"script": "source(output(\n\t\tid_odsp as string,\n\t\tid_event as string,\n\t\tsort_order as integer,\n\t\ttime as integer,\n\t\ttext as string,\n\t\tevent_type as integer,\n\t\tevent_type2 as integer,\n\t\tside as integer,\n\t\tevent_team as string,\n\t\topponent as string,\n\t\tplayer as string,\n\t\tplayer2 as string,\n\t\tplayer_in as string,\n\t\tplayer_out as string,\n\t\tshot_place as integer,\n\t\tshot_outcome as integer,\n\t\tis_goal as integer,\n\t\tlocation as integer,\n\t\tbodypart as integer,\n\t\tassist_method as integer,\n\t\tsituation as integer,\n\t\tfast_break as integer\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> Events\nsource(output(\n\t\tid_odsp as string,\n\t\tlink_odsp as string,\n\t\tadv_stats as boolean,\n\t\tdate as date,\n\t\tleague as string,\n\t\tseason as integer,\n\t\tcountry as string,\n\t\tht as string,\n\t\tat as string,\n\t\tfthg as integer,\n\t\tftag as integer,\n\t\todd_h as double,\n\t\todd_d as double,\n\t\todd_a as double,\n\t\todd_over as double,\n\t\todd_under as double,\n\t\todd_bts as double,\n\t\todd_bts_n as double\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> GameInfo\nEvents derive(player = iifNull(player,'NA'),\n\t\tevent_team = iifNull(event_team,'NA'),\n\t\topponent = iifNull(opponent,'NA'),\n\t\tevent_type = iifNull(event_type,99),\n\t\tevent_type2 = iifNull(event_type2,99),\n\t\tshot_place = iifNull(shot_place,99),\n\t\tshot_outcome = iifNull(shot_outcome,99),\n\t\tlocation = iifNull(location,99),\n\t\tbodypart = iifNull(bodypart,99),\n\t\tassist_method = iifNull(assist_method,99),\n\t\tsituation = iifNull(situation,99)) ~> CleanNULL\nCleanNULL, GameInfo join(Events@id_odsp == GameInfo@id_odsp,\n\tjoinType:'inner',\n\tbroadcast: 'auto')~> JoinData\nJoinData select(mapColumn(\n\t\tid_odsp = GameInfo@id_odsp,\n\t\tid_event,\n\t\tsort_order,\n\t\ttime,\n\t\ttext,\n\t\tevent_type,\n\t\tevent_type2,\n\t\tside,\n\t\tevent_team,\n\t\topponent,\n\t\tplayer,\n\t\tplayer2,\n\t\tplayer_in,\n\t\tplayer_out,\n\t\tshot_place,\n\t\tshot_outcome,\n\t\tis_goal,\n\t\tlocation,\n\t\tbodypart,\n\t\tassist_method,\n\t\tsituation,\n\t\tcountry\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> SelectColumns\nSelectColumns sink(input(\n\t\tid_odsp as string,\n\t\tid_event as string,\n\t\tsort_order as integer,\n\t\ttime as integer,\n\t\ttext as string,\n\t\tevent_type as integer,\n\t\tevent_type2 as integer,\n\t\tside as integer,\n\t\tevent_team as string,\n\t\topponent as string,\n\t\tplayer as string,\n\t\tplayer2 as string,\n\t\tplayer_in as string,\n\t\tplayer_out as string,\n\t\tshot_place as integer,\n\t\tshot_outcome as integer,\n\t\tis_goal as integer,\n\t\tlocation as integer,\n\t\tbodypart as integer,\n\t\tassist_method as integer,\n\t\tsituation as integer,\n\t\tcountry as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\ttruncate:true,\n\tformat: 'table',\n\tstaged: true,\n\tmapColumn(\n\t\tid_odsp,\n\t\tid_event,\n\t\tsort_order,\n\t\ttime,\n\t\ttext,\n\t\tevent_type,\n\t\tevent_type2,\n\t\tside,\n\t\tevent_team,\n\t\topponent,\n\t\tplayer,\n\t\tplayer2,\n\t\tplayer_in,\n\t\tplayer_out,\n\t\tshot_place,\n\t\tshot_outcome,\n\t\tis_goal,\n\t\tlocation,\n\t\tbodypart,\n\t\tassist_method,\n\t\tsituation,\n\t\tcountry\n\t),\n\tdateFormat:'yyyy-MM-dd',\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> gameEvents"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/datasets/ESE_IDS_SRC_Events_RAW_CSV')]",
+				"[concat(variables('workspaceId'), '/datasets/ESE_IDS_SRC_GameInfo_RAW_CSV')]",
+				"[concat(variables('workspaceId'), '/datasets/ESE_IDS_SNK_GameEventsFLW_CORE_SQL')]"
 			]
 		},
 		{
@@ -421,57 +639,75 @@
 				},
 				"schema": [
 					{
+						"name": "id_odsp",
 						"type": "String"
 					},
 					{
+						"name": "link_odsp",
 						"type": "String"
 					},
 					{
+						"name": "adv_stats",
 						"type": "String"
 					},
 					{
+						"name": "date",
 						"type": "String"
 					},
 					{
+						"name": "league",
 						"type": "String"
 					},
 					{
+						"name": "season",
 						"type": "String"
 					},
 					{
+						"name": "country",
 						"type": "String"
 					},
 					{
+						"name": "ht",
 						"type": "String"
 					},
 					{
+						"name": "at",
 						"type": "String"
 					},
 					{
+						"name": "fthg",
 						"type": "String"
 					},
 					{
+						"name": "ftag",
 						"type": "String"
 					},
 					{
+						"name": "odd_h",
 						"type": "String"
 					},
 					{
+						"name": "odd_d",
 						"type": "String"
 					},
 					{
+						"name": "odd_a",
 						"type": "String"
 					},
 					{
+						"name": "odd_over",
 						"type": "String"
 					},
 					{
+						"name": "odd_under",
 						"type": "String"
 					},
 					{
+						"name": "odd_bts",
 						"type": "String"
 					},
 					{
+						"name": "odd_bts_n",
 						"type": "String"
 					}
 				]
@@ -481,152 +717,114 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('workspaceName'), '/demo_synapse_workspace')]",
-			"type": "Microsoft.Synapse/workspaces/linkedServices",
+			"name": "[concat(parameters('workspaceName'), '/ESE_IDS_CFG_DimensionConfigurationFLW_CORE_SQL')]",
+			"type": "Microsoft.Synapse/workspaces/datasets",
 			"apiVersion": "2019-06-01-preview",
 			"properties": {
-				"description": "Workspace of Andre Essing to demo Synapse Analytics integration",
-				"annotations": [],
-				"type": "PowerBIWorkspace",
-				"typeProperties": {
-					"workspaceID": "24c00752-b71b-40c0-987f-e80459fb4198",
-					"tenantID": "72f988bf-86f1-41af-91ab-2d7cd011db47"
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('workspaceName'), '/demosynapsesws01-WorkspaceDefaultSqlServer')]",
-			"type": "Microsoft.Synapse/workspaces/linkedServices",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"parameters": {
-					"DBName": {
-						"type": "String"
+				"linkedServiceName": {
+					"referenceName": "demosynapsesws01-WorkspaceDefaultSqlServer",
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"DBName": "SoccerEvents"
 					}
 				},
-				"annotations": [],
-				"type": "AzureSqlDW",
-				"typeProperties": {
-					"connectionString": "[parameters('demosynapsesws01-WorkspaceDefaultSqlServer_connectionString')]"
-				},
-				"connectVia": {
-					"referenceName": "AutoResolveIntegrationRuntime",
-					"type": "IntegrationRuntimeReference"
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('workspaceId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('workspaceName'), '/demosynapsesws01-WorkspaceDefaultStorage')]",
-			"type": "Microsoft.Synapse/workspaces/linkedServices",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"annotations": [],
-				"type": "AzureBlobFS",
-				"typeProperties": {
-					"url": "[parameters('demosynapsesws01-WorkspaceDefaultStorage_properties_typeProperties_url')]"
-				},
-				"connectVia": {
-					"referenceName": "AutoResolveIntegrationRuntime",
-					"type": "IntegrationRuntimeReference"
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('workspaceId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('workspaceName'), '/AutoResolveIntegrationRuntime')]",
-			"type": "Microsoft.Synapse/workspaces/integrationRuntimes",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"type": "Managed",
-				"typeProperties": {
-					"computeProperties": {
-						"location": "AutoResolve",
-						"dataFlowProperties": {
-							"computeType": "General",
-							"coreCount": 8,
-							"timeToLive": 0
-						}
-					}
-				},
-				"managedVirtualNetwork": {
-					"type": "ManagedVirtualNetworkReference",
-					"referenceName": "default"
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('workspaceId'), '/managedVirtualNetworks/default')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('workspaceName'), '/ESE_FLW_01_ETL')]",
-			"type": "Microsoft.Synapse/workspaces/dataflows",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
 				"folder": {
-					"name": "Europe Soccer Events"
+					"name": "Soccer Events"
 				},
-				"type": "MappingDataFlow",
+				"annotations": [],
+				"type": "AzureSqlDWTable",
+				"schema": [
+					{
+						"name": "SourceSystem",
+						"type": "nvarchar"
+					},
+					{
+						"name": "SourceFolder",
+						"type": "nvarchar"
+					},
+					{
+						"name": "SourceFileName",
+						"type": "nvarchar"
+					},
+					{
+						"name": "SourceFileExtension",
+						"type": "nvarchar"
+					},
+					{
+						"name": "IsActive",
+						"type": "bit"
+					}
+				],
 				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "ESE_IDS_SRC_Events_RAW_CSV",
-								"type": "DatasetReference"
-							},
-							"name": "Events"
-						},
-						{
-							"dataset": {
-								"referenceName": "ESE_IDS_SRC_GameInfo_RAW_CSV",
-								"type": "DatasetReference"
-							},
-							"name": "GameInfo"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "ESE_IDS_SNK_GameEventsFLW_CORE_SQL",
-								"type": "DatasetReference"
-							},
-							"name": "gameEvents"
-						}
-					],
-					"transformations": [
-						{
-							"name": "CleanNULL"
-						},
-						{
-							"name": "JoinData"
-						},
-						{
-							"name": "SelectColumns"
-						}
-					],
-					"script": "source(output(\n\t\tid_odsp as string,\n\t\tid_event as string,\n\t\tsort_order as integer,\n\t\ttime as integer,\n\t\ttext as string,\n\t\tevent_type as integer,\n\t\tevent_type2 as integer,\n\t\tside as integer,\n\t\tevent_team as string,\n\t\topponent as string,\n\t\tplayer as string,\n\t\tplayer2 as string,\n\t\tplayer_in as string,\n\t\tplayer_out as string,\n\t\tshot_place as integer,\n\t\tshot_outcome as integer,\n\t\tis_goal as integer,\n\t\tlocation as integer,\n\t\tbodypart as integer,\n\t\tassist_method as integer,\n\t\tsituation as integer,\n\t\tfast_break as integer\n\t),\n\tallowSchemaDrift: false,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> Events\nsource(output(\n\t\tid_odsp as string,\n\t\tlink_odsp as string,\n\t\tadv_stats as integer,\n\t\tdate as date,\n\t\tleague as string,\n\t\tseason as integer,\n\t\tcountry as string,\n\t\tht as string,\n\t\tat as string,\n\t\tfthg as integer,\n\t\tftag as integer,\n\t\todd_h as float,\n\t\todd_d as float,\n\t\todd_a as float,\n\t\todd_over as string,\n\t\todd_under as string,\n\t\todd_bts as string,\n\t\todd_bts_n as string\n\t),\n\tallowSchemaDrift: false,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> GameInfo\nEvents derive(player = iifNull(player,'NA'),\n\t\tevent_team = iifNull(event_team,'NA'),\n\t\topponent = iifNull(opponent,'NA'),\n\t\tevent_type = iifNull(event_type,99),\n\t\tevent_type2 = iifNull(event_type2,99),\n\t\tshot_place = iifNull(shot_place,99),\n\t\tshot_outcome = iifNull(shot_outcome,99),\n\t\tlocation = iifNull(location,99),\n\t\tbodypart = iifNull(bodypart,99),\n\t\tassist_method = iifNull(assist_method,99),\n\t\tsituation = iifNull(situation,99)) ~> CleanNULL\nCleanNULL, GameInfo join(Events@id_odsp == GameInfo@id_odsp,\n\tjoinType:'inner',\n\tbroadcast: 'auto')~> JoinData\nJoinData select(mapColumn(\n\t\tid_odsp = Events@id_odsp,\n\t\tid_event,\n\t\tsort_order,\n\t\ttime,\n\t\ttext,\n\t\tevent_type,\n\t\tevent_type2,\n\t\tside,\n\t\tevent_team,\n\t\topponent,\n\t\tplayer,\n\t\tplayer2,\n\t\tplayer_in,\n\t\tplayer_out,\n\t\tshot_place,\n\t\tshot_outcome,\n\t\tis_goal,\n\t\tlocation,\n\t\tbodypart,\n\t\tassist_method,\n\t\tsituation,\n\t\tcountry\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> SelectColumns\nSelectColumns sink(input(\n\t\tid_odsp as string,\n\t\tid_event as string,\n\t\tsort_order as integer,\n\t\ttime as integer,\n\t\ttext as string,\n\t\tevent_type as integer,\n\t\tevent_type2 as integer,\n\t\tside as integer,\n\t\tevent_team as string,\n\t\topponent as string,\n\t\tplayer as string,\n\t\tplayer2 as string,\n\t\tplayer_in as string,\n\t\tplayer_out as string,\n\t\tshot_place as integer,\n\t\tshot_outcome as integer,\n\t\tis_goal as integer,\n\t\tlocation as integer,\n\t\tbodypart as integer,\n\t\tassist_method as integer,\n\t\tsituation as integer,\n\t\tcountry as string\n\t),\n\tallowSchemaDrift: false,\n\tvalidateSchema: false,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\ttruncate:true,\n\tformat: 'table',\n\tstaged: true,\n\tmapColumn(\n\t\tid_odsp,\n\t\tid_event,\n\t\tsort_order,\n\t\ttime,\n\t\ttext,\n\t\tevent_type,\n\t\tevent_type2,\n\t\tside,\n\t\tevent_team,\n\t\topponent,\n\t\tplayer,\n\t\tplayer2,\n\t\tplayer_in,\n\t\tplayer_out,\n\t\tshot_place,\n\t\tshot_outcome,\n\t\tis_goal,\n\t\tlocation,\n\t\tbodypart,\n\t\tassist_method,\n\t\tsituation,\n\t\tcountry\n\t),\n\tdateFormat:'yyyy-MM-dd',\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> gameEvents"
+					"schema": "config",
+					"table": "etlConfiguration_DataFlow"
 				}
 			},
 			"dependsOn": [
-				"[concat(variables('workspaceId'), '/datasets/ESE_IDS_SRC_Events_RAW_CSV')]",
-				"[concat(variables('workspaceId'), '/datasets/ESE_IDS_SRC_GameInfo_RAW_CSV')]",
-				"[concat(variables('workspaceId'), '/datasets/ESE_IDS_SNK_GameEventsFLW_CORE_SQL')]"
+				"[concat(variables('workspaceId'), '/linkedServices/demosynapsesws01-WorkspaceDefaultSqlServer')]"
 			]
 		},
 		{
-			"name": "[concat(parameters('workspaceName'), '/WorkspaceSystemIdentity')]",
-			"type": "Microsoft.Synapse/workspaces/credentials",
+			"name": "[concat(parameters('workspaceName'), '/ESE_IDS_SNK_DimensionsFLW_CORE_SQL')]",
+			"type": "Microsoft.Synapse/workspaces/datasets",
 			"apiVersion": "2019-06-01-preview",
 			"properties": {
-				"type": "ManagedIdentity",
-				"typeProperties": {}
+				"linkedServiceName": {
+					"referenceName": "demosynapsesws01-WorkspaceDefaultSqlServer",
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"DBName": "SoccerEvents"
+					}
+				},
+				"folder": {
+					"name": "Soccer Events"
+				},
+				"annotations": [],
+				"type": "AzureSqlDWTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": {
+						"value": "@item().DestinationSchema",
+						"type": "Expression"
+					},
+					"table": {
+						"value": "@item().DestinationTable",
+						"type": "Expression"
+					}
+				}
 			},
-			"dependsOn": []
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/linkedServices/demosynapsesws01-WorkspaceDefaultSqlServer')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/ESE_IDS_SRC_DimensionsFLW_DYN_CSV')]",
+			"type": "Microsoft.Synapse/workspaces/datasets",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "demosynapsesws01-WorkspaceDefaultStorage",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "Soccer Events"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "",
+					"firstRowAsHeader": true,
+					"quoteChar": ""
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/linkedServices/demosynapsesws01-WorkspaceDefaultStorage')]"
+			]
 		},
 		{
 			"name": "[concat(parameters('workspaceName'), '/ESE_SQL_01_COUNT')]",
@@ -773,7 +971,7 @@
 					"name": "Europe Soccer Events"
 				},
 				"content": {
-					"query": "-- =============================================================================\n-- European Soccer Events\n-- Azure Synapse Analytics Demo\n-- https://github.com/aessing/demo-azuresynapse\n-- -----------------------------------------------------------------------------\n-- Developer.......: Andre Essing (https://www.andre-essing.de/)\n--                                (https://github.com/aessing)\n--                                (https://twitter.com/aessing)\n--                                (https://www.linkedin.com/in/aessing/)\n-- -----------------------------------------------------------------------------\n-- THIS CODE AND INFORMATION ARE PROVIDED \"AS IS\" WITHOUT WARRANTY OF ANY KIND,\n-- EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED\n-- WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.\n-- =============================================================================\n\nDROP PROCEDURE [Spark].[load_GameEvents]\nGO\n\nCREATE PROC [spark].[Spark].[load_GameEvents] AS\nBEGIN\nTRUNCATE TABLE Spark.GameEvents;\nCOPY INTO Spark.GameEvents\n(id_odsp 1, id_event 2, sort_order 3, time 4, event_type 5, event_type_str 6, event_type2 7, event_type2_str 8, side 9, side_str 10, event_team 11, opponent 12, player 13, player2 14, player_in 15, player_out 16, shot_place 17, shot_place_str 18, shot_outcome 19, shot_outcome_str 20, is_goal 21, location 22, location_str 23, bodypart 24, bodypart_str 25, assist_method 26, assist_method_str 27, situation 28, situation_str 29, country_code 30, time_bin 31)\nFROM 'https://demosynapsedls01.dfs.core.windows.net/europesoccer/curated/game_events.parquet'\nWITH\n(\n\tFILE_TYPE = 'PARQUET'\n\t,MAXERRORS = 0\n\t,COMPRESSION = 'snappy'\n\t,IDENTITY_INSERT = 'OFF'\n)\nEND\nGO",
+					"query": "-- =============================================================================\n-- European Soccer Events\n-- Azure Synapse Analytics Demo\n-- https://github.com/aessing/demo-azuresynapse\n-- -----------------------------------------------------------------------------\n-- Developer.......: Andre Essing (https://www.andre-essing.de/)\n--                                (https://github.com/aessing)\n--                                (https://twitter.com/aessing)\n--                                (https://www.linkedin.com/in/aessing/)\n-- -----------------------------------------------------------------------------\n-- THIS CODE AND INFORMATION ARE PROVIDED \"AS IS\" WITHOUT WARRANTY OF ANY KIND,\n-- EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED\n-- WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.\n-- =============================================================================\n\nCREATE PROC [Spark].[load_GameEvents] AS\nBEGIN\n\tTRUNCATE TABLE Spark.GameEvents;\n\n\tCOPY INTO Spark.GameEvents\n\t\t(id_odsp 1, id_event 2, sort_order 3, time 4, event_type 5, event_type_str 6, event_type2 7, event_type2_str 8, side 9, side_str 10, event_team 11, opponent 12, player 13, player2 14, player_in 15, player_out 16, shot_place 17, shot_place_str 18, shot_outcome 19, shot_outcome_str 20, is_goal 21, location 22, location_str 23, bodypart 24, bodypart_str 25, assist_method 26, assist_method_str 27, situation 28, situation_str 29, country_code 30, time_bin 31)\n\tFROM 'https://demosynapsedls01.dfs.core.windows.net/europesoccer/curated/game_events.parquet'\n\tWITH\n\t\t(\n\t\tFILE_TYPE = 'PARQUET'\n\t\t,MAXERRORS = 0\n\t\t,COMPRESSION = 'snappy'\n\t\t,IDENTITY_INSERT = 'OFF'\n\t)\nEND\nGO",
 					"metadata": {
 						"language": "sql"
 					},
@@ -795,13 +993,13 @@
 					"name": "Europe Soccer Events"
 				},
 				"content": {
-					"query": "-- =============================================================================\n-- European Soccer Events\n-- Azure Synapse Analytics Demo\n-- https://github.com/aessing/demo-azuresynapse\n-- -----------------------------------------------------------------------------\n-- Developer.......: Andre Essing (https://www.andre-essing.de/)\n--                                (https://github.com/aessing)\n--                                (https://twitter.com/aessing)\n--                                (https://www.linkedin.com/in/aessing/)\n-- -----------------------------------------------------------------------------\n-- THIS CODE AND INFORMATION ARE PROVIDED \"AS IS\" WITHOUT WARRANTY OF ANY KIND,\n-- EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED\n-- WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.\n-- =============================================================================\n\nDROP TABLE DataFlow.factGameEvents\nGO\n\nIF NOT EXISTS (SELECT * FROM sys.objects WHERE NAME = 'factGameEvents' AND TYPE = 'U')\nCREATE TABLE DataFlow.factGameEvents\n\t(\n\t id_odsp nvarchar(32),\n\t id_event nvarchar(32),\n\t sort_order int,\n\t time int,\n\t text nvarchar(30),\n\t event_type int,\n\t event_type2 int,\n\t side int,\n\t event_team nvarchar(128),\n\t opponent nvarchar(128),\n\t player nvarchar(128),\n\t player2 nvarchar(128),\n\t player_in nvarchar(128),\n\t player_out nvarchar(128),\n\t shot_place int,\n\t shot_outcome int,\n\t is_goal int,\n\t location int,\n\t bodypart int,\n\t assist_method int,\n\t situation int,\n\t country nvarchar(128)\n\t)\nWITH\n\t(\n\tDISTRIBUTION = ROUND_ROBIN,\n\t CLUSTERED COLUMNSTORE INDEX\n\t)\nGO",
+					"query": "-- =============================================================================\n-- European Soccer Events\n-- Azure Synapse Analytics Demo\n-- https://github.com/aessing/demo-azuresynapse\n-- -----------------------------------------------------------------------------\n-- Developer.......: Andre Essing (https://www.andre-essing.de/)\n--                                (https://github.com/aessing)\n--                                (https://twitter.com/aessing)\n--                                (https://www.linkedin.com/in/aessing/)\n-- -----------------------------------------------------------------------------\n-- THIS CODE AND INFORMATION ARE PROVIDED \"AS IS\" WITHOUT WARRANTY OF ANY KIND,\n-- EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED\n-- WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.\n-- =============================================================================\n\nIF EXISTS (SELECT * FROM sys.objects WHERE NAME = 'factGameEvents' AND TYPE = 'U')\n\tDROP TABLE DataFlow.factGameEvents \nGO\nCREATE TABLE DataFlow.factGameEvents\n\t(\n\t id_odsp nvarchar(256),\n\t id_event nvarchar(256),\n\t sort_order int,\n\t time int,\n\t text nvarchar(256),\n\t event_type int,\n\t event_type2 int,\n\t side int,\n\t event_team nvarchar(256),\n\t opponent nvarchar(256),\n\t player nvarchar(256),\n\t player2 nvarchar(256),\n\t player_in nvarchar(256),\n\t player_out nvarchar(256),\n\t shot_place int,\n\t shot_outcome int,\n\t is_goal int,\n\t location int,\n\t bodypart int,\n\t assist_method int,\n\t situation int,\n\t country nvarchar(256)\n\t)\nWITH\n\t(\n\tDISTRIBUTION = ROUND_ROBIN,\n\tHEAP\n\t)\nGO\nCREATE INDEX IX_factGameEvents_is_goal_country ON DataFlow.factGameEvents(is_goal, country);\nGO\n\n-- =============================================================================\n-- Dimensions\n-- =============================================================================\nIF EXISTS (SELECT * FROM sys.objects WHERE NAME = 'dimAssistMethod' AND TYPE = 'U')\n\tDROP TABLE DataFlow.dimAssistMethod \nGO\nCREATE TABLE DataFlow.dimAssistMethod (id int NOT NULL, AssistMethod nvarchar(128) NOT NULL)\nWITH (\n\tDISTRIBUTION = REPLICATE,\n--\tCLUSTERED INDEX(id)\n\tHEAP\n)\nGO\nALTER TABLE DataFlow.dimAssistMethod add CONSTRAINT PK_dimAssistMethod_id PRIMARY KEY NONCLUSTERED (ID) NOT ENFORCED\nGO\n\nIF EXISTS (SELECT * FROM sys.objects WHERE NAME = 'dimBodyPart' AND TYPE = 'U')\n\tDROP TABLE DataFlow.dimBodyPart \nGO\nCREATE TABLE DataFlow.dimBodyPart (id int NOT NULL, BodyPart nvarchar(128) NOT NULL)\nWITH (\n\tDISTRIBUTION = REPLICATE,\n--\tCLUSTERED INDEX(id)\n\tHEAP\n)\nGO\nALTER TABLE DataFlow.dimBodyPart add CONSTRAINT PK_dimBodyPart_id PRIMARY KEY NONCLUSTERED (ID) NOT ENFORCED\nGO\n\nIF EXISTS (SELECT * FROM sys.objects WHERE NAME = 'dimCountry' AND TYPE = 'U')\n\tDROP TABLE DataFlow.dimCountry \nGO\nCREATE TABLE DataFlow.dimCountry (Country nvarchar(128) NOT NULL, CountryCode nvarchar(128) NOT NULL)\nWITH (\n\tDISTRIBUTION = REPLICATE,\n--\tCLUSTERED INDEX(id)\n\tHEAP\n)\nGO\nALTER TABLE DataFlow.dimCountry add CONSTRAINT PK_dimCountry_id PRIMARY KEY NONCLUSTERED (Country) NOT ENFORCED\nGO\nCREATE INDEX IX_dimCountry_CountryCode ON DataFlow.dimCountry(CountryCode);\nGO\n\nIF EXISTS (SELECT * FROM sys.objects WHERE NAME = 'dimEventType' AND TYPE = 'U')\n\tDROP TABLE DataFlow.dimEventType\nGO\nCREATE TABLE DataFlow.dimEventType (id int NOT NULL, EventType nvarchar(128) NOT NULL)\nWITH (\n\tDISTRIBUTION = REPLICATE,\n--\tCLUSTERED INDEX(id)\n\tHEAP\n)\nGO\nALTER TABLE DataFlow.dimEventType add CONSTRAINT PK_dimEventType_id PRIMARY KEY NONCLUSTERED (ID) NOT ENFORCED\nGO\n\nIF EXISTS (SELECT * FROM sys.objects WHERE NAME = 'dimEventType2' AND TYPE = 'U')\n\tDROP TABLE DataFlow.dimEventType2\nGO\nCREATE TABLE DataFlow.dimEventType2 (id int NOT NULL, EventType2 nvarchar(128) NOT NULL)\nWITH (\n\tDISTRIBUTION = REPLICATE,\n--\tCLUSTERED INDEX(id)\n\tHEAP\n)\nGO\nALTER TABLE DataFlow.dimEventType2 add CONSTRAINT PK_dimEventType2_id PRIMARY KEY NONCLUSTERED (ID) NOT ENFORCED\nGO\n\nIF EXISTS (SELECT * FROM sys.objects WHERE NAME = 'dimLocation' AND TYPE = 'U')\n\tDROP TABLE DataFlow.dimLocation\nGO\nCREATE TABLE DataFlow.dimLocation (id int NOT NULL, Location nvarchar(128) NOT NULL)\nWITH (\n\tDISTRIBUTION = REPLICATE,\n--\tCLUSTERED INDEX(id)\n\tHEAP\n)\nGO\nALTER TABLE DataFlow.dimLocation add CONSTRAINT PK_dimLocation_id PRIMARY KEY NONCLUSTERED (ID) NOT ENFORCED\nGO\n\nIF EXISTS (SELECT * FROM sys.objects WHERE NAME = 'dimShotOutcome' AND TYPE = 'U')\n\tDROP TABLE DataFlow.dimShotOutcome\nGO\nCREATE TABLE DataFlow.dimShotOutcome (id int NOT NULL, ShotOutcome nvarchar(128) NOT NULL)\nWITH (\n\tDISTRIBUTION = REPLICATE,\n--\tCLUSTERED INDEX(id)\n\tHEAP\n)\nGO\nALTER TABLE DataFlow.dimShotOutcome add CONSTRAINT PK_dimShotOutcome_id PRIMARY KEY NONCLUSTERED (ID) NOT ENFORCED\nGO\n\nIF EXISTS (SELECT * FROM sys.objects WHERE NAME = 'dimShotPlace' AND TYPE = 'U')\n\tDROP TABLE DataFlow.dimShotPlace\nGO\nCREATE TABLE DataFlow.dimShotPlace (id int NOT NULL, ShotPlace nvarchar(128) NOT NULL)\nWITH (\n\tDISTRIBUTION = REPLICATE,\n--\tCLUSTERED INDEX(id)\n\tHEAP\n)\nGO\nALTER TABLE DataFlow.dimShotPlace add CONSTRAINT PK_dimShotPlace_id PRIMARY KEY NONCLUSTERED (ID) NOT ENFORCED\nGO\n\nIF EXISTS (SELECT * FROM sys.objects WHERE NAME = 'dimSide' AND TYPE = 'U')\n\tDROP TABLE DataFlow.dimSide\nGO\nCREATE TABLE DataFlow.dimSide (id int NOT NULL, Side nvarchar(128) NOT NULL)\nWITH (\n\tDISTRIBUTION = REPLICATE,\n--\tCLUSTERED INDEX(id)\n\tHEAP\n)\nGO\nALTER TABLE DataFlow.dimSide add CONSTRAINT PK_dimSide_id PRIMARY KEY NONCLUSTERED (ID) NOT ENFORCED\nGO\n\n\nIF EXISTS (SELECT * FROM sys.objects WHERE NAME = 'dimSituation' AND TYPE = 'U')\n\tDROP TABLE DataFlow.dimSituation\nGO\nCREATE TABLE DataFlow.dimSituation (id int NOT NULL, Situation nvarchar(128) NOT NULL)\nWITH (\n\tDISTRIBUTION = REPLICATE,\n--\tCLUSTERED INDEX(id)\n\tHEAP\n)\nGO\nALTER TABLE DataFlow.dimSituation add CONSTRAINT PK_dimSituation_id PRIMARY KEY NONCLUSTERED (ID) NOT ENFORCED\nGO\n\n-- =============================================================================\n-- ETL Config\n-- =============================================================================\nIF EXISTS (SELECT * FROM sys.objects WHERE NAME = 'etlConfiguration_DataFlow' AND TYPE = 'U')\n\tDROP TABLE config.etlConfiguration_DataFlow\nGO\nCREATE TABLE config.etlConfiguration_DataFlow (\n\tSourceSystem nvarchar(128) NOT NULL,\n\tSourceFolder nvarchar(128) NOT NULL,\n    SourceFileName nvarchar(128) NOT NULL,\n    SourceFileExtension nvarchar(16) NOT NULL,\n\tDestinationSchema NVARCHAR(128) NOT NULL,\n\tDestinationTable NVARCHAR(128) NOT NULL,\n    IsActive BIT NOT NULL\n)\nWITH (\n\tDISTRIBUTION = ROUND_ROBIN,\n\tHEAP\n)\nGO\nCREATE INDEX IX_etlConfiguration_DataFlow_IsActive ON Config.etlConfiguration_DataFlow(IsActive);\nGO\n\nINSERT INTO config.etlConfiguration_DataFlow (SourceSystem, SourceFolder, SourceFileName, SourceFileExtension, DestinationSchema, DestinationTable, IsActive) VALUES ('europesoccer', 'raw/dimensions.csv', 'dimAssistMethod', 'csv', 'DataFlow', 'dimAssistMethod',  1)\nINSERT INTO config.etlConfiguration_DataFlow (SourceSystem, SourceFolder, SourceFileName, SourceFileExtension, DestinationSchema, DestinationTable, IsActive) VALUES ('europesoccer', 'raw/dimensions.csv', 'dimBodypart', 'csv', 'DataFlow', 'dimBodypart',  1)\nINSERT INTO config.etlConfiguration_DataFlow (SourceSystem, SourceFolder, SourceFileName, SourceFileExtension, DestinationSchema, DestinationTable, IsActive) VALUES ('europesoccer', 'raw/dimensions.csv', 'dimCountry', 'csv', 'DataFlow', 'dimCountry',  1)\nINSERT INTO config.etlConfiguration_DataFlow (SourceSystem, SourceFolder, SourceFileName, SourceFileExtension, DestinationSchema, DestinationTable, IsActive) VALUES ('europesoccer', 'raw/dimensions.csv', 'dimEventType', 'csv', 'DataFlow', 'dimEventType',  1)\nINSERT INTO config.etlConfiguration_DataFlow (SourceSystem, SourceFolder, SourceFileName, SourceFileExtension, DestinationSchema, DestinationTable, IsActive) VALUES ('europesoccer', 'raw/dimensions.csv', 'dimEventType2', 'csv', 'DataFlow', 'dimEventType2',  1)\nINSERT INTO config.etlConfiguration_DataFlow (SourceSystem, SourceFolder, SourceFileName, SourceFileExtension, DestinationSchema, DestinationTable, IsActive) VALUES ('europesoccer', 'raw/dimensions.csv', 'dimLocation', 'csv', 'DataFlow', 'dimLocation',  1)\nINSERT INTO config.etlConfiguration_DataFlow (SourceSystem, SourceFolder, SourceFileName, SourceFileExtension, DestinationSchema, DestinationTable, IsActive) VALUES ('europesoccer', 'raw/dimensions.csv', 'dimShotOutcome', 'csv', 'DataFlow', 'dimShotOutcome',  1)\nINSERT INTO config.etlConfiguration_DataFlow (SourceSystem, SourceFolder, SourceFileName, SourceFileExtension, DestinationSchema, DestinationTable, IsActive) VALUES ('europesoccer', 'raw/dimensions.csv', 'dimShotPlace', 'csv', 'DataFlow', 'dimShotPlace',  1)\nINSERT INTO config.etlConfiguration_DataFlow (SourceSystem, SourceFolder, SourceFileName, SourceFileExtension, DestinationSchema, DestinationTable, IsActive) VALUES ('europesoccer', 'raw/dimensions.csv', 'dimSide', 'csv', 'DataFlow', 'dimSide',  1)\nINSERT INTO config.etlConfiguration_DataFlow (SourceSystem, SourceFolder, SourceFileName, SourceFileExtension, DestinationSchema, DestinationTable, IsActive) VALUES ('europesoccer', 'raw/dimensions.csv', 'dimSituation', 'csv', 'DataFlow', 'dimSituation',  1)\nGO",
 					"metadata": {
 						"language": "sql"
 					},
 					"currentConnection": {
 						"name": "SoccerEvents",
-						"type": "SqlPool"
+						"type": "SqlCompute"
 					}
 				},
 				"type": "SqlQuery"
@@ -817,7 +1015,7 @@
 					"name": "Europe Soccer Events"
 				},
 				"content": {
-					"query": "-- =============================================================================\n-- European Soccer Events\n-- Azure Synapse Analytics Demo\n-- https://github.com/aessing/demo-azuresynapse\n-- -----------------------------------------------------------------------------\n-- Developer.......: Andre Essing (https://www.andre-essing.de/)\n--                                (https://github.com/aessing)\n--                                (https://twitter.com/aessing)\n--                                (https://www.linkedin.com/in/aessing/)\n-- -----------------------------------------------------------------------------\n-- THIS CODE AND INFORMATION ARE PROVIDED \"AS IS\" WITHOUT WARRANTY OF ANY KIND,\n-- EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED\n-- WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.\n-- =============================================================================\n\nDROP TABLE [Spark].[GameEvents]\nGO\n\nCREATE TABLE [Spark].[GameEvents]\n( \n\t[id_odsp] [nvarchar](32)  NULL,\n\t[id_event] [nvarchar](32)  NULL,\n\t[sort_order] [int]  NULL,\n\t[time] [int]  NULL,\n\t[event_type] [int]  NULL,\n\t[event_type_str] [nvarchar](32)  NULL,\n\t[event_type2] [int]  NULL,\n\t[event_type2_str] [nvarchar](32)  NULL,\n\t[side] [int]  NULL,\n\t[side_str] [nvarchar](16)  NULL,\n\t[event_team] [nvarchar](128)  NULL,\n\t[opponent] [nvarchar](128)  NULL,\n\t[player] [nvarchar](128)  NULL,\n\t[player2] [nvarchar](128)  NULL,\n\t[player_in] [nvarchar](128)  NULL,\n\t[player_out] [nvarchar](128)  NULL,\n\t[shot_place] [int]  NULL,\n\t[shot_place_str] [nvarchar](64)  NULL,\n\t[shot_outcome] [int]  NULL,\n\t[shot_outcome_str] [nvarchar](64)  NULL,\n\t[is_goal] [int]  NULL,\n\t[location] [int]  NULL,\n\t[location_str] [nvarchar](64)  NULL,\n\t[bodypart] [int]  NULL,\n\t[bodypart_str] [nvarchar](64)  NULL,\n\t[assist_method] [int]  NULL,\n\t[assist_method_str] [nvarchar](64)  NULL,\n\t[situation] [int]  NULL,\n\t[situation_str] [nvarchar](64)  NULL,\n\t[country_code] [nchar](3)  NULL,\n\t[time_bin] [float]  NULL\n)\nWITH\n(\n\tDISTRIBUTION = ROUND_ROBIN,\n\tCLUSTERED COLUMNSTORE INDEX\n)\nGO",
+					"query": "-- =============================================================================\n-- European Soccer Events\n-- Azure Synapse Analytics Demo\n-- https://github.com/aessing/demo-azuresynapse\n-- -----------------------------------------------------------------------------\n-- Developer.......: Andre Essing (https://www.andre-essing.de/)\n--                                (https://github.com/aessing)\n--                                (https://twitter.com/aessing)\n--                                (https://www.linkedin.com/in/aessing/)\n-- -----------------------------------------------------------------------------\n-- THIS CODE AND INFORMATION ARE PROVIDED \"AS IS\" WITHOUT WARRANTY OF ANY KIND,\n-- EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED\n-- WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.\n-- =============================================================================\n\nIF EXISTS (SELECT * FROM sys.objects WHERE NAME = 'GameEvents' AND TYPE = 'U')\n\tDROP TABLE [Spark].[GameEvents]\nGO\n\nCREATE TABLE [Spark].[GameEvents]\n( \n\t[id_odsp] [nvarchar](32)  NULL,\n\t[id_event] [nvarchar](32)  NULL,\n\t[sort_order] [int]  NULL,\n\t[time] [int]  NULL,\n\t[event_type] [int]  NULL,\n\t[event_type_str] [nvarchar](32)  NULL,\n\t[event_type2] [int]  NULL,\n\t[event_type2_str] [nvarchar](32)  NULL,\n\t[side] [int]  NULL,\n\t[side_str] [nvarchar](16)  NULL,\n\t[event_team] [nvarchar](128)  NULL,\n\t[opponent] [nvarchar](128)  NULL,\n\t[player] [nvarchar](128)  NULL,\n\t[player2] [nvarchar](128)  NULL,\n\t[player_in] [nvarchar](128)  NULL,\n\t[player_out] [nvarchar](128)  NULL,\n\t[shot_place] [int]  NULL,\n\t[shot_place_str] [nvarchar](64)  NULL,\n\t[shot_outcome] [int]  NULL,\n\t[shot_outcome_str] [nvarchar](64)  NULL,\n\t[is_goal] [int]  NULL,\n\t[location] [int]  NULL,\n\t[location_str] [nvarchar](64)  NULL,\n\t[bodypart] [int]  NULL,\n\t[bodypart_str] [nvarchar](64)  NULL,\n\t[assist_method] [int]  NULL,\n\t[assist_method_str] [nvarchar](64)  NULL,\n\t[situation] [int]  NULL,\n\t[situation_str] [nvarchar](64)  NULL,\n\t[country_code] [nchar](3)  NULL,\n\t[time_bin] [float]  NULL\n)\nWITH\n(\n\tDISTRIBUTION = ROUND_ROBIN,\n\tHEAP\n)\nGO\nCREATE INDEX IX_GameEvents_isgoal_country ON DataFlow.factGameEvents(is_goal, country);\nGO",
 					"metadata": {
 						"language": "sql"
 					},
@@ -827,6 +1025,133 @@
 					}
 				},
 				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/ESE_SQL_99_ConfigureDatabase')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"folder": {
+					"name": "Europe Soccer Events"
+				},
+				"content": {
+					"query": "-- =============================================================================\n-- European Soccer Events\n-- Azure Synapse Analytics Demo\n-- https://github.com/aessing/demo-azuresynapse\n-- -----------------------------------------------------------------------------\n-- Developer.......: Andre Essing (https://www.andre-essing.de/)\n--                                (https://github.com/aessing)\n--                                (https://twitter.com/aessing)\n--                                (https://www.linkedin.com/in/aessing/)\n-- -----------------------------------------------------------------------------\n-- THIS CODE AND INFORMATION ARE PROVIDED \"AS IS\" WITHOUT WARRANTY OF ANY KIND,\n-- EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED\n-- WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.\n-- =============================================================================\n\n-- RUN IN MASTER\nALTER DATABASE SoccerEvents SET READ_COMMITTED_SNAPSHOT OFF\nALTER DATABASE SoccerEvents SET RESULT_SET_CACHING ON\nALTER DATABASE SoccerEvents SET ENCRYPTION ON\nGO\n\n-- RUN IN USER DB\nALTER DATABASE SoccerEvents SET AUTO_CREATE_STATISTICS ON\nALTER DATABASE SoccerEvents SET QUERY_STORE = ON\nGO",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"name": "SoccerEvents",
+						"type": "SqlPool"
+					}
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/ESE_SQL_99_CreateTableDatalake')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"folder": {
+					"name": "Europe Soccer Events"
+				},
+				"content": {
+					"query": "-- =============================================================================\n-- European Soccer Events\n-- Azure Synapse Analytics Demo\n-- https://github.com/aessing/demo-azuresynapse\n-- -----------------------------------------------------------------------------\n-- Developer.......: Andre Essing (https://www.andre-essing.de/)\n--                                (https://github.com/aessing)\n--                                (https://twitter.com/aessing)\n--                                (https://www.linkedin.com/in/aessing/)\n-- -----------------------------------------------------------------------------\n-- THIS CODE AND INFORMATION ARE PROVIDED \"AS IS\" WITHOUT WARRANTY OF ANY KIND,\n-- EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED\n-- WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.\n-- =============================================================================\n\nIF NOT EXISTS (SELECT * FROM sys.external_file_formats WHERE name = 'SynapseParquetFormat') \n\tCREATE EXTERNAL FILE FORMAT [SynapseParquetFormat] \n\tWITH ( FORMAT_TYPE = PARQUET)\nGO\n\nIF NOT EXISTS (SELECT * FROM sys.external_data_sources WHERE name = 'demosynapsedls01_europesoccer') \n\tCREATE EXTERNAL DATA SOURCE [demosynapsedls01_europesoccer] \n\tWITH (\n\t\tLOCATION = 'abfss://europesoccer@demosynapsedls01.dfs.core.windows.net', \n\t\tTYPE     = HADOOP \n\t)\nGO\n\nCREATE EXTERNAL TABLE DataLake.GameEventsParquet (\n\t[id_odsp] varchar(32),\n\t[id_event] varchar(32),\n\t[sort_order] int,\n\t[time] int,\n\t[event_type] int,\n\t[event_type_str] varchar(32),\n\t[event_type2] int,\n\t[event_type2_str] varchar(32),\n\t[side] int,\n\t[side_str] varchar(16),\n\t[event_team] varchar(128),\n\t[opponent] varchar(128),\n\t[player] varchar(128),\n\t[player2] varchar(128),\n\t[player_in] varchar(128),\n\t[player_out] varchar(128),\n\t[shot_place] int,\n\t[shot_place_str] varchar(64),\n\t[shot_outcome] int,\n\t[shot_outcome_str] varchar(64),\n\t[is_goal] int,\n\t[location] int,\n\t[location_str] varchar(64),\n\t[bodypart] int,\n\t[bodypart_str] varchar(64),\n\t[assist_method] int,\n\t[assist_method_str] varchar(64),\n\t[situation] int,\n\t[situation_str] varchar(64),\n\t[country_code] varchar(3),\n\t[time_bin] float\n)\nWITH (\n\tLOCATION = 'curated/game_events.parquet',\n\tDATA_SOURCE = [demosynapsedls01_europesoccer],\n\tFILE_FORMAT = [SynapseParquetFormat],\n\tREJECT_TYPE = VALUE,\n\tREJECT_VALUE = 0\n)\nGO",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"name": "SoccerEvents",
+						"type": "SqlPool"
+					}
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/AutoResolveIntegrationRuntime')]",
+			"type": "Microsoft.Synapse/workspaces/integrationRuntimes",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"type": "Managed",
+				"typeProperties": {
+					"computeProperties": {
+						"location": "AutoResolve",
+						"dataFlowProperties": {
+							"computeType": "General",
+							"coreCount": 8,
+							"timeToLive": 0
+						}
+					}
+				},
+				"managedVirtualNetwork": {
+					"type": "ManagedVirtualNetworkReference",
+					"referenceName": "default"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/managedVirtualNetworks/default')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/demosynapsesws01-WorkspaceDefaultStorage')]",
+			"type": "Microsoft.Synapse/workspaces/linkedServices",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobFS",
+				"typeProperties": {
+					"url": "[parameters('demosynapsesws01-WorkspaceDefaultStorage_properties_typeProperties_url')]"
+				},
+				"connectVia": {
+					"referenceName": "AutoResolveIntegrationRuntime",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/demosynapsesws01-WorkspaceDefaultSqlServer')]",
+			"type": "Microsoft.Synapse/workspaces/linkedServices",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"parameters": {
+					"DBName": {
+						"type": "String"
+					}
+				},
+				"annotations": [],
+				"type": "AzureSqlDW",
+				"typeProperties": {
+					"connectionString": "[parameters('demosynapsesws01-WorkspaceDefaultSqlServer_connectionString')]"
+				},
+				"connectVia": {
+					"referenceName": "AutoResolveIntegrationRuntime",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/demo_synapse_workspace')]",
+			"type": "Microsoft.Synapse/workspaces/linkedServices",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"description": "Workspace of Andre Essing to demo Synapse Analytics integration",
+				"annotations": [],
+				"type": "PowerBIWorkspace",
+				"typeProperties": {
+					"workspaceID": "24c00752-b71b-40c0-987f-e80459fb4198",
+					"tenantID": "72f988bf-86f1-41af-91ab-2d7cd011db47"
+				}
 			},
 			"dependsOn": []
 		},
@@ -877,7 +1202,8 @@
 						"sparkVersion": "2.4",
 						"nodeCount": 3,
 						"cores": 4,
-						"memory": 28
+						"memory": 28,
+						"extraHeader": null
 					}
 				},
 				"cells": [
@@ -906,7 +1232,8 @@
 							"> THIS CODE AND INFORMATION ARE PROVIDED \"AS IS\" WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.\r\n",
 							"\r\n",
 							"---"
-						]
+						],
+						"attachments": null
 					},
 					{
 						"cell_type": "markdown",
@@ -935,7 +1262,8 @@
 							"We start out by creating an ETL notebook, where the two CSV datasets are transformed and joined into a single Parquet data layer, which enables us to utilize DBIO caching feature for high-performance big data queries.\r\n",
 							"\r\n",
 							"> Blog Post: https://databricks.com/blog/2018/07/09/analyze-games-from-european-soccer-leagues-with-apache-spark-and-databricks.html"
-						]
+						],
+						"attachments": null
 					},
 					{
 						"cell_type": "markdown",
@@ -974,7 +1302,8 @@
 							"| bodypart | 3 body parts |\r\n",
 							"| assist_method | in case of an assisted shot, 5 possible assist methods |\r\n",
 							"| situation | 4 types |"
-						]
+						],
+						"attachments": null
 					},
 					{
 						"cell_type": "markdown",
@@ -988,7 +1317,8 @@
 						"source": [
 							"## Extraction\r\n",
 							"The first task is to create a DataFrame schema for the larger game events dataset, so the read operation doesn’t spend time inferring it from the data. Once extracted, we’ll replace “null” values for interesting fields with data-type specific constants as noted in the code snippet below."
-						]
+						],
+						"attachments": null
 					},
 					{
 						"cell_type": "code",
@@ -1001,73 +1331,82 @@
 								"transient": {
 									"deleting": false
 								}
+							},
+							"diagram": {
+								"activateDiagramType": 1,
+								"chartConfig": {
+									"category": "bar",
+									"keys": [
+										"id_odsp"
+									],
+									"values": [
+										"sort_order"
+									],
+									"yLabel": "sort_order",
+									"xLabel": "id_odsp",
+									"aggregation": "SUM",
+									"aggByBackend": false
+								},
+								"aggData": "{\"sort_order\":{\"UFot0hit/\":5050}}",
+								"isSummary": false,
+								"previewData": {
+									"filter": null,
+									"table": {
+										"rows": [],
+										"schema": {}
+									}
+								},
+								"isSql": false
 							},
 							"collapsed": true
 						},
 						"source": [
-							"# Specify the schema for game events data\r\n",
-							"\r\n",
-							"from pyspark.sql.types import StringType, IntegerType, StructType\r\n",
-							"\r\n",
-							"schema = (StructType().\r\n",
-							"          add(\"id_odsp\", StringType()).\r\n",
-							"          add(\"id_event\", StringType()).\r\n",
-							"          add(\"sort_order\", IntegerType()).\r\n",
-							"          add(\"time\", IntegerType()).\r\n",
-							"          add(\"text\", StringType()).\r\n",
-							"          add(\"event_type\", IntegerType()).\r\n",
-							"          add(\"event_type2\", IntegerType()).\r\n",
-							"          add(\"side\", IntegerType()).\r\n",
-							"          add(\"event_team\", StringType()).\r\n",
-							"          add(\"opponent\", StringType()).\r\n",
-							"          add(\"player\", StringType()).\r\n",
-							"          add(\"player2\", StringType()).\r\n",
-							"          add(\"player_in\", StringType()).\r\n",
-							"          add(\"player_out\", StringType()).\r\n",
-							"          add(\"shot_place\", IntegerType()).\r\n",
-							"          add(\"shot_outcome\", IntegerType()).\r\n",
-							"          add(\"is_goal\", IntegerType()).\r\n",
-							"          add(\"location\", IntegerType()).\r\n",
-							"          add(\"bodypart\", IntegerType()).\r\n",
-							"          add(\"assist_method\", IntegerType()).\r\n",
-							"          add(\"situation\", IntegerType()).\r\n",
-							"          add(\"fast_break\", IntegerType())\r\n",
-							"         )"
-						],
-						"outputs": [],
-						"execution_count": 14
-					},
-					{
-						"cell_type": "code",
-						"metadata": {
-							"jupyter": {
-								"source_hidden": false,
-								"outputs_hidden": false
-							},
-							"nteract": {
-								"transient": {
-									"deleting": false
-								}
-							},
-							"collapsed": false
-						},
-						"source": [
-							"# Extract game events data into DataFrame and display with defined schema\r\n",
-							"eventsDf = spark.read.load('abfss://europesoccer@demosynapsedls01.dfs.core.windows.net/raw/events.csv', format='csv',\r\n",
-							"                         schema=schema, header=True, \r\n",
-							"                         ignoreLeadingWhiteSpace=True, \r\n",
-							"                         ignoreTrailingWhiteSpace=True,\r\n",
-							"                         nullValue='NA')\r\n",
-							"\r\n",
-							"eventsDf = eventsDf.na.fill({'player': 'NA', 'event_team': 'NA', 'opponent': 'NA', \r\n",
-							"                             'event_type': 99, 'event_type2': 99, 'shot_place': 99, \r\n",
-							"                             'shot_outcome': 99, 'location': 99, 'bodypart': 99, \r\n",
-							"                             'assist_method': 99, 'situation': 99})\r\n",
-							"\r\n",
+							"# Specify the schema for game events data\n",
+							"\n",
+							"from pyspark.sql.types import StringType, IntegerType, StructType\n",
+							"\n",
+							"schema = (StructType().\n",
+							"          add(\"id_odsp\", StringType()).\n",
+							"          add(\"id_event\", StringType()).\n",
+							"          add(\"sort_order\", IntegerType()).\n",
+							"          add(\"time\", IntegerType()).\n",
+							"          add(\"text\", StringType()).\n",
+							"          add(\"event_type\", IntegerType()).\n",
+							"          add(\"event_type2\", IntegerType()).\n",
+							"          add(\"side\", IntegerType()).\n",
+							"          add(\"event_team\", StringType()).\n",
+							"          add(\"opponent\", StringType()).\n",
+							"          add(\"player\", StringType()).\n",
+							"          add(\"player2\", StringType()).\n",
+							"          add(\"player_in\", StringType()).\n",
+							"          add(\"player_out\", StringType()).\n",
+							"          add(\"shot_place\", IntegerType()).\n",
+							"          add(\"shot_outcome\", IntegerType()).\n",
+							"          add(\"is_goal\", IntegerType()).\n",
+							"          add(\"location\", IntegerType()).\n",
+							"          add(\"bodypart\", IntegerType()).\n",
+							"          add(\"assist_method\", IntegerType()).\n",
+							"          add(\"situation\", IntegerType()).\n",
+							"          add(\"fast_break\", IntegerType())\n",
+							"         )\n",
+							"\n",
+							"# Extract game events data into DataFrame and display with defined schema\n",
+							"eventsDf = spark.read.load('abfss://europesoccer@demosynapsedls01.dfs.core.windows.net/raw/events.csv', format='csv',\n",
+							"                         schema=schema, header=True, \n",
+							"                         ignoreLeadingWhiteSpace=True, \n",
+							"                         ignoreTrailingWhiteSpace=True,\n",
+							"                         nullValue='NA')\n",
+							"\n",
+							"eventsDf = eventsDf.na.fill({'player': 'NA', 'event_team': 'NA', 'opponent': 'NA', \n",
+							"                             'event_type': 99, 'event_type2': 99, 'shot_place': 99, \n",
+							"                             'shot_outcome': 99, 'location': 99, 'bodypart': 99, \n",
+							"                             'assist_method': 99, 'situation': 99})\n",
+							"\n",
 							"display(eventsDf.limit(100))"
 						],
+						"attachments": null,
 						"outputs": [],
-						"execution_count": 15
+						"execution_count": 19
 					},
 					{
 						"cell_type": "code",
@@ -1080,6 +1419,32 @@
 								"transient": {
 									"deleting": false
 								}
+							},
+							"diagram": {
+								"activateDiagramType": 1,
+								"chartConfig": {
+									"category": "bar",
+									"keys": [
+										"id_odsp"
+									],
+									"values": [
+										"date"
+									],
+									"yLabel": "date",
+									"xLabel": "id_odsp",
+									"aggregation": "SUM",
+									"aggByBackend": false
+								},
+								"aggData": "{\"date\":{\"0Ed6GSCi/\":0,\"0QSBhGQ1/\":0,\"0vWe9vtS/\":0,\"29kj1anI/\":0,\"2Pyjt8KA/\":0,\"2iMUPaQ8/\":0,\"4WY4SljB/\":0,\"4nHmUALb/\":0,\"4xCdEwYE/\":0,\"6F7IXGI1/\":0,\"84Llk2m6/\":0,\"8G9ykJld/\":0,\"A5DsExWN/\":0,\"ADHR3I3k/\":0,\"Aw5DflLH/\":0,\"C2F4CH2R/\":0,\"CQJ2BZ8q/\":0,\"CnFrLcl2/\":0,\"CtEdUSdJ/\":0,\"CzPV312a/\":0,\"CzqwqAzh/\":0,\"EXAMtLeF/\":0,\"Ea52eLBS/\":0,\"EkQZqjLo/\":0,\"GUOdmtII/\":0,\"I5sHJt2n/\":0,\"IV8qAKQL/\":0,\"K4vgcjya/\":0,\"KABIs1t9/\":0,\"KSGZOJuF/\":0,\"KhlsbNR9/\":0,\"M3FzCtd9/\":0,\"M7PhlM2C/\":0,\"MZT7gdBe/\":0,\"O0NQQuB2/\":0,\"O2rLz4Jh/\":0,\"OIjn2uXB/\":0,\"Q7zaeItq/\":0,\"QVCWNa4q/\":0,\"QeIqVj6h/\":0,\"QuWqjrYa/\":0,\"SEqvxt5j/\":0,\"StGWCMt3/\":0,\"SzFQuuBL/\":0,\"UBZQ4smg/\":0,\"UFot0hit/\":0,\"UPAXkaZk/\":0,\"WEEwFIGH/\":0,\"WMIN4blq/\":0,\"WQGN5NXn/\":0,\"WUdMGvn5/\":0,\"Wn69eU5B/\":0,\"WzGcd1dM/\":0,\"YBCVCpCG/\":0,\"YRfEE6s4/\":0,\"YeGvMwZe/\":0,\"YkXosl54/\":0,\"Yu8B9Dwd/\":0,\"bHbEI0Hh/\":0,\"bJFwOweL/\":0,\"bgY8R85H/\":0,\"bkjpaC6n/\":0,\"bw0Yaqcc/\":0,\"byqaawHU/\":0,\"dEc4HHIr/\":0,\"dUDqL6ro/\":0,\"fLN0n0XO/\":0,\"faYsrUkb/\":0,\"fqnr3LH5/\":0,\"fydAFnSc/\":0,\"htFsNcAR/\":0,\"hx7W2xJe/\":0,\"j3kJDQdA/\":0,\"jHI6AgOk/\":0,\"jRPmWlS6/\":0,\"lOpzwMkp/\":0,\"lShocssG/\":0,\"ljHSD2Rd/\":0,\"ljPYFb1B/\":0,\"lvg2H8co/\":0,\"nB6hTUz5/\":0,\"pYb2uSZG/\":0,\"pYve0J1O/\":0,\"pzdU0Psi/\":0,\"rNNmGa32/\":0,\"t2kwa3C3/\":0,\"tKCErsR2/\":0,\"tl4D8Ggo/\":0,\"vFrDKMnt/\":0,\"vZGzNJJk/\":0,\"vuIoDdoU/\":0,\"vwm9GyYl/\":0,\"x4HJ63It/\":0,\"x8cIHKWb/\":0,\"xQ65dAj5/\":0,\"xpXCQSKN/\":0,\"xtklbWLh/\":0,\"z3BTjuKq/\":0,\"z7JvB0BF/\":0,\"zeViBqAP/\":0}}",
+								"isSummary": false,
+								"previewData": {
+									"filter": null,
+									"table": {
+										"rows": [],
+										"schema": {}
+									}
+								},
+								"isSql": false
 							},
 							"collapsed": false
 						},
@@ -1093,8 +1458,9 @@
 							"\r\n",
 							"display(gameInfDf.limit(100))"
 						],
+						"attachments": null,
 						"outputs": [],
-						"execution_count": 16
+						"execution_count": 20
 					},
 					{
 						"cell_type": "markdown",
@@ -1111,7 +1477,8 @@
 							"Convert the data to a format, such that one could gather meaningful insights from it.\r\n",
 							"\r\n",
 							"The next step is to transform and join the DataFrames into one. Many fields of interest in the game events DataFrame have numeric IDs, so we define a generic UDF that could use look-up tables for mapping IDs to descriptions."
-						]
+						],
+						"attachments": null
 					},
 					{
 						"cell_type": "code",
@@ -1137,8 +1504,9 @@
 							"        return mapping.get(col)\r\n",
 							"    return udf(mapKeyToVal_, StringType())"
 						],
+						"attachments": null,
 						"outputs": [],
-						"execution_count": 17
+						"execution_count": 21
 					},
 					{
 						"cell_type": "code",
@@ -1177,8 +1545,9 @@
 							"\r\n",
 							"countryCodeMap = {'germany':'DEU', 'france':'FRA', 'england':'GBR', 'spain':'ESP', 'italy':'ITA'}"
 						],
+						"attachments": null,
 						"outputs": [],
-						"execution_count": 18
+						"execution_count": 22
 					},
 					{
 						"cell_type": "markdown",
@@ -1192,7 +1561,8 @@
 						"source": [
 							"## Map country names to codes\r\n",
 							"The mapped descriptions are stored in new columns in the DataFrame. So once the two DataFrames are joined, we’ll filter out the original numeric columns to keep it as sparse as possible. We’ll also use QuantileDiscretizer to add a categorical “time_bin” column based on “time” field."
-						]
+						],
+						"attachments": null
 					},
 					{
 						"cell_type": "code",
@@ -1206,6 +1576,32 @@
 									"deleting": false
 								}
 							},
+							"diagram": {
+								"activateDiagramType": 1,
+								"chartConfig": {
+									"category": "bar",
+									"keys": [
+										"id_odsp"
+									],
+									"values": [
+										"id_odsp"
+									],
+									"yLabel": "id_odsp",
+									"xLabel": "id_odsp",
+									"aggregation": "COUNT",
+									"aggByBackend": false
+								},
+								"aggData": "{\"id_odsp\":{\"0Ed6GSCi/\":1,\"0QSBhGQ1/\":1,\"0vWe9vtS/\":1,\"29kj1anI/\":1,\"2Pyjt8KA/\":1,\"2iMUPaQ8/\":1,\"4WY4SljB/\":1,\"4nHmUALb/\":1,\"4xCdEwYE/\":1,\"6F7IXGI1/\":1,\"84Llk2m6/\":1,\"8G9ykJld/\":1,\"A5DsExWN/\":1,\"ADHR3I3k/\":1,\"Aw5DflLH/\":1,\"C2F4CH2R/\":1,\"CQJ2BZ8q/\":1,\"CnFrLcl2/\":1,\"CtEdUSdJ/\":1,\"CzPV312a/\":1,\"CzqwqAzh/\":1,\"EXAMtLeF/\":1,\"Ea52eLBS/\":1,\"EkQZqjLo/\":1,\"GUOdmtII/\":1,\"I5sHJt2n/\":1,\"IV8qAKQL/\":1,\"K4vgcjya/\":1,\"KABIs1t9/\":1,\"KSGZOJuF/\":1,\"KhlsbNR9/\":1,\"M3FzCtd9/\":1,\"M7PhlM2C/\":1,\"MZT7gdBe/\":1,\"O0NQQuB2/\":1,\"O2rLz4Jh/\":1,\"OIjn2uXB/\":1,\"Q7zaeItq/\":1,\"QVCWNa4q/\":1,\"QeIqVj6h/\":1,\"QuWqjrYa/\":1,\"SEqvxt5j/\":1,\"StGWCMt3/\":1,\"SzFQuuBL/\":1,\"UBZQ4smg/\":1,\"UFot0hit/\":1,\"UPAXkaZk/\":1,\"WEEwFIGH/\":1,\"WMIN4blq/\":1,\"WQGN5NXn/\":1,\"WUdMGvn5/\":1,\"Wn69eU5B/\":1,\"WzGcd1dM/\":1,\"YBCVCpCG/\":1,\"YRfEE6s4/\":1,\"YeGvMwZe/\":1,\"YkXosl54/\":1,\"Yu8B9Dwd/\":1,\"bHbEI0Hh/\":1,\"bJFwOweL/\":1,\"bgY8R85H/\":1,\"bkjpaC6n/\":1,\"bw0Yaqcc/\":1,\"byqaawHU/\":1,\"dEc4HHIr/\":1,\"dUDqL6ro/\":1,\"fLN0n0XO/\":1,\"faYsrUkb/\":1,\"fqnr3LH5/\":1,\"fydAFnSc/\":1,\"htFsNcAR/\":1,\"hx7W2xJe/\":1,\"j3kJDQdA/\":1,\"jHI6AgOk/\":1,\"jRPmWlS6/\":1,\"lOpzwMkp/\":1,\"lShocssG/\":1,\"ljHSD2Rd/\":1,\"ljPYFb1B/\":1,\"lvg2H8co/\":1,\"nB6hTUz5/\":1,\"pYb2uSZG/\":1,\"pYve0J1O/\":1,\"pzdU0Psi/\":1,\"rNNmGa32/\":1,\"t2kwa3C3/\":1,\"tKCErsR2/\":1,\"tl4D8Ggo/\":1,\"vFrDKMnt/\":1,\"vZGzNJJk/\":1,\"vuIoDdoU/\":1,\"vwm9GyYl/\":1,\"x4HJ63It/\":1,\"x8cIHKWb/\":1,\"xQ65dAj5/\":1,\"xpXCQSKN/\":1,\"xtklbWLh/\":1,\"z3BTjuKq/\":1,\"z7JvB0BF/\":1,\"zeViBqAP/\":1}}",
+								"isSummary": false,
+								"previewData": {
+									"filter": null,
+									"table": {
+										"rows": [],
+										"schema": {}
+									}
+								},
+								"isSql": false
+							},
 							"collapsed": false
 						},
 						"source": [
@@ -1213,8 +1609,9 @@
 							"\r\n",
 							"display(gameInfDf['id_odsp','country','country_code'].limit(100))"
 						],
+						"attachments": null,
 						"outputs": [],
-						"execution_count": 19
+						"execution_count": 23
 					},
 					{
 						"cell_type": "markdown",
@@ -1228,7 +1625,29 @@
 						"source": [
 							"## Transform game events data using lookups and join with high-level info\r\n",
 							"This next code snippet performs a lookup using UDFs and joining DataFrames."
-						]
+						],
+						"attachments": null
+					},
+					{
+						"cell_type": "code",
+						"source": [
+							"# Map other values\n",
+							"eventsDf = (\n",
+							"             eventsDf.\n",
+							"             withColumn(\"event_type_str\", mapKeyToVal(evtTypeMap)(\"event_type\")).\n",
+							"             withColumn(\"event_type2_str\", mapKeyToVal(evtTyp2Map)(\"event_type2\")).\n",
+							"             withColumn(\"side_str\", mapKeyToVal(sideMap)(\"side\")).\n",
+							"             withColumn(\"shot_place_str\", mapKeyToVal(shotPlaceMap)(\"shot_place\")).\n",
+							"             withColumn(\"shot_outcome_str\", mapKeyToVal(shotOutcomeMap)(\"shot_outcome\")).\n",
+							"             withColumn(\"location_str\", mapKeyToVal(locationMap)(\"location\")).\n",
+							"             withColumn(\"bodypart_str\", mapKeyToVal(bodyPartMap)(\"bodypart\")).\n",
+							"             withColumn(\"assist_method_str\", mapKeyToVal(assistMethodMap)(\"assist_method\")).\n",
+							"             withColumn(\"situation_str\", mapKeyToVal(situationMap)(\"situation\"))\n",
+							"           )"
+						],
+						"attachments": null,
+						"outputs": [],
+						"execution_count": 24
 					},
 					{
 						"cell_type": "code",
@@ -1241,32 +1660,47 @@
 								"transient": {
 									"deleting": false
 								}
+							},
+							"diagram": {
+								"activateDiagramType": 1,
+								"chartConfig": {
+									"category": "bar",
+									"keys": [
+										"id_odsp"
+									],
+									"values": [
+										"sort_order"
+									],
+									"yLabel": "sort_order",
+									"xLabel": "id_odsp",
+									"aggregation": "SUM",
+									"aggByBackend": false
+								},
+								"aggData": "{\"sort_order\":{\"84iqdhso/\":1443,\"AcBjeS4n/\":3828}}",
+								"isSummary": false,
+								"previewData": {
+									"filter": null,
+									"table": {
+										"rows": [],
+										"schema": {}
+									}
+								},
+								"isSql": false
 							},
 							"collapsed": false
 						},
 						"source": [
-							"eventsDf = (\r\n",
-							"             eventsDf.\r\n",
-							"             withColumn(\"event_type_str\", mapKeyToVal(evtTypeMap)(\"event_type\")).\r\n",
-							"             withColumn(\"event_type2_str\", mapKeyToVal(evtTyp2Map)(\"event_type2\")).\r\n",
-							"             withColumn(\"side_str\", mapKeyToVal(sideMap)(\"side\")).\r\n",
-							"             withColumn(\"shot_place_str\", mapKeyToVal(shotPlaceMap)(\"shot_place\")).\r\n",
-							"             withColumn(\"shot_outcome_str\", mapKeyToVal(shotOutcomeMap)(\"shot_outcome\")).\r\n",
-							"             withColumn(\"location_str\", mapKeyToVal(locationMap)(\"location\")).\r\n",
-							"             withColumn(\"bodypart_str\", mapKeyToVal(bodyPartMap)(\"bodypart\")).\r\n",
-							"             withColumn(\"assist_method_str\", mapKeyToVal(assistMethodMap)(\"assist_method\")).\r\n",
-							"             withColumn(\"situation_str\", mapKeyToVal(situationMap)(\"situation\"))\r\n",
-							"           )\r\n",
-							"\r\n",
-							"joinedDf = (\r\n",
-							"  eventsDf.join(gameInfDf, eventsDf.id_odsp == gameInfDf.id_odsp, 'inner').\r\n",
-							"  select(eventsDf.id_odsp, eventsDf.id_event, eventsDf.sort_order, eventsDf.time, eventsDf.event_type, eventsDf.event_type_str, eventsDf.event_type2, eventsDf.event_type2_str, eventsDf.side, eventsDf.side_str, eventsDf.event_team, eventsDf.opponent, eventsDf.player, eventsDf.player2, eventsDf.player_in, eventsDf.player_out, eventsDf.shot_place, eventsDf.shot_place_str, eventsDf.shot_outcome, eventsDf.shot_outcome_str, eventsDf.is_goal, eventsDf.location, eventsDf.location_str, eventsDf.bodypart, eventsDf.bodypart_str, eventsDf.assist_method, eventsDf.assist_method_str, eventsDf.situation, eventsDf.situation_str, gameInfDf.country_code)\r\n",
-							")\r\n",
-							"\r\n",
+							"# Join the dataframes\n",
+							"joinedDf = (\n",
+							"  eventsDf.join(gameInfDf, eventsDf.id_odsp == gameInfDf.id_odsp, 'inner').\n",
+							"  select(eventsDf.id_odsp, eventsDf.id_event, eventsDf.sort_order, eventsDf.time, eventsDf.event_type, eventsDf.event_type_str, eventsDf.event_type2, eventsDf.event_type2_str, eventsDf.side, eventsDf.side_str, eventsDf.event_team, eventsDf.opponent, eventsDf.player, eventsDf.player2, eventsDf.player_in, eventsDf.player_out, eventsDf.shot_place, eventsDf.shot_place_str, eventsDf.shot_outcome, eventsDf.shot_outcome_str, eventsDf.is_goal, eventsDf.location, eventsDf.location_str, eventsDf.bodypart, eventsDf.bodypart_str, eventsDf.assist_method, eventsDf.assist_method_str, eventsDf.situation, eventsDf.situation_str, gameInfDf.country_code)\n",
+							")\n",
+							"\n",
 							"display(joinedDf.limit(100))"
 						],
+						"attachments": null,
 						"outputs": [],
-						"execution_count": 20
+						"execution_count": 25
 					},
 					{
 						"cell_type": "code",
@@ -1279,6 +1713,32 @@
 								"transient": {
 									"deleting": false
 								}
+							},
+							"diagram": {
+								"activateDiagramType": 1,
+								"chartConfig": {
+									"category": "bar",
+									"keys": [
+										"id_odsp"
+									],
+									"values": [
+										"sort_order"
+									],
+									"yLabel": "sort_order",
+									"xLabel": "id_odsp",
+									"aggregation": "SUM",
+									"aggByBackend": false
+								},
+								"aggData": "{\"sort_order\":{\"Aw5DflLH/\":7503,\"CzPV312a/\":6555,\"GUOdmtII/\":4095,\"M7PhlM2C/\":6670,\"QuWqjrYa/\":7021,\"UBZQ4smg/\":1830,\"UFot0hit/\":6105,\"bkjpaC6n/\":9453,\"lOpzwMkp/\":9180}}",
+								"isSummary": false,
+								"previewData": {
+									"filter": null,
+									"table": {
+										"rows": [],
+										"schema": {}
+									}
+								},
+								"isSql": false
 							},
 							"collapsed": false
 						},
@@ -1291,8 +1751,9 @@
 							"\r\n",
 							"display(joinedDf)"
 						],
+						"attachments": null,
 						"outputs": [],
-						"execution_count": 21
+						"execution_count": 26
 					},
 					{
 						"cell_type": "markdown",
@@ -1304,9 +1765,10 @@
 							}
 						},
 						"source": [
-							"## Loading\r\n",
-							"Once the data is in the desired shape, we’ll load it as Parquet into a Spark table that would reside in a domain-specific database. The database and table will be registered with internal Databricks metastore, and the data will be stored in DBFS. We’ll partition the Parquet data by “country_code” during write."
-						]
+							"## Loading\n",
+							"Once the data is in the desired shape, we’ll load it as Parquet and CSV into the data lake."
+						],
+						"attachments": null
 					},
 					{
 						"cell_type": "code",
@@ -1326,8 +1788,9 @@
 							"# Write game event data as a csv into the data lake\r\n",
 							"joinedDf.repartition(1).write.format('csv').mode('overwrite').save('abfss://europesoccer@demosynapsedls01.dfs.core.windows.net/curated/game_events.csv')"
 						],
+						"attachments": null,
 						"outputs": [],
-						"execution_count": 22
+						"execution_count": 27
 					},
 					{
 						"cell_type": "code",
@@ -1347,29 +1810,9 @@
 							"# Write game event data as a parquet file into the data lake\r\n",
 							"joinedDf.repartition(1).write.format('parquet').mode('overwrite').save('abfss://europesoccer@demosynapsedls01.dfs.core.windows.net/curated/game_events.parquet')"
 						],
+						"attachments": null,
 						"outputs": [],
-						"execution_count": 23
-					},
-					{
-						"cell_type": "code",
-						"metadata": {
-							"jupyter": {
-								"source_hidden": false,
-								"outputs_hidden": false
-							},
-							"nteract": {
-								"transient": {
-									"deleting": false
-								}
-							},
-							"collapsed": true
-						},
-						"source": [
-							"# Write game event data as a delta lake into the data lake\r\n",
-							"joinedDf.write.format('delta').mode('overwrite').save('abfss://europesoccer@demosynapsedls01.dfs.core.windows.net/curated/game_events.delta')"
-						],
-						"outputs": [],
-						"execution_count": 24
+						"execution_count": 28
 					}
 				]
 			},
@@ -1422,7 +1865,8 @@
 						"sparkVersion": "2.4",
 						"nodeCount": 3,
 						"cores": 4,
-						"memory": 28
+						"memory": 28,
+						"extraHeader": null
 					}
 				},
 				"cells": [
@@ -1451,7 +1895,8 @@
 							"> THIS CODE AND INFORMATION ARE PROVIDED \"AS IS\" WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.\r\n",
 							"\r\n",
 							"---"
-						]
+						],
+						"attachments": null
 					},
 					{
 						"cell_type": "markdown",
@@ -1475,7 +1920,8 @@
 							"* When/What time window are most goals scored within a game in each league?\r\n",
 							"\r\n",
 							"We'll also take a look at how to use third-party libraries for visualizations - like creating a 3D scatter-plot to see distribution of goals by shot place and location."
-						]
+						],
+						"attachments": null
 					},
 					{
 						"cell_type": "markdown",
@@ -1490,7 +1936,8 @@
 							"## Spark Packages required\r\n",
 							"\r\n",
 							"- plotly==2.0.15"
-						]
+						],
+						"attachments": null
 					},
 					{
 						"cell_type": "markdown",
@@ -1503,7 +1950,8 @@
 						},
 						"source": [
 							"## Load data from Data Lake and create a TempView"
-						]
+						],
+						"attachments": null
 					},
 					{
 						"cell_type": "code",
@@ -1518,6 +1966,7 @@
 							"gameEventsDf = spark.read.load('abfss://europesoccer@demosynapsedls01.dfs.core.windows.net/curated/game_events.parquet', format='parquet')\r\n",
 							"gameEventsDf.createOrReplaceTempView('gameEvents')"
 						],
+						"attachments": null,
 						"outputs": [],
 						"execution_count": 6
 					},
@@ -1541,6 +1990,7 @@
 							"SELECT COUNT(1)\r\n",
 							"  FROM gameEvents"
 						],
+						"attachments": null,
 						"outputs": [],
 						"execution_count": 7
 					},
@@ -1555,7 +2005,8 @@
 						},
 						"source": [
 							"## Start analyzing the data"
-						]
+						],
+						"attachments": null
 					},
 					{
 						"cell_type": "code",
@@ -1577,6 +2028,7 @@
 							"  FROM gameEvents\r\n",
 							" LIMIT 100"
 						],
+						"attachments": null,
 						"outputs": [],
 						"execution_count": 8
 					},
@@ -1601,6 +2053,7 @@
 							" WHERE is_goal = 1\r\n",
 							"LIMIT 100"
 						],
+						"attachments": null,
 						"outputs": [],
 						"execution_count": 9
 					},
@@ -1619,7 +2072,8 @@
 							"For example, if one wants to see the distribution of goals by shot placement, then it could look like this simple query and resulting pie-chart (or alternatively viewable as a data-grid).\r\n",
 							"\r\n",
 							"> Pie chart - Key: shot_place, Values: TOT_GOALS, Aggregation: Sum"
-						]
+						],
+						"attachments": null
 					},
 					{
 						"cell_type": "code",
@@ -1641,6 +2095,7 @@
 							" WHERE is_goal = 1\r\n",
 							" GROUP BY shot_place_str"
 						],
+						"attachments": null,
 						"outputs": [],
 						"execution_count": 10
 					},
@@ -1659,7 +2114,8 @@
 							"Once we observe that Spanish league has had most goals over the term of this data, we could find the top 3 goals locations per shot place from the games in Spain, by writing a more involved query using Window functions in Spark SQL. It would be a stepwise nested query.\r\n",
 							"\r\n",
 							"> Column chart - Keys: SHOT_PLACE_STR,Values: TOT_GOALS, Series groupings: LOCATION_STR, Aggregation: String: Sum, Stacked"
-						]
+						],
+						"attachments": null
 					},
 					{
 						"cell_type": "code",
@@ -1693,6 +2149,7 @@
 							"WHERE goals_rank <= 3 AND LOCATION_STR != 'Unknown' AND SHOT_PLACE_STR != 'Unknown'\r\n",
 							"ORDER BY SHOT_PLACE_STR"
 						],
+						"attachments": null,
 						"outputs": [],
 						"execution_count": 11
 					},
@@ -1711,7 +2168,8 @@
 							"We could do time-based analysis as well, e.g. by observing the total number of goals over the course of a game (0-90+ minutes), across all games in the five leagues. We could use the “time_bin” column created as part of the transformation process earlier, rather than a continuous variable like “time”.\r\n",
 							"\r\n",
 							"> Line chart - Keys: TIME_BIN, Values: TOT_GOALS, Series groupings: COUNTRY_CODE, Aggregation: String: Sum"
-						]
+						],
+						"attachments": null
 					},
 					{
 						"cell_type": "code",
@@ -1734,6 +2192,7 @@
 							" GROUP BY COUNTRY_CODE, TIME_BIN\r\n",
 							" ORDER BY COUNTRY_CODE, TIME_BIN"
 						],
+						"attachments": null,
 						"outputs": [],
 						"execution_count": 12
 					},
@@ -1748,7 +2207,8 @@
 						},
 						"source": [
 							"## Third-party Visualization (Plotly)"
-						]
+						],
+						"attachments": null
 					},
 					{
 						"cell_type": "code",
@@ -1779,6 +2239,7 @@
 							"import numpy as np\r\n",
 							"import json"
 						],
+						"attachments": null,
 						"outputs": [],
 						"execution_count": 13
 					},
@@ -1832,6 +2293,7 @@
 							"      return result   \r\n",
 							"  return result"
 						],
+						"attachments": null,
 						"outputs": [],
 						"execution_count": 14
 					},
@@ -1863,6 +2325,7 @@
 							"\r\n",
 							"display(vizDf.limit(100))"
 						],
+						"attachments": null,
 						"outputs": [],
 						"execution_count": 15
 					},
@@ -1892,6 +2355,7 @@
 							"\r\n",
 							"vizJson[:5]"
 						],
+						"attachments": null,
 						"outputs": [],
 						"execution_count": 16
 					},
@@ -1956,6 +2420,7 @@
 							"displayHTML(plot(fig, filename='3d-scatter-colorscale', output_type='div'))\r\n",
 							""
 						],
+						"attachments": null,
 						"outputs": [],
 						"execution_count": 17
 					}
@@ -2010,7 +2475,8 @@
 						"sparkVersion": "2.4",
 						"nodeCount": 3,
 						"cores": 4,
-						"memory": 28
+						"memory": 28,
+						"extraHeader": null
 					}
 				},
 				"cells": [
@@ -2039,7 +2505,8 @@
 							"> THIS CODE AND INFORMATION ARE PROVIDED \"AS IS\" WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.\r\n",
 							"\r\n",
 							"---"
-						]
+						],
+						"attachments": null
 					},
 					{
 						"cell_type": "markdown",
@@ -2058,7 +2525,8 @@
 							"We’ll now create a third notebook from that perspective, and see how one could fit a [Gradient-boosted tree](https://spark.apache.org/docs/2.2.0/ml-classification-regression.html#gradient-boosted-tree-classifier) classifier Spark ML model on the game events training dataset. In this case, our binary classification label will be field “is_goal”, and we’ll use a mix of categorical features like “event_type_str”, “event_team”, “shot_place_str”, “location_str”, “assist_method_str”, “situation_str” and “country_code”.\r\n",
 							"\r\n",
 							"First, we need to do the necessary imports from Spark ML:"
-						]
+						],
+						"attachments": null
 					},
 					{
 						"cell_type": "markdown",
@@ -2071,7 +2539,8 @@
 						},
 						"source": [
 							"## Load data from Data Lake and create a TempView"
-						]
+						],
+						"attachments": null
 					},
 					{
 						"cell_type": "code",
@@ -2091,6 +2560,7 @@
 							"gameEventsDf = spark.read.load('abfss://europesoccer@demosynapsedls01.dfs.core.windows.net/curated/game_events.parquet', format='parquet')\r\n",
 							"gameEventsDf.createOrReplaceTempView('gameEvents')"
 						],
+						"attachments": null,
 						"outputs": [],
 						"execution_count": 19
 					},
@@ -2106,7 +2576,8 @@
 						"source": [
 							"## Explore data to establish features\r\n",
 							""
-						]
+						],
+						"attachments": null
 					},
 					{
 						"cell_type": "code",
@@ -2131,6 +2602,7 @@
 							"  FROM gameEvents\r\n",
 							" LIMIT 100"
 						],
+						"attachments": null,
 						"outputs": [],
 						"execution_count": 20
 					},
@@ -2145,7 +2617,8 @@
 						},
 						"source": [
 							" ## Create dataset for model training and prediction"
-						]
+						],
+						"attachments": null
 					},
 					{
 						"cell_type": "code",
@@ -2166,6 +2639,7 @@
 							"\r\n",
 							"display(gameEventsDf.limit(100))"
 						],
+						"attachments": null,
 						"outputs": [],
 						"execution_count": 21
 					},
@@ -2180,7 +2654,8 @@
 						},
 						"source": [
 							"## Necessary imports for Spark ML pipeline"
-						]
+						],
+						"attachments": null
 					},
 					{
 						"cell_type": "code",
@@ -2202,6 +2677,7 @@
 							"from pyspark.ml.feature import OneHotEncoder, StringIndexer, VectorAssembler\r\n",
 							"from pyspark.ml.evaluation import BinaryClassificationEvaluator"
 						],
+						"attachments": null,
 						"outputs": [],
 						"execution_count": 22
 					},
@@ -2222,7 +2698,8 @@
 							"- Convert string features to indices using StringIndexer\r\n",
 							"- Transform feature indices to binary vectors using OneHotEncoder\r\n",
 							"- Assemble different binary vector columns into a single vector using VectorAssembler"
-						]
+						],
+						"attachments": null
 					},
 					{
 						"cell_type": "code",
@@ -2253,6 +2730,7 @@
 							"featureAssembler.setInputCols([baseFeature + \"_vec\" for baseFeature in categFeatures])\r\n",
 							"featureAssembler.setOutputCol(\"features\")"
 						],
+						"attachments": null,
 						"outputs": [],
 						"execution_count": 23
 					},
@@ -2269,7 +2747,8 @@
 							"## Create Spark ML pipeline using a GBT classifier\r\n",
 							"\r\n",
 							"Finally, we’ll create a Spark ML Pipeline using the above transformers and the GBT classifier. We’ll divide the game events data into training and test datasets, and fit the pipeline to the former."
-						]
+						],
+						"attachments": null
 					},
 					{
 						"cell_type": "code",
@@ -2291,6 +2770,7 @@
 							"pipelineStages = stringIndexers + encoders + [featureAssembler, gbtClassifier]\r\n",
 							"pipeline = Pipeline(stages=pipelineStages)"
 						],
+						"attachments": null,
 						"outputs": [],
 						"execution_count": 24
 					},
@@ -2305,7 +2785,8 @@
 						},
 						"source": [
 							"## Split dataset into training/test, and create a model from training data"
-						]
+						],
+						"attachments": null
 					},
 					{
 						"cell_type": "code",
@@ -2325,6 +2806,7 @@
 							"(trainingData, testData) = gameEventsDf.randomSplit([0.75, 0.25])\r\n",
 							"model = pipeline.fit(trainingData)"
 						],
+						"attachments": null,
 						"outputs": [],
 						"execution_count": 25
 					},
@@ -2341,7 +2823,8 @@
 							"## Validate the model on test data, display predictions\r\n",
 							"\r\n",
 							"Now we can validate our classification model by running inference on the test dataset. We could compare the predicted label with actual label one by one, but that could be a painful process for lots of test data. For scalable model evaluation in this case, we can use BinaryClassificationEvaluator with area under ROC metric. One could also use the Precision-Recall Curve as an evaluation metric. If it was a multi-classification problem, we could’ve used the MulticlassClassificationEvaluator."
-						]
+						],
+						"attachments": null
 					},
 					{
 						"cell_type": "code",
@@ -2361,6 +2844,7 @@
 							"predictions = model.transform(testData)\r\n",
 							"display(predictions.select(\"prediction\", \"is_goal\", \"features\"))"
 						],
+						"attachments": null,
 						"outputs": [],
 						"execution_count": 26
 					},
@@ -2375,7 +2859,8 @@
 						},
 						"source": [
 							"## Evaluate the model using areaUnderROC metric"
-						]
+						],
+						"attachments": null
 					},
 					{
 						"cell_type": "code",
@@ -2396,6 +2881,7 @@
 							"    labelCol=\"is_goal\", rawPredictionCol=\"prediction\")\r\n",
 							"evaluator.evaluate(predictions)"
 						],
+						"attachments": null,
 						"outputs": [],
 						"execution_count": 27
 					}
@@ -2404,41 +2890,17 @@
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('workspaceName'), '/default')]",
-			"type": "Microsoft.Synapse/workspaces/managedVirtualNetworks",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('workspaceName'), '/default/synapse-ws-sql--demosynapsesws01')]",
-			"type": "Microsoft.Synapse/workspaces/managedVirtualNetworks/managedPrivateEndpoints",
+			"name": "[concat(parameters('workspaceName'), '/SoccerEvents')]",
+			"type": "Microsoft.Synapse/workspaces/sqlPools",
 			"apiVersion": "2019-06-01-preview",
 			"properties": {
-				"privateLinkResourceId": "/subscriptions/f6c0b928-7078-4332-a106-e7a9c5253249/resourceGroups/demo-synapse-rg/providers/Microsoft.Synapse/workspaces/demosynapsesws01",
-				"groupId": "sql",
-				"fqdns": [
-					"demosynapsesws01.1d34c5a5-44a8-4359-af9c-4ee323131d4a.sql.azuresynapse.net"
-				]
+				"collation": "SQL_Latin1_General_CP1_CI_AS",
+				"maxSizeBytes": 263882790666240,
+				"restorePointInTime": "0001-01-01T00:00:00",
+				"annotations": []
 			},
-			"dependsOn": [
-				"[concat(variables('workspaceId'), '/managedVirtualNetworks/default')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('workspaceName'), '/default/synapse-ws-sqlOnDemand--demosynapsesws01')]",
-			"type": "Microsoft.Synapse/workspaces/managedVirtualNetworks/managedPrivateEndpoints",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"privateLinkResourceId": "/subscriptions/f6c0b928-7078-4332-a106-e7a9c5253249/resourceGroups/demo-synapse-rg/providers/Microsoft.Synapse/workspaces/demosynapsesws01",
-				"groupId": "sqlOnDemand",
-				"fqdns": [
-					"demosynapsesws01-ondemand.1d34c5a5-44a8-4359-af9c-4ee323131d4a.sql.azuresynapse.net"
-				]
-			},
-			"dependsOn": [
-				"[concat(variables('workspaceId'), '/managedVirtualNetworks/default')]"
-			]
+			"dependsOn": [],
+			"location": "westeurope"
 		}
 	]
 }
