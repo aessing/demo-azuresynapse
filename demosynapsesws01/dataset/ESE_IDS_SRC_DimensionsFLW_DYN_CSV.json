@@ -6,7 +6,7 @@
 			"type": "LinkedServiceReference"
 		},
 		"folder": {
-			"name": "Soccer Events"
+			"name": "Europe Soccer Events"
 		},
 		"annotations": [],
 		"type": "DelimitedText",
