@@ -5,7 +5,7 @@ A soccer game or any other sport generates many events, which help solve a numbe
   * Or what does the win-loss percentage looks like with different combinations of players in different on-field positions*
   * Or what does a sportsperson's performance graph look like across the years/seasons and teams etc.*
 
-![](../../.media/EuropeSoccerEvent.png)
+![](../../docs/images/EuropeSoccerEvent.png)
 
 This demo uses a European Soccer Games events dataset, and demonstrates:
   * End-to-end Data Engineering pipeline including data extraction, transformation and loading*
