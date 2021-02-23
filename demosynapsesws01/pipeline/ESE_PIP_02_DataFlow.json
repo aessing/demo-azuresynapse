@@ -5,7 +5,14 @@
 			{
 				"name": "Load Facts",
 				"type": "ExecuteDataFlow",
-				"dependsOn": [],
+				"dependsOn": [
+					{
+						"activity": "Get Dimension Table Config",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
 				"policy": {
 					"timeout": "7.00:00:00",
 					"retry": 0,
@@ -20,10 +27,6 @@
 						"type": "DataFlowReference"
 					},
 					"staging": {
-						"linkedService": {
-							"referenceName": "synapsecicd-datalake",
-							"type": "LinkedServiceReference"
-						},
 						"folderPath": "europesoccer/staging"
 					},
 					"compute": {
@@ -64,7 +67,7 @@
 				"type": "ForEach",
 				"dependsOn": [
 					{
-						"activity": "Get Dimension Table Config",
+						"activity": "Load Facts",
 						"dependencyConditions": [
 							"Succeeded"
 						]
