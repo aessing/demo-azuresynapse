@@ -1,9 +1,9 @@
 {
-	"name": "demosynapsesws01-WorkspaceDefaultStorage",
+	"name": "synapsecicd-datalake",
 	"type": "Microsoft.Synapse/workspaces/linkedservices",
 	"properties": {
 		"typeProperties": {
-			"url": "https://demosynapsedls01.dfs.core.windows.net"
+			"url": "https://synapsecicd.dfs.core.windows.net"
 		},
 		"type": "AzureBlobFS",
 		"connectVia": {

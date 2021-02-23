@@ -1,12 +1,12 @@
 {
-	"name": "demo_synapse_workspace",
+	"name": "Synapse_CiCd",
 	"type": "Microsoft.Synapse/workspaces/linkedservices",
 	"properties": {
-		"description": "Workspace of Andre Essing to demo Synapse Analytics integration",
+		"description": "Workspace to demo Synapse Analytics integration",
 		"annotations": [],
 		"type": "PowerBIWorkspace",
 		"typeProperties": {
-			"workspaceID": "24c00752-b71b-40c0-987f-e80459fb4198",
+			"workspaceID": "8c923c9f-583b-4623-ba34-bcb7715255cf",
 			"tenantID": "72f988bf-86f1-41af-91ab-2d7cd011db47"
 		}
 	}

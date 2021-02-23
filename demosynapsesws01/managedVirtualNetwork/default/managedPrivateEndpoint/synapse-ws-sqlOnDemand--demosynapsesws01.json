@@ -1,10 +1,10 @@
 {
-	"name": "synapse-ws-sqlOnDemand--demosynapsesws01",
+	"name": "synapsecicd-ondemand",
 	"properties": {
-		"privateLinkResourceId": "/subscriptions/f6c0b928-7078-4332-a106-e7a9c5253249/resourceGroups/demo-synapse-rg/providers/Microsoft.Synapse/workspaces/demosynapsesws01",
+		"privateLinkResourceId": "/subscriptions/8b3717f9-69da-489c-9c1d-78318c1f12a4/resourceGroups/Synapse-CiCd/providers/Microsoft.Synapse/workspaces/synapsecicd",
 		"groupId": "sqlOnDemand",
 		"fqdns": [
-			"demosynapsesws01-ondemand.1d34c5a5-44a8-4359-af9c-4ee323131d4a.sql.azuresynapse.net"
+			"synapsecicd-ondemand.sql.azuresynapse.net"
 		]
 	}
 }
