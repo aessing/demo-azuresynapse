@@ -2,7 +2,7 @@
 	"name": "ESE_IDS_CFG_DimensionConfigurationFLW_CORE_SQL",
 	"properties": {
 		"linkedServiceName": {
-			"referenceName": "demosynapsesws01-WorkspaceDefaultSqlServer",
+			"referenceName": "synapsecicd-WorkspaceDefaultStorage",
 			"type": "LinkedServiceReference",
 			"parameters": {
 				"DBName": "SoccerEvents"

@@ -2,7 +2,7 @@
 	"name": "ESE_IDS_SNK_DimensionsFLW_CORE_SQL",
 	"properties": {
 		"linkedServiceName": {
-			"referenceName": "demosynapsesws01-WorkspaceDefaultSqlServer",
+			"referenceName": "synapsecicd-WorkspaceDefaultSqlServer",
 			"type": "LinkedServiceReference",
 			"parameters": {
 				"DBName": "SoccerEvents"

@@ -21,7 +21,7 @@
 					},
 					"staging": {
 						"linkedService": {
-							"referenceName": "demosynapsesws01-WorkspaceDefaultStorage",
+							"referenceName": "synapsecicd-datalake",
 							"type": "LinkedServiceReference"
 						},
 						"folderPath": "europesoccer/staging"
