@@ -27,10 +27,6 @@
 						"type": "DataFlowReference"
 					},
 					"staging": {
-						"linkedService": {
-							"referenceName": "synapsecicd-WorkspaceDefaultStorage",
-							"type": "LinkedServiceReference"
-						},
 						"folderPath": "europesoccer/staging"
 					},
 					"compute": {
