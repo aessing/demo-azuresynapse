@@ -3,7 +3,7 @@
 	"type": "Microsoft.Synapse/workspaces/linkedservices",
 	"properties": {
 		"typeProperties": {
-			"connectionString": "Data Source=tcp:synapsecicd.sql.azuresynapse.net,1433;Initial Catalog=@{linkedService().DBName}"
+			"connectionString": "Data Source=tcp:synapsecicd.sql.azuresynapse.net,1433;Initial Catalog=dedicatedSQL"
 		},
 		"parameters": {
 			"DBName": {

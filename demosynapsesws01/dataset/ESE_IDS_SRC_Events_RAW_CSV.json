@@ -2,7 +2,7 @@
 	"name": "ESE_IDS_SRC_Events_RAW_CSV",
 	"properties": {
 		"linkedServiceName": {
-			"referenceName": "demosynapsesws01-WorkspaceDefaultStorage",
+			"referenceName": "synapsecicd-WorkspaceDefaultStorage",
 			"type": "LinkedServiceReference"
 		},
 		"folder": {
