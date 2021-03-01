@@ -41,7 +41,7 @@
 				},
 				"userProperties": [],
 				"sqlPool": {
-					"referenceName": "SoccerEvents",
+					"referenceName": "dedicatedSQL",
 					"type": "SqlPoolReference"
 				},
 				"typeProperties": {
