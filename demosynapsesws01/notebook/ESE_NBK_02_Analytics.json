@@ -7,14 +7,14 @@
 		"nbformat": 4,
 		"nbformat_minor": 2,
 		"bigDataPool": {
-			"referenceName": "SoccerEvents",
+			"referenceName": "SparkPool",
 			"type": "BigDataPoolReference"
 		},
 		"sessionProperties": {
-			"driverMemory": "28g",
-			"driverCores": 4,
-			"executorMemory": "28g",
-			"executorCores": 4,
+			"driverMemory": "56g",
+			"driverCores": 8,
+			"executorMemory": "56g",
+			"executorCores": 8,
 			"numExecutors": 2,
 			"conf": {
 				"spark.dynamicAllocation.enabled": "false",
@@ -24,26 +24,29 @@
 		},
 		"metadata": {
 			"saveOutput": true,
+			"synapse_widget": {
+				"version": "0.1"
+			},
 			"kernelspec": {
 				"name": "synapse_sparksql",
-				"display_name": "Synapse SQL"
+				"display_name": "sql"
 			},
 			"language_info": {
 				"name": "sql"
 			},
 			"a365ComputeOptions": {
-				"id": "/subscriptions/f6c0b928-7078-4332-a106-e7a9c5253249/resourceGroups/demo-synapse-rg/providers/Microsoft.Synapse/workspaces/demosynapsesws01/bigDataPools/SoccerEvents",
-				"name": "SoccerEvents",
+				"id": "/subscriptions/8b3717f9-69da-489c-9c1d-78318c1f12a4/resourceGroups/Synapse-CiCd/providers/Microsoft.Synapse/workspaces/synapsecicd/bigDataPools/SparkPool",
+				"name": "SparkPool",
 				"type": "Spark",
-				"endpoint": "https://demosynapsesws01.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/SoccerEvents",
+				"endpoint": "https://synapsecicd.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/SparkPool",
 				"auth": {
 					"type": "AAD",
 					"authResource": "https://dev.azuresynapse.net"
 				},
 				"sparkVersion": "2.4",
-				"nodeCount": 3,
-				"cores": 4,
-				"memory": 28,
+				"nodeCount": 10,
+				"cores": 8,
+				"memory": 56,
 				"automaticScaleJobs": false
 			},
 			"sessionKeepAliveTimeout": 30
