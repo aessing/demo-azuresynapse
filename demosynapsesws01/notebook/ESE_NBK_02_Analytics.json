@@ -29,7 +29,7 @@
 			},
 			"kernelspec": {
 				"name": "synapse_sparksql",
-				"display_name": "sql"
+				"display_name": "Synapse SQL"
 			},
 			"language_info": {
 				"name": "sql"
@@ -144,7 +144,7 @@
 					"gameEventsDf = spark.read.load('abfss://europesoccer@demosynapsedls01.dfs.core.windows.net/curated/game_events.parquet', format='parquet')\r\n",
 					"gameEventsDf.createOrReplaceTempView('gameEvents')"
 				],
-				"execution_count": 6
+				"execution_count": 1
 			},
 			{
 				"cell_type": "code",
