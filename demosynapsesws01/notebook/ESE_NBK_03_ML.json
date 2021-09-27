@@ -24,6 +24,7 @@
 		},
 		"metadata": {
 			"saveOutput": true,
+			"enableDebugMode": false,
 			"kernelspec": {
 				"name": "synapse_pyspark",
 				"display_name": "Synapse PySpark"
@@ -42,9 +43,8 @@
 				},
 				"sparkVersion": "2.4",
 				"nodeCount": 3,
-				"cores": 4,
-				"memory": 28,
-				"automaticScaleJobs": false
+				"cores": 8,
+				"memory": 56
 			},
 			"sessionKeepAliveTimeout": 30
 		},
@@ -126,7 +126,7 @@
 					"gameEventsDf = spark.read.load('abfss://europesoccer@demosynapsedls01.dfs.core.windows.net/curated/game_events.parquet', format='parquet')\r\n",
 					"gameEventsDf.createOrReplaceTempView('gameEvents')"
 				],
-				"execution_count": 19
+				"execution_count": 1
 			},
 			{
 				"cell_type": "markdown",
@@ -165,7 +165,7 @@
 					"  FROM gameEvents\r\n",
 					" LIMIT 100"
 				],
-				"execution_count": 20
+				"execution_count": 2
 			},
 			{
 				"cell_type": "markdown",
@@ -199,7 +199,7 @@
 					"\r\n",
 					"display(gameEventsDf.limit(100))"
 				],
-				"execution_count": 21
+				"execution_count": 3
 			},
 			{
 				"cell_type": "markdown",
@@ -234,7 +234,7 @@
 					"from pyspark.ml.feature import OneHotEncoder, StringIndexer, VectorAssembler\r\n",
 					"from pyspark.ml.evaluation import BinaryClassificationEvaluator"
 				],
-				"execution_count": 22
+				"execution_count": 4
 			},
 			{
 				"cell_type": "markdown",
@@ -284,7 +284,7 @@
 					"featureAssembler.setInputCols([baseFeature + \"_vec\" for baseFeature in categFeatures])\r\n",
 					"featureAssembler.setOutputCol(\"features\")"
 				],
-				"execution_count": 23
+				"execution_count": 5
 			},
 			{
 				"cell_type": "markdown",
@@ -321,7 +321,7 @@
 					"pipelineStages = stringIndexers + encoders + [featureAssembler, gbtClassifier]\r\n",
 					"pipeline = Pipeline(stages=pipelineStages)"
 				],
-				"execution_count": 24
+				"execution_count": 6
 			},
 			{
 				"cell_type": "markdown",
@@ -354,7 +354,7 @@
 					"(trainingData, testData) = gameEventsDf.randomSplit([0.75, 0.25])\r\n",
 					"model = pipeline.fit(trainingData)"
 				],
-				"execution_count": 25
+				"execution_count": 7
 			},
 			{
 				"cell_type": "markdown",
@@ -389,7 +389,7 @@
 					"predictions = model.transform(testData)\r\n",
 					"display(predictions.select(\"prediction\", \"is_goal\", \"features\"))"
 				],
-				"execution_count": 26
+				"execution_count": 8
 			},
 			{
 				"cell_type": "markdown",
@@ -423,7 +423,7 @@
 					"    labelCol=\"is_goal\", rawPredictionCol=\"prediction\")\r\n",
 					"evaluator.evaluate(predictions)"
 				],
-				"execution_count": 27
+				"execution_count": 9
 			}
 		]
 	}
