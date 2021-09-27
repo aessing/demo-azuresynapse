@@ -2,7 +2,7 @@
 	"name": "ESE_SQL_01_ConfigureDatabase",
 	"properties": {
 		"folder": {
-			"name": "Europe Soccer Events/Configuration"
+			"name": "Europe Soccer Events/00_Setup"
 		},
 		"content": {
 			"query": "-- =============================================================================\n-- European Soccer Events\n-- Azure Synapse Analytics Demo\n-- https://github.com/aessing/demo-azuresynapse\n-- -----------------------------------------------------------------------------\n-- Developer.......: Andre Essing (https://www.andre-essing.de/)\n--                                (https://github.com/aessing)\n--                                (https://twitter.com/aessing)\n--                                (https://www.linkedin.com/in/aessing/)\n-- -----------------------------------------------------------------------------\n-- THIS CODE AND INFORMATION ARE PROVIDED \"AS IS\" WITHOUT WARRANTY OF ANY KIND,\n-- EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED\n-- WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.\n-- =============================================================================\n\n-- RUN IN MASTER\nALTER DATABASE SoccerEvents SET READ_COMMITTED_SNAPSHOT OFF\nALTER DATABASE SoccerEvents SET RESULT_SET_CACHING ON\nALTER DATABASE SoccerEvents SET ENCRYPTION ON\nGO\n\n-- RUN IN USER DB\nALTER DATABASE SoccerEvents SET AUTO_CREATE_STATISTICS ON\nALTER DATABASE SoccerEvents SET QUERY_STORE = ON\nGO",
