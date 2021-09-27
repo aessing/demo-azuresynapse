@@ -1,17 +1,17 @@
 {
-	"name": "ESE_SQL_12_SELECT",
+	"name": "ESE_SQL_22_SELECT",
 	"properties": {
 		"folder": {
 			"name": "Europe Soccer Events"
 		},
 		"content": {
-			"query": "-- =============================================================================\n-- European Soccer Events\n-- Azure Synapse Analytics Demo\n-- https://github.com/aessing/demo-azuresynapse\n-- -----------------------------------------------------------------------------\n-- Developer.......: Andre Essing (https://www.andre-essing.de/)\n--                                (https://github.com/aessing)\n--                                (https://twitter.com/aessing)\n--                                (https://www.linkedin.com/in/aessing/)\n-- -----------------------------------------------------------------------------\n-- THIS CODE AND INFORMATION ARE PROVIDED \"AS IS\" WITHOUT WARRANTY OF ANY KIND,\n-- EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED\n-- WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.\n-- =============================================================================\n\n-- How does the table look like?\n\nSELECT TOP 100 *\nFROM\n    Spark.GameEvents",
+			"query": "-- =============================================================================\n-- European Soccer Events\n-- Azure Synapse Analytics Demo\n-- https://github.com/aessing/demo-azuresynapse\n-- -----------------------------------------------------------------------------\n-- Developer.......: Andre Essing (https://www.andre-essing.de/)\n--                                (https://github.com/aessing)\n--                                (https://twitter.com/aessing)\n--                                (https://www.linkedin.com/in/aessing/)\n-- -----------------------------------------------------------------------------\n-- THIS CODE AND INFORMATION ARE PROVIDED \"AS IS\" WITHOUT WARRANTY OF ANY KIND,\n-- EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED\n-- WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.\n-- =============================================================================\n\nUSE [SOCCERSERVERLESS];\nGO\n\n-- How does the table look like?\n\nSELECT TOP 100 *\nFROM\n    [ext].[GameEvents]",
 			"metadata": {
 				"language": "sql"
 			},
 			"currentConnection": {
-				"databaseName": "SoccerEvents",
-				"poolName": "SoccerEvents"
+				"databaseName": "SoccerServerless",
+				"poolName": "Built-in"
 			},
 			"resultLimit": 5000
 		},
