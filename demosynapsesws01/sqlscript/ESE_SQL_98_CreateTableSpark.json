@@ -1,5 +1,5 @@
 {
-	"name": "ESE_SQL_99_CreateTableSpark",
+	"name": "ESE_SQL_98_CreateTableSpark",
 	"properties": {
 		"folder": {
 			"name": "Europe Soccer Events"
@@ -10,9 +10,10 @@
 				"language": "sql"
 			},
 			"currentConnection": {
-				"name": "SoccerEvents",
-				"type": "SqlPool"
-			}
+				"databaseName": "SoccerEvents",
+				"poolName": "SoccerEvents"
+			},
+			"resultLimit": 5000
 		},
 		"type": "SqlQuery"
 	}
