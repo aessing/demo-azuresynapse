@@ -10,9 +10,10 @@
 				"language": "sql"
 			},
 			"currentConnection": {
-				"name": "master",
-				"type": "SqlOnDemand"
-			}
+				"databaseName": "master",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
 		},
 		"type": "SqlQuery"
 	}

@@ -10,8 +10,8 @@
 				"language": "sql"
 			},
 			"currentConnection": {
-				"databaseName": "master",
-				"poolName": "Built-in"
+				"databaseName": "SoccerEvents",
+				"poolName": "SoccerEvents"
 			},
 			"resultLimit": 5000
 		},
