@@ -1,5 +1,5 @@
 {
-	"name": "ESE_SQL_23_Goals",
+	"name": "ESE_SQL_13_Goals",
 	"properties": {
 		"folder": {
 			"name": "Europe Soccer Events"
@@ -10,7 +10,7 @@
 				"language": "sql"
 			},
 			"currentConnection": {
-				"databaseName": "master",
+				"databaseName": "SoccerServerless",
 				"poolName": "Built-in"
 			},
 			"resultLimit": 5000

@@ -1,5 +1,5 @@
 {
-	"name": "ESE_SQL_25_GoalLocations",
+	"name": "ESE_SQL_15_GoalLocations",
 	"properties": {
 		"description": "Once we observe that Spanish league has had most goals over the term of this data, we could find the top 3 goals locations per shot place from the games in Spain, by writing a more involved query using Window functions in Spark SQL. It would be a stepwise nested query.",
 		"folder": {
@@ -11,7 +11,7 @@
 				"language": "sql"
 			},
 			"currentConnection": {
-				"databaseName": "master",
+				"databaseName": "SoccerServerless",
 				"poolName": "Built-in"
 			},
 			"resultLimit": 5000
