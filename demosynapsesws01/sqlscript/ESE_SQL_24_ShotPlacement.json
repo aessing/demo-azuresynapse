@@ -1,5 +1,5 @@
 {
-	"name": "ESE_SQL_14_ShotPlacement1",
+	"name": "ESE_SQL_24_ShotPlacement",
 	"properties": {
 		"description": "If one wants to see the distribution of goals by shot placement,  then it could look like this simple query and resulting pie-chart (or alternatively viewable as a data-grid).",
 		"folder": {
