@@ -144,7 +144,7 @@
 					"collapsed": true
 				},
 				"source": [
-					"gameEventsDf = spark.read.load(abfss://' + adls_conatinername + '@' + adls_accountname + '.dfs.core.windows.net/curated/game_events.parquet', format='parquet')\r\n",
+					"gameEventsDf = spark.read.load('abfss://' + adls_conatinername + '@' + adls_accountname + '.dfs.core.windows.net/curated/game_events.parquet', format='parquet')\r\n",
 					"gameEventsDf.createOrReplaceTempView('gameEvents')"
 				],
 				"execution_count": 1
