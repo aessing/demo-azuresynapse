@@ -444,7 +444,7 @@
 					"    labelCol=\"is_goal\", rawPredictionCol=\"prediction\")\r\n",
 					"evaluator.evaluate(predictions)"
 				],
-				"execution_count": 9
+				"execution_count": 10
 			}
 		]
 	}
