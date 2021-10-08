@@ -15,11 +15,11 @@
 			"driverCores": 4,
 			"executorMemory": "28g",
 			"executorCores": 4,
-			"numExecutors": 7,
+			"numExecutors": 8,
 			"conf": {
 				"spark.dynamicAllocation.enabled": "false",
-				"spark.dynamicAllocation.minExecutors": "7",
-				"spark.dynamicAllocation.maxExecutors": "7"
+				"spark.dynamicAllocation.minExecutors": "8",
+				"spark.dynamicAllocation.maxExecutors": "8"
 			}
 		},
 		"metadata": {
@@ -147,7 +147,7 @@
 					"gameEventsDf = spark.read.load('abfss://' + adls_conatinername + '@' + adls_accountname + '.dfs.core.windows.net/curated/game_events.parquet', format='parquet')\r\n",
 					"gameEventsDf.createOrReplaceTempView('gameEvents')"
 				],
-				"execution_count": 1
+				"execution_count": 2
 			},
 			{
 				"cell_type": "markdown",
@@ -186,7 +186,7 @@
 					"  FROM gameEvents\r\n",
 					" LIMIT 100"
 				],
-				"execution_count": 2
+				"execution_count": 3
 			},
 			{
 				"cell_type": "markdown",
@@ -220,7 +220,7 @@
 					"\r\n",
 					"display(gameEventsDf.limit(100))"
 				],
-				"execution_count": 3
+				"execution_count": 4
 			},
 			{
 				"cell_type": "markdown",
@@ -255,7 +255,7 @@
 					"from pyspark.ml.feature import OneHotEncoder, StringIndexer, VectorAssembler\r\n",
 					"from pyspark.ml.evaluation import BinaryClassificationEvaluator"
 				],
-				"execution_count": 4
+				"execution_count": 5
 			},
 			{
 				"cell_type": "markdown",
@@ -305,7 +305,7 @@
 					"featureAssembler.setInputCols([baseFeature + \"_vec\" for baseFeature in categFeatures])\r\n",
 					"featureAssembler.setOutputCol(\"features\")"
 				],
-				"execution_count": 5
+				"execution_count": 6
 			},
 			{
 				"cell_type": "markdown",
@@ -342,7 +342,7 @@
 					"pipelineStages = stringIndexers + encoders + [featureAssembler, gbtClassifier]\r\n",
 					"pipeline = Pipeline(stages=pipelineStages)"
 				],
-				"execution_count": 6
+				"execution_count": 7
 			},
 			{
 				"cell_type": "markdown",
@@ -375,7 +375,7 @@
 					"(trainingData, testData) = gameEventsDf.randomSplit([0.75, 0.25])\r\n",
 					"model = pipeline.fit(trainingData)"
 				],
-				"execution_count": 7
+				"execution_count": 8
 			},
 			{
 				"cell_type": "markdown",
@@ -410,7 +410,7 @@
 					"predictions = model.transform(testData)\r\n",
 					"display(predictions.select(\"prediction\", \"is_goal\", \"features\"))"
 				],
-				"execution_count": 8
+				"execution_count": 9
 			},
 			{
 				"cell_type": "markdown",
