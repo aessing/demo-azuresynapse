@@ -170,6 +170,26 @@
 						"transient": {
 							"deleting": false
 						}
+					}
+				},
+				"source": [
+					"# Grab some secret stuff from the Azure Key Vault\r\n",
+					"adls_accountname = TokenLibrary.getSecret('demosynapseakv01', 'Soccer-ADLSAccountName')\r\n",
+					"adls_conatinername = TokenLibrary.getSecret('demosynapseakv01', 'Soccer-ADLSContainerName')"
+				],
+				"execution_count": 10
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
 					},
 					"diagram": {
 						"activateDiagramType": 1,
@@ -226,7 +246,7 @@
 					"         )\n",
 					"\n",
 					"# Extract game events data into DataFrame and display with defined schema\n",
-					"eventsDf = spark.read.load('abfss://europesoccer@demosynapsedls01.dfs.core.windows.net/raw/events.csv', format='csv',\n",
+					"eventsDf = spark.read.load('abfss://' + adls_conatinername + '@' + adls_accountname + '.dfs.core.windows.net/raw/events.csv', format='csv',\n",
 					"                         schema=schema, header=True, \n",
 					"                         ignoreLeadingWhiteSpace=True, \n",
 					"                         ignoreTrailingWhiteSpace=True,\n",
@@ -239,7 +259,7 @@
 					"\n",
 					"display(eventsDf.limit(100))"
 				],
-				"execution_count": 1
+				"execution_count": 11
 			},
 			{
 				"cell_type": "code",
@@ -279,7 +299,7 @@
 				},
 				"source": [
 					"# Extract game aggregate info into dataframe and display automatically define schema\r\n",
-					"gameInfDf = spark.read.load('abfss://europesoccer@demosynapsedls01.dfs.core.windows.net/raw/gameinfo.csv', format='csv',\r\n",
+					"gameInfDf = spark.read.load('abfss://' + adls_conatinername + '@' + adls_accountname + '.dfs.core.windows.net/raw/gameinfo.csv', format='csv',\r\n",
 					"                         inferSchema=True, header=True, \r\n",
 					"                         ignoreLeadingWhiteSpace=True, \r\n",
 					"                         ignoreTrailingWhiteSpace=True,\r\n",
@@ -459,7 +479,7 @@
 					"             withColumn(\"situation_str\", mapKeyToVal(situationMap)(\"situation\"))\n",
 					"           )"
 				],
-				"execution_count": 16
+				"execution_count": 17
 			},
 			{
 				"cell_type": "code",
@@ -506,7 +526,7 @@
 					"\n",
 					"display(joinedDf.limit(100))"
 				],
-				"execution_count": 17
+				"execution_count": 18
 			},
 			{
 				"cell_type": "code",
@@ -553,7 +573,7 @@
 					"\r\n",
 					"display(joinedDf)"
 				],
-				"execution_count": 18
+				"execution_count": 19
 			},
 			{
 				"cell_type": "markdown",
@@ -585,9 +605,9 @@
 				},
 				"source": [
 					"# Write game event data as a csv into the data lake\r\n",
-					"joinedDf.repartition(1).write.format('csv').mode('overwrite').save('abfss://europesoccer@demosynapsedls01.dfs.core.windows.net/curated/game_events.csv')"
+					"joinedDf.repartition(1).write.format('csv').mode('overwrite').save('abfss://' + adls_conatinername + '@' + adls_accountname + '.dfs.core.windows.net/curated/game_events.csv')"
 				],
-				"execution_count": 19
+				"execution_count": 20
 			},
 			{
 				"cell_type": "code",
@@ -605,9 +625,9 @@
 				},
 				"source": [
 					"# Write game event data as a parquet file into the data lake\r\n",
-					"joinedDf.repartition(1).write.format('parquet').mode('overwrite').save('abfss://europesoccer@demosynapsedls01.dfs.core.windows.net/curated/game_events.parquet')"
+					"joinedDf.repartition(1).write.format('parquet').mode('overwrite').save('abfss://' + adls_conatinername + '@' + adls_accountname + '.dfs.core.windows.net/curated/game_events.parquet')"
 				],
-				"execution_count": 20
+				"execution_count": 21
 			}
 		]
 	}

@@ -44,7 +44,8 @@
 				"sparkVersion": "2.4",
 				"nodeCount": 3,
 				"cores": 8,
-				"memory": 56
+				"memory": 56,
+				"automaticScaleJobs": false
 			},
 			"sessionKeepAliveTimeout": 30
 		},
@@ -131,6 +132,15 @@
 			{
 				"cell_type": "code",
 				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
 					"microsoft": {
 						"language": "python"
 					}
@@ -138,10 +148,26 @@
 				"source": [
 					"%%pyspark\r\n",
 					"\r\n",
-					"gameEventsDf = spark.read.load('abfss://europesoccer@demosynapsedls01.dfs.core.windows.net/curated/game_events.parquet', format='parquet')\r\n",
+					"# Grab some secret stuff from the Azure Key Vault\r\n",
+					"adls_accountname = TokenLibrary.getSecret('demosynapseakv01', 'Soccer-ADLSAccountName')\r\n",
+					"adls_conatinername = TokenLibrary.getSecret('demosynapseakv01', 'Soccer-ADLSContainerName')"
+				],
+				"execution_count": 2
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"microsoft": {
+						"language": "python"
+					}
+				},
+				"source": [
+					"%%pyspark\r\n",
+					"\r\n",
+					"gameEventsDf = spark.read.load('abfss://' + adls_conatinername + '@' + adls_accountname + '.dfs.core.windows.net/curated/game_events.parquet', format='parquet')\r\n",
 					"gameEventsDf.createOrReplaceTempView('gameEvents')"
 				],
-				"execution_count": 1
+				"execution_count": 3
 			},
 			{
 				"cell_type": "code",
@@ -163,7 +189,7 @@
 					"SELECT COUNT(1)\r\n",
 					"  FROM gameEvents"
 				],
-				"execution_count": 2
+				"execution_count": 4
 			},
 			{
 				"cell_type": "markdown",
@@ -198,7 +224,7 @@
 					"  FROM gameEvents\r\n",
 					" LIMIT 100"
 				],
-				"execution_count": 3
+				"execution_count": 5
 			},
 			{
 				"cell_type": "code",
@@ -221,7 +247,7 @@
 					" WHERE is_goal = 1\r\n",
 					"LIMIT 100"
 				],
-				"execution_count": 4
+				"execution_count": 6
 			},
 			{
 				"cell_type": "markdown",
@@ -260,7 +286,7 @@
 					" WHERE is_goal = 1\r\n",
 					" GROUP BY shot_place_str"
 				],
-				"execution_count": 5
+				"execution_count": 7
 			},
 			{
 				"cell_type": "markdown",
@@ -311,7 +337,7 @@
 					"WHERE goals_rank <= 3 AND LOCATION_STR != 'Unknown' AND SHOT_PLACE_STR != 'Unknown'\r\n",
 					"ORDER BY SHOT_PLACE_STR"
 				],
-				"execution_count": 6
+				"execution_count": 8
 			},
 			{
 				"cell_type": "markdown",
@@ -351,7 +377,7 @@
 					" GROUP BY COUNTRY_CODE, TIME_BIN\r\n",
 					" ORDER BY COUNTRY_CODE, TIME_BIN"
 				],
-				"execution_count": 7
+				"execution_count": 9
 			},
 			{
 				"cell_type": "markdown",
@@ -395,7 +421,7 @@
 					"import numpy as np\r\n",
 					"import json"
 				],
-				"execution_count": 8
+				"execution_count": 10
 			},
 			{
 				"cell_type": "code",
@@ -447,7 +473,7 @@
 					"      return result   \r\n",
 					"  return result"
 				],
-				"execution_count": 9
+				"execution_count": 11
 			},
 			{
 				"cell_type": "code",
@@ -477,7 +503,7 @@
 					"\r\n",
 					"display(vizDf.limit(100))"
 				],
-				"execution_count": 10
+				"execution_count": 12
 			},
 			{
 				"cell_type": "code",
@@ -505,7 +531,7 @@
 					"\r\n",
 					"vizJson[:5]"
 				],
-				"execution_count": 11
+				"execution_count": 13
 			},
 			{
 				"cell_type": "code",
@@ -568,7 +594,7 @@
 					"displayHTML(plot(fig, filename='3d-scatter-colorscale', output_type='div'))\r\n",
 					""
 				],
-				"execution_count": 12
+				"execution_count": 14
 			}
 		]
 	}
