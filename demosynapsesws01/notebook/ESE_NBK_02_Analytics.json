@@ -19,7 +19,8 @@
 			"conf": {
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
-				"spark.dynamicAllocation.maxExecutors": "2"
+				"spark.dynamicAllocation.maxExecutors": "2",
+				"spark.autotune.trackingId": "ea96536b-f29a-49d8-8fc2-11a8166b9825"
 			}
 		},
 		"metadata": {
@@ -44,7 +45,8 @@
 				"sparkVersion": "2.4",
 				"nodeCount": 3,
 				"cores": 8,
-				"memory": 56
+				"memory": 56,
+				"automaticScaleJobs": false
 			},
 			"sessionKeepAliveTimeout": 30
 		},
@@ -131,6 +133,15 @@
 			{
 				"cell_type": "code",
 				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
 					"microsoft": {
 						"language": "python"
 					}
@@ -138,10 +149,32 @@
 				"source": [
 					"%%pyspark\r\n",
 					"\r\n",
-					"gameEventsDf = spark.read.load('abfss://europesoccer@demosynapsedls01.dfs.core.windows.net/curated/game_events.parquet', format='parquet')\r\n",
+					"# =============================================================================\r\n",
+					"# DON'T FORGET TO CHANGE KEYVAULT NAME, SECRET NAMES and PATH\r\n",
+					"# =============================================================================\r\n",
+					"\r\n",
+					"# Grab some secret stuff from the Azure Key Vault\r\n",
+					"adls_accountname = TokenLibrary.getSecret('demosynapseakv01', 'Soccer-ADLSAccountName')\r\n",
+					"adls_conatinername = TokenLibrary.getSecret('demosynapseakv01', 'Soccer-ADLSContainerName')\r\n",
+					"\r\n",
+					"adls_path = '/curated/game_events.parquet'"
+				],
+				"execution_count": 2
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"microsoft": {
+						"language": "python"
+					}
+				},
+				"source": [
+					"%%pyspark\r\n",
+					"\r\n",
+					"gameEventsDf = spark.read.load('abfss://' + adls_conatinername + '@' + adls_accountname + '.dfs.core.windows.net' + adls_path, format='parquet')\r\n",
 					"gameEventsDf.createOrReplaceTempView('gameEvents')"
 				],
-				"execution_count": 1
+				"execution_count": 3
 			},
 			{
 				"cell_type": "code",
@@ -159,11 +192,10 @@
 				},
 				"source": [
 					"-- How many rows do we have?\r\n",
-					"\r\n",
 					"SELECT COUNT(1)\r\n",
 					"  FROM gameEvents"
 				],
-				"execution_count": 2
+				"execution_count": 4
 			},
 			{
 				"cell_type": "markdown",
@@ -198,7 +230,7 @@
 					"  FROM gameEvents\r\n",
 					" LIMIT 100"
 				],
-				"execution_count": 3
+				"execution_count": 5
 			},
 			{
 				"cell_type": "code",
@@ -221,7 +253,7 @@
 					" WHERE is_goal = 1\r\n",
 					"LIMIT 100"
 				],
-				"execution_count": 4
+				"execution_count": 6
 			},
 			{
 				"cell_type": "markdown",
@@ -260,7 +292,7 @@
 					" WHERE is_goal = 1\r\n",
 					" GROUP BY shot_place_str"
 				],
-				"execution_count": 5
+				"execution_count": 7
 			},
 			{
 				"cell_type": "markdown",
@@ -311,7 +343,7 @@
 					"WHERE goals_rank <= 3 AND LOCATION_STR != 'Unknown' AND SHOT_PLACE_STR != 'Unknown'\r\n",
 					"ORDER BY SHOT_PLACE_STR"
 				],
-				"execution_count": 6
+				"execution_count": 8
 			},
 			{
 				"cell_type": "markdown",
@@ -351,7 +383,7 @@
 					" GROUP BY COUNTRY_CODE, TIME_BIN\r\n",
 					" ORDER BY COUNTRY_CODE, TIME_BIN"
 				],
-				"execution_count": 7
+				"execution_count": 9
 			},
 			{
 				"cell_type": "markdown",
@@ -387,15 +419,13 @@
 					"%%pyspark\r\n",
 					"\r\n",
 					"# Necessary imports\r\n",
-					"\r\n",
 					"from plotly.offline import download_plotlyjs, init_notebook_mode, plot, iplot\r\n",
 					"from plotly.graph_objs import *\r\n",
 					"import plotly.graph_objs as go\r\n",
-					"\r\n",
 					"import numpy as np\r\n",
 					"import json"
 				],
-				"execution_count": 8
+				"execution_count": 10
 			},
 			{
 				"cell_type": "code",
@@ -418,7 +448,6 @@
 					"%%pyspark\r\n",
 					"\r\n",
 					"# Define a function to convert a dataframe into JSON\r\n",
-					"\r\n",
 					"def dfToJson(df):\r\n",
 					"  \"\"\"\r\n",
 					"  Dataframe as JSON.\r\n",
@@ -447,7 +476,7 @@
 					"      return result   \r\n",
 					"  return result"
 				],
-				"execution_count": 9
+				"execution_count": 11
 			},
 			{
 				"cell_type": "code",
@@ -470,14 +499,11 @@
 					"%%pyspark\r\n",
 					"\r\n",
 					"# Prep data for viz - distribution of goals by shot placement and location\r\n",
-					"\r\n",
 					"vizDf = spark.sql(\"SELECT shot_place_str, location_str, is_goal FROM gameEvents WHERE is_goal=1 AND location_str != 'NA' AND shot_place_str != 'NA'\")\r\n",
-					"\r\n",
 					"vizDf = vizDf.groupBy(\"shot_place_str\",\"location_str\").sum(\"is_goal\").withColumnRenamed(\"sum(is_goal)\",\"tot_goals\").na.fill(0)\r\n",
-					"\r\n",
 					"display(vizDf.limit(100))"
 				],
-				"execution_count": 10
+				"execution_count": 12
 			},
 			{
 				"cell_type": "code",
@@ -500,12 +526,10 @@
 					"%%pyspark\r\n",
 					"\r\n",
 					"# Convert DataFrame to JSON\r\n",
-					"\r\n",
 					"vizJson = dfToJson(vizDf)\r\n",
-					"\r\n",
 					"vizJson[:5]"
 				],
-				"execution_count": 11
+				"execution_count": 13
 			},
 			{
 				"cell_type": "code",
@@ -528,7 +552,6 @@
 					"%%pyspark\r\n",
 					"\r\n",
 					"# Create the 3-D scatter plot\r\n",
-					"\r\n",
 					"init_notebook_mode(connected=True)\r\n",
 					"\r\n",
 					"x= jsonColList(vizJson, 'location_str', 0)\r\n",
@@ -568,7 +591,7 @@
 					"displayHTML(plot(fig, filename='3d-scatter-colorscale', output_type='div'))\r\n",
 					""
 				],
-				"execution_count": 12
+				"execution_count": 14
 			}
 		]
 	}

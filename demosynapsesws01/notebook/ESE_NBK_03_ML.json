@@ -15,11 +15,12 @@
 			"driverCores": 4,
 			"executorMemory": "28g",
 			"executorCores": 4,
-			"numExecutors": 7,
+			"numExecutors": 8,
 			"conf": {
 				"spark.dynamicAllocation.enabled": "false",
-				"spark.dynamicAllocation.minExecutors": "7",
-				"spark.dynamicAllocation.maxExecutors": "7"
+				"spark.dynamicAllocation.minExecutors": "8",
+				"spark.dynamicAllocation.maxExecutors": "8",
+				"spark.autotune.trackingId": "478987c3-3171-412c-b588-3d0948e16380"
 			}
 		},
 		"metadata": {
@@ -44,7 +45,8 @@
 				"sparkVersion": "2.4",
 				"nodeCount": 3,
 				"cores": 8,
-				"memory": 56
+				"memory": 56,
+				"automaticScaleJobs": false
 			},
 			"sessionKeepAliveTimeout": 30
 		},
@@ -88,7 +90,7 @@
 				"source": [
 					"# European Soccer Events Analysis - Machine Learning\r\n",
 					"\r\n",
-					"As we saw, doing descriptive analysis on big data (like above) has been made super easy with Spark SQL and Databricks. But what if you’re a data scientist who’s looking at the same data to find combinations of on-field playing conditions that lead to “goals”?\r\n",
+					"As we saw, doing descriptive analysis on big data has been made super easy with Spark SQL. But what if you’re a data scientist who’s looking at the same data to find combinations of on-field playing conditions that lead to “goals”?\r\n",
 					"\r\n",
 					"We’ll now create a third notebook from that perspective, and see how one could fit a [Gradient-boosted tree](https://spark.apache.org/docs/2.2.0/ml-classification-regression.html#gradient-boosted-tree-classifier) classifier Spark ML model on the game events training dataset. In this case, our binary classification label will be field “is_goal”, and we’ll use a mix of categorical features like “event_type_str”, “event_team”, “shot_place_str”, “location_str”, “assist_method_str”, “situation_str” and “country_code”.\r\n",
 					"\r\n",
@@ -119,14 +121,40 @@
 						"transient": {
 							"deleting": false
 						}
+					}
+				},
+				"source": [
+					"# =============================================================================\r\n",
+					"# DON'T FORGET TO CHANGE KEYVAULT NAME, SECRET NAMES and PATH\r\n",
+					"# =============================================================================\r\n",
+					"\r\n",
+					"# Grab some secret stuff from the Azure Key Vault\r\n",
+					"adls_accountname = TokenLibrary.getSecret('demosynapseakv01', 'Soccer-ADLSAccountName')\r\n",
+					"adls_conatinername = TokenLibrary.getSecret('demosynapseakv01', 'Soccer-ADLSContainerName')\r\n",
+					"\r\n",
+					"adls_path = '/curated/game_events.parquet"
+				],
+				"execution_count": 1
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
 					},
 					"collapsed": true
 				},
 				"source": [
-					"gameEventsDf = spark.read.load('abfss://europesoccer@demosynapsedls01.dfs.core.windows.net/curated/game_events.parquet', format='parquet')\r\n",
+					"gameEventsDf = spark.read.load('abfss://' + adls_conatinername + '@' + adls_accountname + '.dfs.core.windows.net' + adls_path, format='parquet')\r\n",
 					"gameEventsDf.createOrReplaceTempView('gameEvents')"
 				],
-				"execution_count": 1
+				"execution_count": 2
 			},
 			{
 				"cell_type": "markdown",
@@ -165,7 +193,7 @@
 					"  FROM gameEvents\r\n",
 					" LIMIT 100"
 				],
-				"execution_count": 2
+				"execution_count": 3
 			},
 			{
 				"cell_type": "markdown",
@@ -196,10 +224,9 @@
 				},
 				"source": [
 					"gameEventsDf = spark.sql(\"select event_type_str, event_team, shot_place_str, location_str, assist_method_str, situation_str, country_code, is_goal from gameEvents\")\r\n",
-					"\r\n",
 					"display(gameEventsDf.limit(100))"
 				],
-				"execution_count": 3
+				"execution_count": 4
 			},
 			{
 				"cell_type": "markdown",
@@ -234,7 +261,7 @@
 					"from pyspark.ml.feature import OneHotEncoder, StringIndexer, VectorAssembler\r\n",
 					"from pyspark.ml.evaluation import BinaryClassificationEvaluator"
 				],
-				"execution_count": 4
+				"execution_count": 5
 			},
 			{
 				"cell_type": "markdown",
@@ -284,7 +311,7 @@
 					"featureAssembler.setInputCols([baseFeature + \"_vec\" for baseFeature in categFeatures])\r\n",
 					"featureAssembler.setOutputCol(\"features\")"
 				],
-				"execution_count": 5
+				"execution_count": 6
 			},
 			{
 				"cell_type": "markdown",
@@ -321,7 +348,7 @@
 					"pipelineStages = stringIndexers + encoders + [featureAssembler, gbtClassifier]\r\n",
 					"pipeline = Pipeline(stages=pipelineStages)"
 				],
-				"execution_count": 6
+				"execution_count": 7
 			},
 			{
 				"cell_type": "markdown",
@@ -354,7 +381,7 @@
 					"(trainingData, testData) = gameEventsDf.randomSplit([0.75, 0.25])\r\n",
 					"model = pipeline.fit(trainingData)"
 				],
-				"execution_count": 7
+				"execution_count": 8
 			},
 			{
 				"cell_type": "markdown",
@@ -389,7 +416,7 @@
 					"predictions = model.transform(testData)\r\n",
 					"display(predictions.select(\"prediction\", \"is_goal\", \"features\"))"
 				],
-				"execution_count": 8
+				"execution_count": 9
 			},
 			{
 				"cell_type": "markdown",
@@ -423,7 +450,7 @@
 					"    labelCol=\"is_goal\", rawPredictionCol=\"prediction\")\r\n",
 					"evaluator.evaluate(predictions)"
 				],
-				"execution_count": 9
+				"execution_count": 10
 			}
 		]
 	}

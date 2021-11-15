@@ -19,7 +19,8 @@
 			"conf": {
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
-				"spark.dynamicAllocation.maxExecutors": "2"
+				"spark.dynamicAllocation.maxExecutors": "2",
+				"spark.autotune.trackingId": "29095e7c-63ab-4bc8-8d20-a93e90bcbdf9"
 			}
 		},
 		"metadata": {
@@ -44,7 +45,8 @@
 				"sparkVersion": "2.4",
 				"nodeCount": 3,
 				"cores": 8,
-				"memory": 56
+				"memory": 56,
+				"automaticScaleJobs": false
 			},
 			"sessionKeepAliveTimeout": 30
 		},
@@ -93,7 +95,7 @@
 					"  * Or what does the win-loss percentage looks like with different combinations of players in different on-field positions*\r\n",
 					"  * Or what does a sportsperson's performance graph look like across the years/seasons and teams etc.*\r\n",
 					"\r\n",
-					"![](https://databricks.com/wp-content/uploads/2018/07/European-Soccer-Events-Analysis-Diagram.png)\r\n",
+					"![](https://raw.githubusercontent.com/aessing/demo-azuresynapse/development/demo-companion/Europe%20Soccer%20Events/images/EuropeSoccerEvent.png)\r\n",
 					"\r\n",
 					"This demo uses a European Soccer Games events dataset, and demonstrates:\r\n",
 					"  * End-to-end Data Engineering pipeline including data extraction, transformation and loading*\r\n",
@@ -102,7 +104,7 @@
 					"  \r\n",
 					"We start out by creating an ETL notebook, where the two CSV datasets are transformed and joined into a single Parquet data layer, which enables us to utilize DBIO caching feature for high-performance big data queries.\r\n",
 					"\r\n",
-					"> Blog Post: https://databricks.com/blog/2018/07/09/analyze-games-from-european-soccer-leagues-with-apache-spark-and-databricks.html"
+					"> Original Blog Post: https://databricks.com/blog/2018/07/09/analyze-games-from-european-soccer-leagues-with-apache-spark-and-databricks.html"
 				]
 			},
 			{
@@ -170,6 +172,35 @@
 							"deleting": false
 						}
 					},
+					"microsoft": {
+						"language": "python"
+					}
+				},
+				"source": [
+					"%%pyspark\r\n",
+					"\r\n",
+					"# =============================================================================\r\n",
+					"# DON'T FORGET TO CHANGE KEYVAULT NAME, SECRET NAMES and PATH\r\n",
+					"# =============================================================================\r\n",
+					"\r\n",
+					"# Grab some secret stuff from the Azure Key Vault\r\n",
+					"adls_accountname = TokenLibrary.getSecret('demosynapseakv01', 'Soccer-ADLSAccountName')\r\n",
+					"adls_conatinername = TokenLibrary.getSecret('demosynapseakv01', 'Soccer-ADLSContainerName')"
+				],
+				"execution_count": 10
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
 					"diagram": {
 						"activateDiagramType": 1,
 						"chartConfig": {
@@ -196,7 +227,6 @@
 				},
 				"source": [
 					"# Specify the schema for game events data\n",
-					"\n",
 					"from pyspark.sql.types import StringType, IntegerType, StructType\n",
 					"\n",
 					"schema = (StructType().\n",
@@ -225,7 +255,7 @@
 					"         )\n",
 					"\n",
 					"# Extract game events data into DataFrame and display with defined schema\n",
-					"eventsDf = spark.read.load('abfss://europesoccer@demosynapsedls01.dfs.core.windows.net/raw/events.csv', format='csv',\n",
+					"eventsDf = spark.read.load('abfss://' + adls_conatinername + '@' + adls_accountname + '.dfs.core.windows.net/raw/events.csv', format='csv',\n",
 					"                         schema=schema, header=True, \n",
 					"                         ignoreLeadingWhiteSpace=True, \n",
 					"                         ignoreTrailingWhiteSpace=True,\n",
@@ -278,7 +308,7 @@
 				},
 				"source": [
 					"# Extract game aggregate info into dataframe and display automatically define schema\r\n",
-					"gameInfDf = spark.read.load('abfss://europesoccer@demosynapsedls01.dfs.core.windows.net/raw/gameinfo.csv', format='csv',\r\n",
+					"gameInfDf = spark.read.load('abfss://' + adls_conatinername + '@' + adls_accountname + '.dfs.core.windows.net/raw/gameinfo.csv', format='csv',\r\n",
 					"                         inferSchema=True, header=True, \r\n",
 					"                         ignoreLeadingWhiteSpace=True, \r\n",
 					"                         ignoreTrailingWhiteSpace=True,\r\n",
@@ -321,7 +351,6 @@
 				},
 				"source": [
 					"# Define a generic dictionary/map lookup function\r\n",
-					"\r\n",
 					"from pyspark.sql.functions import udf, col\r\n",
 					"\r\n",
 					"def mapKeyToVal(mapping):\r\n",
@@ -347,25 +376,15 @@
 				},
 				"source": [
 					"# Create dictionaries/maps for useful attributes (dictonary.txt)\r\n",
-					"\r\n",
 					"evtTypeMap = {0:'Announcement', 1:'Attempt', 2:'Corner', 3:'Foul', 4:'Yellow card', 5:'Second yellow card', 6:'Red card', 7:'Substitution', 8:'Free kick won', 9:'Offside', 10:'Hand ball', 11:'Penalty conceded', 99:'NA'}\r\n",
-					"\r\n",
 					"evtTyp2Map = {12:'Key Pass', 13:'Failed through ball', 14:'Sending off', 15:'Own goal', 99:'NA'}\r\n",
-					"\r\n",
 					"sideMap = {1:'Home', 2:'Away'}\r\n",
-					"\r\n",
 					"shotPlaceMap = {1:'Bit too high', 2:'Blocked', 3:'Bottom left corner', 4:'Bottom right corner', 5:'Centre of the goal', 6:'High and wide', 7:'Hits the bar', 8:'Misses to the left', 9:'Misses to the right', 10:'Too high', 11:'Top centre of the goal', 12:'Top left corner', 13:'Top right corner', 99:'NA'}\r\n",
-					"\r\n",
 					"shotOutcomeMap = {1:'On target', 2:'Off target', 3:'Blocked', 4:'Hit the bar', 99:'NA'}\r\n",
-					"\r\n",
 					"locationMap = {1:'Attacking half', 2:'Defensive half', 3:'Centre of the box', 4:'Left wing', 5:'Right wing', 6:'Difficult angle and long range', 7:'Difficult angle on the left', 8:'Difficult angle on the right', 9:'Left side of the box', 10:'Left side of the six yard box', 11:'Right side of the box', 12:'Right side of the six yard box', 13:'Very close range', 14:'Penalty spot', 15:'Outside the box', 16:'Long range', 17:'More than 35 yards', 18:'More than 40 yards', 19:'Not recorded', 99:'NA'}\r\n",
-					"\r\n",
 					"bodyPartMap = {1:'Right foot', 2:'Left foot', 3:'Head', 99:'NA'}\r\n",
-					"\r\n",
 					"assistMethodMap = {0:'None', 1:'Pass', 2:'Cross', 3:'Headed pass', 4:'Through ball', 99:'NA'}\r\n",
-					"\r\n",
 					"situationMap = {1:'Open play', 2:'Set piece', 3:'Corner', 4:'Free kick', 99:'NA'}\r\n",
-					"\r\n",
 					"countryCodeMap = {'germany':'DEU', 'france':'FRA', 'england':'GBR', 'spain':'ESP', 'italy':'ITA'}"
 				],
 				"execution_count": 14
@@ -422,7 +441,6 @@
 				},
 				"source": [
 					"gameInfDf = gameInfDf.withColumn('country_code', mapKeyToVal(countryCodeMap)('country'))\r\n",
-					"\r\n",
 					"display(gameInfDf['id_odsp','country','country_code'].limit(100))"
 				],
 				"execution_count": 15
@@ -458,7 +476,7 @@
 					"             withColumn(\"situation_str\", mapKeyToVal(situationMap)(\"situation\"))\n",
 					"           )"
 				],
-				"execution_count": 16
+				"execution_count": 17
 			},
 			{
 				"cell_type": "code",
@@ -502,10 +520,9 @@
 					"  eventsDf.join(gameInfDf, eventsDf.id_odsp == gameInfDf.id_odsp, 'inner').\n",
 					"  select(eventsDf.id_odsp, eventsDf.id_event, eventsDf.sort_order, eventsDf.time, eventsDf.event_type, eventsDf.event_type_str, eventsDf.event_type2, eventsDf.event_type2_str, eventsDf.side, eventsDf.side_str, eventsDf.event_team, eventsDf.opponent, eventsDf.player, eventsDf.player2, eventsDf.player_in, eventsDf.player_out, eventsDf.shot_place, eventsDf.shot_place_str, eventsDf.shot_outcome, eventsDf.shot_outcome_str, eventsDf.is_goal, eventsDf.location, eventsDf.location_str, eventsDf.bodypart, eventsDf.bodypart_str, eventsDf.assist_method, eventsDf.assist_method_str, eventsDf.situation, eventsDf.situation_str, gameInfDf.country_code)\n",
 					")\n",
-					"\n",
 					"display(joinedDf.limit(100))"
 				],
-				"execution_count": 17
+				"execution_count": 18
 			},
 			{
 				"cell_type": "code",
@@ -545,14 +562,11 @@
 				},
 				"source": [
 					"# Create time bins for game events\r\n",
-					"\r\n",
 					"from pyspark.ml.feature import QuantileDiscretizer\r\n",
-					"\r\n",
 					"joinedDf = QuantileDiscretizer(numBuckets=10, inputCol=\"time\", outputCol=\"time_bin\").fit(joinedDf).transform(joinedDf)\r\n",
-					"\r\n",
 					"display(joinedDf)"
 				],
-				"execution_count": 18
+				"execution_count": 19
 			},
 			{
 				"cell_type": "markdown",
@@ -584,9 +598,9 @@
 				},
 				"source": [
 					"# Write game event data as a csv into the data lake\r\n",
-					"joinedDf.repartition(1).write.format('csv').mode('overwrite').save('abfss://europesoccer@demosynapsedls01.dfs.core.windows.net/curated/game_events.csv')"
+					"joinedDf.repartition(1).write.format('csv').mode('overwrite').save('abfss://' + adls_conatinername + '@' + adls_accountname + '.dfs.core.windows.net/curated/game_events.csv')"
 				],
-				"execution_count": 19
+				"execution_count": 20
 			},
 			{
 				"cell_type": "code",
@@ -604,9 +618,9 @@
 				},
 				"source": [
 					"# Write game event data as a parquet file into the data lake\r\n",
-					"joinedDf.repartition(1).write.format('parquet').mode('overwrite').save('abfss://europesoccer@demosynapsedls01.dfs.core.windows.net/curated/game_events.parquet')"
+					"joinedDf.repartition(1).write.format('parquet').mode('overwrite').save('abfss://' + adls_conatinername + '@' + adls_accountname + '.dfs.core.windows.net/curated/game_events.parquet')"
 				],
-				"execution_count": 20
+				"execution_count": 21
 			}
 		]
 	}
