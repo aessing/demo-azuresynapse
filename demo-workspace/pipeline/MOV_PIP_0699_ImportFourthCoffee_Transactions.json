@@ -1,0 +1,63 @@
+{
+	"name": "MOV_PIP_0699_ImportFourthCoffee_Transactions",
+	"properties": {
+		"description": "OpenHack MDWH\nAzure Synapse Analytics Demo\nhttps://github.com/aessing/demo-azuresynapse\n\nDeveloper: Andre Essing\n(https://www.andre-essing.de/)\n(https://github.com/aessing)\n(https://twitter.com/aessing)\n(https://www.linkedin.com/in/aessing/)\n\nTHIS CODE AND INFORMATION ARE PROVIDED \"AS IS\" WITHOUT WARRANTY OF ANY KIND,\nEITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED\nWARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.",
+		"activities": [
+			{
+				"name": "Copy data",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "BinarySource",
+						"storeSettings": {
+							"type": "AzureFileStorageReadSettings",
+							"recursive": true
+						},
+						"formatSettings": {
+							"type": "BinaryReadSettings"
+						}
+					},
+					"sink": {
+						"type": "BinarySink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						}
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "MOV_IDS_FourthCoffee_onPrem",
+						"type": "DatasetReference",
+						"parameters": {
+							"directory": "Transactions_2018"
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "MOV_IDS_ADLS_BINARY",
+						"type": "DatasetReference",
+						"parameters": {
+							"container_name": "movies",
+							"container_path": "internal/FourthCoffee/Transactions_2018"
+						}
+					}
+				]
+			}
+		],
+		"folder": {
+			"name": "Movies/Challenge 06"
+		},
+		"annotations": []
+	}
+}

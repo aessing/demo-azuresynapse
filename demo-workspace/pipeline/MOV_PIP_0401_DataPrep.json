@@ -1,0 +1,107 @@
+{
+	"name": "MOV_PIP_0401_DataPrep",
+	"properties": {
+		"description": "Modern Data Warehousing OpenHack\nAzure Synapse Analytics Demo\nhttps://github.com/aessing/demo-azuresynapse\n\nDeveloper\nAndre Essing\n(https://www.andre-essing.de/\n(https://github.com/aessing\n(https://twitter.com/aessing\n(https://www.linkedin.com/in/aessing/)\n\nTHIS CODE AND INFORMATION ARE PROVIDED \"AS IS\" WITHOUT WARRANTY OF ANY KIND,\nEITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED\nWARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.",
+		"activities": [
+			{
+				"name": "PrepareStreamingData",
+				"type": "SynapseNotebook",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebook": {
+						"referenceName": "MOV_NBK_0401_Streaming",
+						"type": "NotebookReference"
+					}
+				}
+			},
+			{
+				"name": "PrepareRentalData",
+				"type": "SynapseNotebook",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebook": {
+						"referenceName": "MOV_NBK_0402_Rentals",
+						"type": "NotebookReference"
+					}
+				}
+			},
+			{
+				"name": "PrepareCustomerData",
+				"type": "SynapseNotebook",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebook": {
+						"referenceName": "MOV_NBK_0403_Customers",
+						"type": "NotebookReference"
+					}
+				}
+			},
+			{
+				"name": "PrepareSalesData",
+				"type": "SynapseNotebook",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebook": {
+						"referenceName": "MOV_NBK_0404_Sales",
+						"type": "NotebookReference"
+					}
+				}
+			},
+			{
+				"name": "PrepareCatalogData",
+				"type": "SynapseNotebook",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebook": {
+						"referenceName": "MOV_NBK_0405_Catalog",
+						"type": "NotebookReference"
+					}
+				}
+			}
+		],
+		"folder": {
+			"name": "Movies/Challenge 04"
+		},
+		"annotations": []
+	}
+}

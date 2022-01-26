@@ -1,0 +1,20 @@
+{
+	"name": "MOV_SQL_050304_CreateExternalTables_Sales",
+	"properties": {
+		"description": "OpenHack MDWH\nAzure Synapse Analytics Demo\nhttps://github.com/aessing/demo-azuresynapse\n\nDeveloper: Andre Essing\n(https://www.andre-essing.de/)\n(https://github.com/aessing)\n(https://twitter.com/aessing)\n(https://www.linkedin.com/in/aessing/)\n\nTHIS CODE AND INFORMATION ARE PROVIDED \"AS IS\" WITHOUT WARRANTY OF ANY KIND,\nEITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED\nWARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.",
+		"folder": {
+			"name": "Movies/Challenge 05 - 03 Create External Tables"
+		},
+		"content": {
+			"query": "-- =============================================================================\n-- OpenHack MDWH\n-- Azure Synapse Analytics Demo\n-- https://github.com/aessing/demo-azuresynapse\n-- -----------------------------------------------------------------------------\n-- Developer.......: Andre Essing (https://www.andre-essing.de/)\n--                                (https://github.com/aessing)\n--                                (https://twitter.com/aessing)\n--                                (https://www.linkedin.com/in/aessing/)\n-- -----------------------------------------------------------------------------\n-- THIS CODE AND INFORMATION ARE PROVIDED \"AS IS\" WITHOUT WARRANTY OF ANY KIND,\n-- EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED\n-- WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.\n-- =============================================================================\n\nIF NOT EXISTS (SELECT * FROM sys.external_file_formats WHERE name = 'SynapseParquetFormat') \n\tCREATE EXTERNAL FILE FORMAT [SynapseParquetFormat] \n\tWITH ( FORMAT_TYPE = PARQUET)\nGO\n\nIF NOT EXISTS (SELECT * FROM sys.external_data_sources WHERE name = 'movies_demosynapsedls01') \n\tCREATE EXTERNAL DATA SOURCE [movies_demosynapsedls01] \n\tWITH (\n\t\tLOCATION = 'abfss://movies@demosynapsedls01.dfs.core.windows.net/',\n\t\tTYPE = HADOOP \n\t)\nGO\n\nIF NOT EXISTS (SELECT * FROM sys.schemas WHERE name = 'ext') \n\tEXEC('CREATE SCHEMA [ext]')\nGO\n\nCREATE EXTERNAL TABLE [ext].[Sales] (\n\t[SourceSystemID] int,\n\t[GlobalOrderID] nvarchar(4000),\n\t[SourceSystemOrderID] nvarchar(4000),\n\t[CustomerID] nvarchar(4000),\n\t[OrderDate] date,\n\t[ShipDate] date,\n\t[TotalCost] numeric(19,4),\n\t[OrderCreatedDate] date,\n\t[OrderUpdatedDate] date,\n\t[OrderDetailID] nvarchar(4000),\n\t[MovieID] nvarchar(4000),\n\t[Quantity] int,\n\t[UnitCost] numeric(19,4),\n\t[LineNumber] int,\n\t[OrderDetailCreatedDate] date,\n\t[OrderDetailUpdatedDate] date\n\t)\n\tWITH (\n\tLOCATION = 'curated/sales.parquet/',\n\tDATA_SOURCE = [movies_demosynapsedls01],\n\tFILE_FORMAT = [SynapseParquetFormat],\n\tREJECT_TYPE = VALUE,\n\tREJECT_VALUE = 0\n\t)\nGO\n",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"poolName": "Movies",
+				"databaseName": "Movies"
+			}
+		},
+		"type": "SqlQuery"
+	}
+}

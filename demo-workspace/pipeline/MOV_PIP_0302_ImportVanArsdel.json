@@ -1,0 +1,165 @@
+{
+	"name": "MOV_PIP_0302_ImportVanArsdel",
+	"properties": {
+		"description": "Modern Data Warehousing OpenHack\nAzure Synapse Analytics Demo\nhttps://github.com/aessing/demo-azuresynapse\n\nDeveloper\nAndre Essing\n(https://www.andre-essing.de/\n(https://github.com/aessing\n(https://twitter.com/aessing\n(https://www.linkedin.com/in/aessing/)\n\nTHIS CODE AND INFORMATION ARE PROVIDED \"AS IS\" WITHOUT WARRANTY OF ANY KIND,\nEITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED\nWARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.",
+		"activities": [
+			{
+				"name": "LookupTables",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "00:30:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": "SELECT table_schema, table_name\n  FROM information_schema.tables\n WHERE table_type = 'base table' AND table_schema != 'Hidden'",
+						"queryTimeout": "00:30:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "MOV_IDS_VanArsdel_OnPremRentals",
+						"type": "DatasetReference",
+						"parameters": {
+							"tables_schema": "information_schema",
+							"table_name": "tables"
+						}
+					},
+					"firstRowOnly": false
+				}
+			},
+			{
+				"name": "ForEachTable",
+				"description": "",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "LookupTables",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "Delete-Data",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('LookupTables').output.value",
+						"type": "Expression"
+					},
+					"isSequential": false,
+					"activities": [
+						{
+							"name": "CopyTables",
+							"type": "Copy",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "00:30:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "AzureSqlSource",
+									"queryTimeout": "00:30:00",
+									"partitionOption": "None"
+								},
+								"sink": {
+									"type": "ParquetSink",
+									"storeSettings": {
+										"type": "AzureBlobFSWriteSettings"
+									},
+									"formatSettings": {
+										"type": "ParquetWriteSettings"
+									}
+								},
+								"enableStaging": false,
+								"translator": {
+									"type": "TabularTranslator",
+									"typeConversion": true,
+									"typeConversionSettings": {
+										"allowDataTruncation": false,
+										"treatBooleanAsNumber": false
+									}
+								}
+							},
+							"inputs": [
+								{
+									"referenceName": "MOV_IDS_VanArsdel_OnPremRentals",
+									"type": "DatasetReference",
+									"parameters": {
+										"tables_schema": {
+											"value": "@item().table_schema",
+											"type": "Expression"
+										},
+										"table_name": "@item().table_name"
+									}
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "MOV_IDS_ADLS_PARQUET",
+									"type": "DatasetReference",
+									"parameters": {
+										"container_name": "movies",
+										"container_path": "raw/VanArsdel/OnPremRentals",
+										"container_file": {
+											"value": "@concat(item().table_schema,'.',item().table_name,'.parquet')",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						}
+					]
+				}
+			},
+			{
+				"name": "Delete-Data",
+				"type": "Delete",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "00:30:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataset": {
+						"referenceName": "MOV_IDS_ADLS_BINARY",
+						"type": "DatasetReference",
+						"parameters": {
+							"container_name": "movies",
+							"container_path": "raw/VanArsdel"
+						}
+					},
+					"enableLogging": false,
+					"storeSettings": {
+						"type": "AzureBlobFSReadSettings",
+						"recursive": true,
+						"enablePartitionDiscovery": false
+					}
+				}
+			}
+		],
+		"folder": {
+			"name": "Movies/Challenge 03"
+		},
+		"annotations": []
+	}
+}

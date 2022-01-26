@@ -1,0 +1,510 @@
+{
+	"name": "API_NBK_0201_DataExploration",
+	"properties": {
+		"description": "API Analytics Demo\nAzure Synapse Analytics Demo\nhttps://github.com/aessing/demo-azuresynapse\n\nDeveloper\nAndre Essing\n(https://www.andre-essing.de/\n(https://github.com/aessing\n(https://twitter.com/aessing\n(https://www.linkedin.com/in/aessing/)\n\nTHIS CODE AND INFORMATION ARE PROVIDED \"AS IS\" WITHOUT WARRANTY OF ANY KIND,\nEITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED\nWARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.",
+		"folder": {
+			"name": "API Analytics/02 Data Analyst"
+		},
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "DemoSpark01",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "56g",
+			"driverCores": 8,
+			"executorMemory": "56g",
+			"executorCores": 8,
+			"numExecutors": 1,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "true",
+				"spark.dynamicAllocation.minExecutors": "1",
+				"spark.dynamicAllocation.maxExecutors": "8",
+				"spark.autotune.trackingId": "bdfd4b4a-6fdf-4684-a6a2-e010ab23640e"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/f6c0b928-7078-4332-a106-e7a9c5253249/resourceGroups/demo-synapse-rg/providers/Microsoft.Synapse/workspaces/demosynapsesws01/bigDataPools/DemoSpark01",
+				"name": "DemoSpark01",
+				"type": "Spark",
+				"endpoint": "https://demosynapsesws01.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DemoSpark01",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.1",
+				"nodeCount": 10,
+				"cores": 16,
+				"memory": 112,
+				"automaticScaleJobs": true
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# API Analytics Demo\r\n",
+					"## Azure Synapse Analytics Demo\r\n",
+					"https://github.com/aessing/demo-azuresynapse\r\n",
+					"\r\n",
+					"## Developer\r\n",
+					"Andre Essing</br>\r\n",
+					"https://www.andre-essing.de/</br>\r\n",
+					"https://github.com/aessing</br>\r\n",
+					"https://twitter.com/aessing</br>\r\n",
+					"https://www.linkedin.com/in/aessing/\r\n",
+					"\r\n",
+					"> THIS CODE AND INFORMATION ARE PROVIDED \"AS IS\" WITHOUT WARRANTY OF ANY KIND,\r\n",
+					"> EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED\r\n",
+					"> WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE."
+				]
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"---\r\n",
+					"\r\n",
+					"## Preparation\r\n",
+					"of the environment for data exploration"
+				]
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"### Set some parameters and do some imports\r\n",
+					"\r\n",
+					"Can be overriden by Azure Synapse Pipelines"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"tags": [
+						"parameters"
+					]
+				},
+				"source": [
+					"# Parameter Cell: https://docs.microsoft.com/en-us/azure/synapse-analytics/spark/apache-spark-development-using-notebooks#integrate-a-notebook\r\n",
+					"\r\n",
+					"# file system where the data is located\r\n",
+					"container = 'abfss://apianalytics@demosynapsedls01.dfs.core.windows.net'"
+				],
+				"execution_count": 30
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"### Import some libraries"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"from pyspark.sql.functions import asc, desc, avg, count\r\n",
+					"import matplotlib.pyplot as plt\r\n",
+					"import numpy as np\r\n",
+					"import pandas as pd"
+				],
+				"execution_count": 31
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"### Read all data from the data lake so using the data will be easier going on"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"# Name of the file, data and table that should be transformed\n",
+					"table = 'Customers'\n",
+					"\n",
+					"# Read the data from the data lake into a dataframe\n",
+					"dfCustomers = spark.read.parquet(f\"{container}/curated/{table.lower()}.parquet\")\n",
+					"\n",
+					"display(dfCustomers, summary=True)"
+				],
+				"execution_count": 32
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"# Name of the file, data and table that should be transformed\n",
+					"table = 'Geodata'\n",
+					"\n",
+					"# Read the data from the data lake into a dataframe\n",
+					"dfGeodata = spark.read.parquet(f\"{container}/curated/{table.lower()}.parquet\")\n",
+					"\n",
+					"display(dfGeodata, summary=True)"
+				],
+				"execution_count": 33
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"# Name of the file, data and table that should be transformed\n",
+					"table = 'Operations'\n",
+					"\n",
+					"# Read the data from the data lake into a dataframe\n",
+					"dfOperations = spark.read.parquet(f\"{container}/curated/{table.lower()}.parquet\")\n",
+					"\n",
+					"display(dfOperations, summary=True)"
+				],
+				"execution_count": 34
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"# Name of the file, data and table that should be transformed\n",
+					"table = 'Services'\n",
+					"\n",
+					"# Read the data from the data lake into a dataframe\n",
+					"dfServices = spark.read.parquet(f\"{container}/curated/{table.lower()}.parquet\")\n",
+					"\n",
+					"display(dfServices, summary=True)"
+				],
+				"execution_count": 35
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"# Name of the file, data and table that should be transformed\n",
+					"table = 'Timeseries'\n",
+					"\n",
+					"# Read the data from the data lake into a dataframe\n",
+					"dfTimeseries = spark.read.parquet(f\"{container}/curated/{table.lower()}.parquet\")\n",
+					"\n",
+					"display(dfTimeseries, summary=True)"
+				],
+				"execution_count": 36
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"### Join the data read from the data lake to one combined table"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"df = (dfTimeseries.join(dfCustomers, 'CustomerId')\n",
+					"                 .join(dfGeodata, 'GeoId')\n",
+					"                 .join(dfOperations, 'OperationId')\n",
+					"                 .join(dfServices, 'ServiceId')\n",
+					")\n",
+					"display(df, summary=True)"
+				],
+				"execution_count": 37
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"---\r\n",
+					"\r\n",
+					"## Data Exploration\r\n",
+					"to find some anomalies inside of the data"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"rollup = (df.rollup('CustomerId', 'ServiceId', 'OperationId', 'GeoId', 'UsageKind')\n",
+					"            .agg((avg('CallDurationMillis') / (1000 * 60))\n",
+					"            .alias('AvgCallDurationMillis'), count('Id').alias('Count'))\n",
+					")"
+				],
+				"execution_count": 38
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"rollup.orderBy(desc('AvgCallDurationMillis')).show()"
+				],
+				"execution_count": 39
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"rollup = (df.rollup('ServiceId', 'OperationId', 'UsageKind')\n",
+					"            .agg((avg('CallDurationMillis') / (1000 * 60))\n",
+					"            .alias('AvgCallDurationMillis'), count('Id')\n",
+					"            .alias('Count'))\n",
+					")"
+				],
+				"execution_count": 40
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"rollup.orderBy(desc('Count')).show()"
+				],
+				"execution_count": 41
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"pdf = df.filter(df['CustomerId'] == 290).select('Id', 'UsageKind', 'CallDurationMillis', 'TimestampUtc').toPandas()\n",
+					"pdf.head(10)"
+				],
+				"execution_count": 42
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"def plot_df(df, x, y, title=\"\", xlabel='Date', ylabel='Value', dpi=100):\n",
+					"    plt.figure(figsize=(16,5), dpi=dpi)\n",
+					"    plt.plot(x, y, color='tab:red')\n",
+					"    plt.gca().set(title=title, xlabel=xlabel, ylabel=ylabel)\n",
+					"    plt.show()\n",
+					"\n",
+					"plot_df(pdf, x=pdf['TimestampUtc'], y=pdf['UsageKind'], title='UsageKind over time')    "
+				],
+				"execution_count": 43
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"def plot_df(df, x, y, title=\"\", xlabel='Date', ylabel='Value', dpi=100):\n",
+					"    plt.figure(figsize=(16,5), dpi=dpi)\n",
+					"    plt.plot(x, y, color='tab:red')\n",
+					"    plt.gca().set(title=title, xlabel=xlabel, ylabel=ylabel)\n",
+					"    plt.show()\n",
+					"\n",
+					"plot_df(pdf, x=pdf['TimestampUtc'], y=pdf['CallDurationMillis'], title='CallDurationMillis over time')    "
+				],
+				"execution_count": 44
+			}
+		]
+	}
+}

@@ -1,0 +1,20 @@
+{
+	"name": "FactSales",
+	"properties": {
+		"folder": {
+			"name": "Movies/LH-OH"
+		},
+		"content": {
+			"query": "SET ANSI_NULLS ON\nGO\nSET QUOTED_IDENTIFIER ON\nGO\nCREATE PROC [dbo].[ImportFactSales] AS begin\n\ninsert into dbo.FactSales\n(\n\tOrderID\n\t, LineNumber\n\t, OrderDateSK\n\t, ShipDateSK\n\t, CustomerSK\n\t, LocationSK\n\t, MovieSK\n\t, DaysToShip\n\t, Quantity\n\t, UnitCost\n\t, ExtendedCost\n)\nselect\n\to.SourceSystemOrderID\n\t, o.LineNumber\n\t, od.DateSK\n\t, sd.DateSK\n\t, c.CustomerSK\n\t, o.SourceSystemID\n\t, m.MovieSK\n\t, datediff(day, o.OrderDate, o.ShipDate) as DaysToShip\n\t, o.Quantity\n\t, o.UnitCost\n\t, o.Quantity * o.UnitCost as ExtendedCost\nfrom extern.saleOrders o\ninner join dbo.DimCustomers c on c.CustomerID = o.CustomerID\ninner join dbo.DimMovies m on m.MovieID = o.MovieID\ninner join dbo.DimDate as od on od.DateValue = o.OrderDate\nleft outer join dbo.DimDate as sd on sd.DateValue = o.ShipDate\nwhere\n\tnot exists (select 1 from dbo.FactSales f where f.OrderID = o.SourceSystemOrderID)\n\nEND\nGO\n",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"poolName": "Built-in",
+				"databaseName": "master"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

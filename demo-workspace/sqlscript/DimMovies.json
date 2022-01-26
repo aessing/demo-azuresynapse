@@ -1,0 +1,20 @@
+{
+	"name": "DimMovies",
+	"properties": {
+		"folder": {
+			"name": "Movies/LH-OH"
+		},
+		"content": {
+			"query": "SET ANSI_NULLS ON\nGO\nSET QUOTED_IDENTIFIER ON\nGO\nCREATE PROC [dbo].[ImportDimMovies] AS begin\nINSERT INTO dbo.DimMovies (\n    MovieID,\n    MovieTitle,\n    MovieCategorySK,\n    MovieRatingSK,\n    MovieRunTimeMin\n)\nselect distinct\n\tcleaned_table.MovieID\n\t, cleaned_table.Title\n\t, cleaned_table.MovieCategorySK\n\t, cleaned_table.MovieRatingSK\n\t, cleaned_table.RuntimeMinutes\t\nfrom ( \nSELECT \n    s.SourceSystemMovieID as MovieID,\n    s.Title,\n    dim_c.MovieCategorySK,\n    dim_r.MovieRatingSK,\n    RuntimeMinutes\nFROM \n    extern.[catalog] s\n    LEFT JOIN dbo.DimCategories dim_c ON s.Genre = dim_c.MovieCategoryDescription\n    LEFT JOIN dbo.DimRatings dim_r\n        ON CASE\n            WHEN s.Rating = 'PG=13' AND ('PG-13' = dim_r.MovieRatingDescription) THEN 1\n            WHEN s.Rating = dim_r.MovieRatingDescription THEN 1\n            ELSE 0\n        END = 1\n) cleaned_table\nWHERE cleaned_table.MovieID NOT IN (SELECT MovieID FROM [dbo].[DimMovies])\n;\nEND\n    \nGO\n",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"poolName": "Built-in",
+				"databaseName": "master"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

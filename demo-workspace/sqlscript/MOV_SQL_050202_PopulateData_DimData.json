@@ -1,0 +1,20 @@
+{
+	"name": "MOV_SQL_050202_PopulateData_DimData",
+	"properties": {
+		"description": "OpenHack MDWH\nAzure Synapse Analytics Demo\nhttps://github.com/aessing/demo-azuresynapse\n\nDeveloper: Andre Essing\n(https://www.andre-essing.de/)\n(https://github.com/aessing)\n(https://twitter.com/aessing)\n(https://www.linkedin.com/in/aessing/)\n\nTHIS CODE AND INFORMATION ARE PROVIDED \"AS IS\" WITHOUT WARRANTY OF ANY KIND,\nEITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED\nWARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.",
+		"folder": {
+			"name": "Movies/Challenge 05 - 02 Populate Data"
+		},
+		"content": {
+			"query": "-- =============================================================================\n-- OpenHack MDWH\n-- Azure Synapse Analytics Demo\n-- https://github.com/aessing/demo-azuresynapse\n-- -----------------------------------------------------------------------------\n-- Developer.......: Andre Essing (https://www.andre-essing.de/)\n--                                (https://github.com/aessing)\n--                                (https://twitter.com/aessing)\n--                                (https://www.linkedin.com/in/aessing/)\n-- -----------------------------------------------------------------------------\n-- THIS CODE AND INFORMATION ARE PROVIDED \"AS IS\" WITHOUT WARRANTY OF ANY KIND,\n-- EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED\n-- WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.\n-- =============================================================================\n\nINSERT INTO dbo.DimDate\n(DateSK, DateValue, DateYear, DateMonth, DateDay, DateDayOfWeek, DateDayOfYear, DateWeekOfYear)\nSELECT \n\tNumber AS DateSK,\n\tDateValue, \n\tYEAR(DateValue) AS DateYear,\n\tMONTH(DateValue) AS DateMonth,\n\tDAY(DateValue) AS DateDay,\n\tDATEPART(WeekDay, DateValue) AS DateDayOfWeek,\n\tDATEPART(DayOfYear, DateValue) AS DateDayOfYear,\n\tDATEPART(Week, DateValue) AS DateWeekOfYear\nFROM\n(\n\tSELECT Number, DATEADD(d, Number - 1, '2017-01-01') AS DateValue\n\tFROM\n\t(\n\t\tSELECT Number\n\t\tFROM dbo.Numbers\n\t\tWHERE Number <= 365\n\t) AS N\n) AS D;\n",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"poolName": "Movies",
+				"databaseName": "Movies"
+			}
+		},
+		"type": "SqlQuery"
+	}
+}

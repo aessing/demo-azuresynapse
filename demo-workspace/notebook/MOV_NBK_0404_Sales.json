@@ -1,0 +1,489 @@
+{
+	"name": "MOV_NBK_0404_Sales",
+	"properties": {
+		"description": "Modern Data Warehousing OpenHack\nAzure Synapse Analytics Demo\nhttps://github.com/aessing/demo-azuresynapse\n\nDeveloper\nAndre Essing\n(https://www.andre-essing.de/\n(https://github.com/aessing\n(https://twitter.com/aessing\n(https://www.linkedin.com/in/aessing/)\n\nTHIS CODE AND INFORMATION ARE PROVIDED \"AS IS\" WITHOUT WARRANTY OF ANY KIND,\nEITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED\nWARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.",
+		"folder": {
+			"name": "Movies/Challenge 04"
+		},
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "DemoSpark01",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 1,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "true",
+				"spark.dynamicAllocation.minExecutors": "1",
+				"spark.dynamicAllocation.maxExecutors": "4",
+				"spark.autotune.trackingId": "4bb74372-6f79-455b-8140-066edd040c49"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/f6c0b928-7078-4332-a106-e7a9c5253249/resourceGroups/demo-synapse-rg/providers/Microsoft.Synapse/workspaces/demosynapsesws01/bigDataPools/DemoSpark01",
+				"name": "DemoSpark01",
+				"type": "Spark",
+				"endpoint": "https://demosynapsesws01.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DemoSpark01",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.1",
+				"nodeCount": 10,
+				"cores": 16,
+				"memory": 112,
+				"automaticScaleJobs": true
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# OpenHack MDWH - Azure Synapse Analytics Demo\r\n",
+					"## Challenge 4 - More than meets the eye - Sales\r\n",
+					"\r\n",
+					"### Azure Synapse Analytics Demo\r\n",
+					"https://github.com/aessing/demo-azuresynapse\r\n",
+					"\r\n",
+					"### Developer\r\n",
+					"Andre Essing</br>\r\n",
+					"https://www.andre-essing.de/</br>\r\n",
+					"https://github.com/aessing</br>\r\n",
+					"https://twitter.com/aessing</br>\r\n",
+					"https://www.linkedin.com/in/aessing/\r\n",
+					"\r\n",
+					"> THIS CODE AND INFORMATION ARE PROVIDED \"AS IS\" WITHOUT WARRANTY OF ANY KIND,\r\n",
+					"> EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED\r\n",
+					"> WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE."
+				]
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Set some parameters\r\n",
+					"\r\n",
+					"Can be overriden by Azure Synapse Pipelines"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"tags": [
+						"parameters"
+					]
+				},
+				"source": [
+					"# Parameter Cell: https://docs.microsoft.com/en-us/azure/synapse-analytics/spark/apache-spark-development-using-notebooks#integrate-a-notebook"
+				],
+				"execution_count": 1
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Import some libraries and build some functions for internal use"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": true
+				},
+				"source": [
+					"from pyspark.sql.types import StringType, DateType, IntegerType, FloatType, BooleanType\r\n",
+					"from pyspark.sql.functions import concat, col, lit, udf, greatest, upper\r\n",
+					"import uuid"
+				],
+				"execution_count": 2
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": true
+				},
+				"source": [
+					"# Function to generate a UUID\r\n",
+					"uuidUDF = udf(lambda : str(uuid.uuid4()),StringType())"
+				],
+				"execution_count": 3
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Import data"
+				]
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"#### Read data from lake - Southridge Sales Orders"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"df_Southridge_Orders = spark.read.load('abfss://movies@demosynapsedls01.dfs.core.windows.net/raw/Southridge/CloudSales/dbo.Orders.parquet',\r\n",
+					"                        format='parquet',\r\n",
+					"                        inferSchema=True,\r\n",
+					"                        header=True, \r\n",
+					"                        ignoreLeadingWhiteSpace=True, \r\n",
+					"                        ignoreTrailingWhiteSpace=True\r\n",
+					"                        )\r\n",
+					"\r\n",
+					"display(df_Southridge_Orders, summary=True)"
+				],
+				"execution_count": 6
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"#### Read data from lake - Southridge Sales Order Details"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"df_Southridge_OrderDetails = spark.read.load('abfss://movies@demosynapsedls01.dfs.core.windows.net/raw/Southridge/CloudSales/dbo.OrderDetails.parquet',\r\n",
+					"                        format='parquet',\r\n",
+					"                        inferSchema=True,\r\n",
+					"                        header=True, \r\n",
+					"                        ignoreLeadingWhiteSpace=True, \r\n",
+					"                        ignoreTrailingWhiteSpace=True\r\n",
+					"                        )\r\n",
+					"\r\n",
+					"display(df_Southridge_OrderDetails, summary=True)"
+				],
+				"execution_count": 7
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Join data"
+				]
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"#### Join Southridge Order data"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"# Rename duplicate column names columns\r\n",
+					"df_Southridge_Orders_Renamed = (\r\n",
+					"    df_Southridge_Orders.withColumnRenamed(\"CreatedDate\", \"OrderCreatedDate\")\r\n",
+					"                        .withColumnRenamed(\"UpdatedDate\", \"OrderUpdatedDate\")\r\n",
+					"                        .withColumn(\"GlobalOrderID\", uuidUDF())\r\n",
+					")\r\n",
+					"\r\n",
+					"df_Southridge_OrderDetails_Renamed = (\r\n",
+					"    df_Southridge_OrderDetails.withColumnRenamed(\"CreatedDate\", \"OrderDetailCreatedDate\")\r\n",
+					"                        .withColumnRenamed(\"UpdatedDate\", \"OrderDetailUpdatedDate\")\r\n",
+					")\r\n",
+					"\r\n",
+					"# Join dataframes\r\n",
+					"df_Southridge_Orders_Joined = (\r\n",
+					"    df_Southridge_Orders_Renamed.alias('Orders').join(\r\n",
+					"        df_Southridge_OrderDetails_Renamed.alias('OrderDetails'),\r\n",
+					"        df_Southridge_Orders_Renamed.OrderID == df_Southridge_OrderDetails_Renamed.OrderID,\r\n",
+					"        'left'\r\n",
+					"    )\r\n",
+					")"
+				],
+				"execution_count": 12
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Transform data"
+				]
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"#### Transform Southridge Order data"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"# Add columns\r\n",
+					"df_Southridge_Orders_Modified = (\r\n",
+					"    df_Southridge_Orders_Joined.withColumn(\"SourceID\", lit(\"1\").cast(IntegerType()))\r\n",
+					")\r\n",
+					"\r\n",
+					"# Reorder colums\r\n",
+					"df_Southridge_Orders_Modified = df_Southridge_Orders_Modified.select(\r\n",
+					"    'SourceID',\r\n",
+					"    'UniqueOrderID',\r\n",
+					"    'Orders.OrderId',\r\n",
+					"    'Orders.CustomerID',\r\n",
+					"    'OrderDate',\r\n",
+					"    'ShipDate',\r\n",
+					"    'TotalCost',\r\n",
+					"    'OrderCreatedDate',\r\n",
+					"    'OrderUpdatedDate',\r\n",
+					"    'OrderDetailID',\r\n",
+					"    'MovieID',\r\n",
+					"    'Quantity',\r\n",
+					"    'UnitCost',\r\n",
+					"    'LineNumber',\r\n",
+					"    'OrderDetailCreatedDate',\r\n",
+					"    'OrderDetailUpdatedDate'\r\n",
+					")\r\n",
+					"\r\n",
+					"# Rename columns\r\n",
+					"df_Southridge_Orders_Modified = (\r\n",
+					"    df_Southridge_Orders_Modified.withColumnRenamed(\"OrderId\", \"SourceSystemOrderID\")\r\n",
+					")\r\n",
+					"\r\n",
+					"# Convert column types\r\n",
+					"df_Southridge_Orders_Modified = (\r\n",
+					"    df_Southridge_Orders_Modified.withColumn(\"SourceSystemID\", col(\"SourceSystemID\").cast(IntegerType()))\r\n",
+					"                           .withColumn(\"SourceSystemOrderID\", upper(col(\"SourceSystemOrderID\").cast(StringType())))\r\n",
+					"                           .withColumn(\"CustomerID\", upper(col(\"CustomerID\").cast(StringType())))\r\n",
+					"                           .withColumn(\"OrderDate\", col(\"OrderDate\").cast(DateType()))\r\n",
+					"                           .withColumn(\"ShipDate\", col(\"ShipDate\").cast(DateType()))\r\n",
+					"                           .withColumn(\"TotalCost\", col(\"TotalCost\").cast(DecimalType()))\r\n",
+					"                           .withColumn(\"OrderCreatedDate\", col(\"OrderCreatedDate\").cast(DateType()))\r\n",
+					"                           .withColumn(\"OrderUpdatedDate\", col(\"OrderUpdatedDate\").cast(DateType()))\r\n",
+					"                           .withColumn(\"OrderDetailID\", upper(col(\"OrderDetailID\").cast(StringType())))\r\n",
+					"                           .withColumn(\"MovieID\", upper(col(\"MovieID\").cast(StringType())))\r\n",
+					"                           .withColumn(\"Quantity\", col(\"Quantity\").cast(IntegerType()))\r\n",
+					"                           .withColumn(\"UnitCost\", col(\"UnitCost\").cast(DecimalType()))\r\n",
+					"                           .withColumn(\"LineNumber\", col(\"LineNumber\").cast(IntegerType()))\r\n",
+					"                           .withColumn(\"OrderDetailCreatedDate\", col(\"OrderDetailCreatedDate\").cast(DateType()))\r\n",
+					"                           .withColumn(\"OrderDetailUpdatedDate\", col(\"OrderDetailUpdatedDate\").cast(DateType()))\r\n",
+					")"
+				],
+				"execution_count": 9
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Combine all dataframes"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"df_unioned = df_Southridge_Orders_Modified"
+				],
+				"execution_count": 10
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Writed curated data back to the data lake"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": true
+				},
+				"source": [
+					"df_unioned.write.format('parquet').mode('overwrite').save('abfss://movies@demosynapsedls01.dfs.core.windows.net/curated/sales.parquet')\r\n",
+					"# Should be 208.960 Rows"
+				],
+				"execution_count": 11
+			}
+		]
+	}
+}

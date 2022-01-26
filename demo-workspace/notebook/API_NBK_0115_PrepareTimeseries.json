@@ -1,0 +1,322 @@
+{
+	"name": "API_NBK_0115_PrepareTimeseries",
+	"properties": {
+		"description": "API Analytics Demo\nAzure Synapse Analytics Demo\nhttps://github.com/aessing/demo-azuresynapse\n\nDeveloper\nAndre Essing\n(https://www.andre-essing.de/\n(https://github.com/aessing\n(https://twitter.com/aessing\n(https://www.linkedin.com/in/aessing/)\n\nTHIS CODE AND INFORMATION ARE PROVIDED \"AS IS\" WITHOUT WARRANTY OF ANY KIND,\nEITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED\nWARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.",
+		"folder": {
+			"name": "API Analytics/01 Data Engineer"
+		},
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "DemoSpark01",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "56g",
+			"driverCores": 8,
+			"executorMemory": "56g",
+			"executorCores": 8,
+			"numExecutors": 1,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "true",
+				"spark.dynamicAllocation.minExecutors": "1",
+				"spark.dynamicAllocation.maxExecutors": "8",
+				"spark.autotune.trackingId": "d6a2ebce-cf24-4b33-84d9-a64932dfa1ce"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/f6c0b928-7078-4332-a106-e7a9c5253249/resourceGroups/demo-synapse-rg/providers/Microsoft.Synapse/workspaces/demosynapsesws01/bigDataPools/DemoSpark01",
+				"name": "DemoSpark01",
+				"type": "Spark",
+				"endpoint": "https://demosynapsesws01.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DemoSpark01",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.1",
+				"nodeCount": 10,
+				"cores": 16,
+				"memory": 112,
+				"automaticScaleJobs": true
+			},
+			"sessionKeepAliveTimeout": 15
+		},
+		"cells": [
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# API Analytics Demo\r\n",
+					"## Azure Synapse Analytics Demo\r\n",
+					"https://github.com/aessing/demo-azuresynapse\r\n",
+					"\r\n",
+					"## Developer\r\n",
+					"Andre Essing</br>\r\n",
+					"https://www.andre-essing.de/</br>\r\n",
+					"https://github.com/aessing</br>\r\n",
+					"https://twitter.com/aessing</br>\r\n",
+					"https://www.linkedin.com/in/aessing/\r\n",
+					"\r\n",
+					"> THIS CODE AND INFORMATION ARE PROVIDED \"AS IS\" WITHOUT WARRANTY OF ANY KIND,\r\n",
+					"> EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED\r\n",
+					"> WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE."
+				]
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Set some parameters and do some imports\r\n",
+					"\r\n",
+					"Can be overriden by Azure Synapse Pipelines"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"tags": [
+						"parameters"
+					]
+				},
+				"source": [
+					"# Parameter Cell: https://docs.microsoft.com/en-us/azure/synapse-analytics/spark/apache-spark-development-using-notebooks#integrate-a-notebook\n",
+					"\n",
+					"# file system where the data is located\n",
+					"container = 'abfss://apianalytics@demosynapsedls01.dfs.core.windows.net'\n",
+					"\n",
+					"# Name of the file, data and table that should be transformed\n",
+					"table = 'Timeseries'"
+				],
+				"execution_count": 9
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Import some libraries and build some variables for internal use"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"from notebookutils import mssparkutils\r\n",
+					"from pyspark.sql.types import *\r\n",
+					"from pyspark.sql.functions import lower, year, month, weekofyear, dayofyear, dayofmonth, dayofweek, concat, lpad, when"
+				],
+				"execution_count": 10
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# Build some path variables that will help reading and writing data from and to lake\r\n",
+					"extractedPath = f\"{container}/temp/extracted/{table}.txt\"\r\n",
+					"rawPath = f\"{container}/raw/{table}.csv\"\r\n",
+					"curatedPath = f\"{container}/curated/{table.lower()}.parquet\""
+				],
+				"execution_count": 11
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Copy data from temp area to raw area and read the data from the lake"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# Copy the data from extracted 7ZIP folder to the RAW area\r\n",
+					"mssparkutils.fs.cp(extractedPath, rawPath, False)"
+				],
+				"execution_count": 12
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"# Read the data from the RAW area into memory (dataframe)\n",
+					"df = spark.read.options(delimiter=';', header=True).csv(rawPath)"
+				],
+				"execution_count": 13
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Transform the imported data"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"# Cast the data to the correct / needed data format\n",
+					"curateddf = (df\n",
+					"    .withColumn('Id', df['Id'].cast(IntegerType()))\n",
+					"    .withColumn('TimestampUtc', df['TimestampUtc'].cast(TimestampType()))\n",
+					"    .withColumn('UsageKind', df['UsageKind'].cast(IntegerType()))\n",
+					"    .withColumn('OperationId', df['OperationID'].cast(IntegerType()))\n",
+					"    .withColumn('ServiceId', df['ServiceID'].cast(IntegerType()))\n",
+					"    .withColumn('GeoId', df['GeoID'].cast(IntegerType()))\n",
+					"    .withColumn('CallDurationMillis', df['CallDurationMillis'].cast(IntegerType()))\n",
+					"    .withColumn('CustomerId', df['CustomerID'].cast(IntegerType()))\n",
+					")\n",
+					"\n",
+					"# Added some columns that would come in handy when analyzing the data\n",
+					"curateddf = (curateddf\n",
+					"    # Translate UsageKind from an id to an human readable value\n",
+					"    .withColumn('UsageKindDesc', when(curateddf.UsageKind == 0, 'success')\n",
+					"                                .when(curateddf.UsageKind == 1, 'input validation')\n",
+					"                                .when(curateddf.UsageKind == 2, 'error')\n",
+					"                                .otherwise('not defined'))\n",
+					"    # Add some date columns (could be more), because a data citizen doesn't like to handle timestamps                                \n",
+					"    .withColumn('Year', year(curateddf['TimestampUtc']).cast(IntegerType()))\n",
+					"    .withColumn('Month', month(curateddf['TimestampUtc']).cast(IntegerType()))\n",
+					"    .withColumn('YearMonth', concat( year(curateddf['TimestampUtc']), lpad(month(curateddf['TimestampUtc']), 2, '0')).cast(IntegerType()))\n",
+					"    .withColumn('WeekOfYear', weekofyear(curateddf['TimestampUtc']).cast(IntegerType()))\n",
+					"    .withColumn('DayOfYear', dayofyear(curateddf['TimestampUtc']).cast(IntegerType()))\n",
+					"    .withColumn('DayOfMonth', dayofmonth(curateddf['TimestampUtc']).cast(IntegerType()))\n",
+					"    .withColumn('DayOfWeek', dayofweek(curateddf['TimestampUtc']).cast(IntegerType()))\n",
+					")"
+				],
+				"execution_count": 14
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Writed curated data back to the data lake"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# Write the transformed data to the CURATED area in the data lake\r\n",
+					"curateddf.write.parquet(curatedPath, mode='overwrite')"
+				],
+				"execution_count": 15
+			}
+		]
+	}
+}

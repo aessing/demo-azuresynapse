@@ -1,0 +1,940 @@
+{
+	"name": "MOV_NBK_0405_Catalog",
+	"properties": {
+		"description": "Modern Data Warehousing OpenHack\nAzure Synapse Analytics Demo\nhttps://github.com/aessing/demo-azuresynapse\n\nDeveloper\nAndre Essing\n(https://www.andre-essing.de/\n(https://github.com/aessing\n(https://twitter.com/aessing\n(https://www.linkedin.com/in/aessing/)\n\nTHIS CODE AND INFORMATION ARE PROVIDED \"AS IS\" WITHOUT WARRANTY OF ANY KIND,\nEITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED\nWARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.",
+		"folder": {
+			"name": "Movies/Challenge 04"
+		},
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "DemoSpark01",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 1,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "true",
+				"spark.dynamicAllocation.minExecutors": "1",
+				"spark.dynamicAllocation.maxExecutors": "8",
+				"spark.autotune.trackingId": "de6af0b4-8c45-4586-965e-88ba54421f31"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/f6c0b928-7078-4332-a106-e7a9c5253249/resourceGroups/demo-synapse-rg/providers/Microsoft.Synapse/workspaces/demosynapsesws01/bigDataPools/DemoSpark01",
+				"name": "DemoSpark01",
+				"type": "Spark",
+				"endpoint": "https://demosynapsesws01.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DemoSpark01",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.1",
+				"nodeCount": 10,
+				"cores": 16,
+				"memory": 112,
+				"automaticScaleJobs": true
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# OpenHack MDWH - Azure Synapse Analytics Demo\r\n",
+					"## Challenge 4 - More than meets the eye - Catalog\r\n",
+					"\r\n",
+					"### Azure Synapse Analytics Demo\r\n",
+					"https://github.com/aessing/demo-azuresynapse\r\n",
+					"\r\n",
+					"### Developer\r\n",
+					"Andre Essing</br>\r\n",
+					"https://www.andre-essing.de/</br>\r\n",
+					"https://github.com/aessing</br>\r\n",
+					"https://twitter.com/aessing</br>\r\n",
+					"https://www.linkedin.com/in/aessing/\r\n",
+					"\r\n",
+					"> THIS CODE AND INFORMATION ARE PROVIDED \"AS IS\" WITHOUT WARRANTY OF ANY KIND,\r\n",
+					"> EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED\r\n",
+					"> WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE."
+				]
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Set some parameters\r\n",
+					"\r\n",
+					"Can be overriden by Azure Synapse Pipelines"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"tags": [
+						"parameters"
+					]
+				},
+				"source": [
+					"# Parameter Cell: https://docs.microsoft.com/en-us/azure/synapse-analytics/spark/apache-spark-development-using-notebooks#integrate-a-notebook"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Import some libraries and build some functions for internal use"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": true
+				},
+				"source": [
+					"from pyspark.sql.types import StringType, TimestampType, DateType, IntegerType, DecimalType, BooleanType, StructType\r\n",
+					"from pyspark.sql.functions import col, lit, udf, greatest, explode, to_date, when, upper\r\n",
+					"import uuid"
+				],
+				"execution_count": 1
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": true
+				},
+				"source": [
+					"# Function to generate a UUID\r\n",
+					"uuidUDF = udf(lambda : str(uuid.uuid4()),StringType())"
+				],
+				"execution_count": 2
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Import data"
+				]
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"#### Read data from lake - Southridge Movies"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"df_Southridge_Catalog = spark.read.option(\"multiLine\", \"true\").json('abfss://movies@demosynapsedls01.dfs.core.windows.net/raw/Southridge/Movies/export.json')\r\n",
+					"\r\n",
+					"df_Southridge_Catalog = (\r\n",
+					"    df_Southridge_Catalog\r\n",
+					"        .withColumn(\"GlobalMovieID\", uuidUDF())\r\n",
+					"        .withColumn('actor', explode('actors.name'))\r\n",
+					"        .drop('actors', '_attachments', '_etag', '_rid', '_self', '_ts')\r\n",
+					")"
+				],
+				"execution_count": 7
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"#### Read data from lake - Fourth Coffee Actors"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"collapsed": false
+				},
+				"source": [
+					"df_FourthCoffee_Actors = spark.read.load('abfss://movies@demosynapsedls01.dfs.core.windows.net/raw/FourthCoffee/Rentals/Actors.csv',\r\n",
+					"                        format='csv',\r\n",
+					"                        inferSchema=True,\r\n",
+					"                        header=True, \r\n",
+					"                        ignoreLeadingWhiteSpace=True, \r\n",
+					"                        ignoreTrailingWhiteSpace=True\r\n",
+					"                        )"
+				],
+				"execution_count": 8
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"#### Read data from lake - Fourth Coffee MovieActors "
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": true
+				},
+				"source": [
+					"df_FourthCoffee_MovieActors = spark.read.load('abfss://movies@demosynapsedls01.dfs.core.windows.net/raw/FourthCoffee/Rentals/MovieActors.csv',\r\n",
+					"                        format='csv',\r\n",
+					"                        inferSchema=True,\r\n",
+					"                        header=True, \r\n",
+					"                        ignoreLeadingWhiteSpace=True, \r\n",
+					"                        ignoreTrailingWhiteSpace=True\r\n",
+					"                        )"
+				],
+				"execution_count": 9
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"#### Read data from lake - Fourth Coffee Movies"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"df_FourthCoffee_Movies = ( spark.read.load('abfss://movies@demosynapsedls01.dfs.core.windows.net/raw/FourthCoffee/Rentals/Movies.csv',\r\n",
+					"                    format='csv',\r\n",
+					"                    inferSchema=True,\r\n",
+					"                    header=True, \r\n",
+					"                    ignoreLeadingWhiteSpace=True, \r\n",
+					"                    ignoreTrailingWhiteSpace=True\r\n",
+					"                    )\r\n",
+					"                    .withColumn(\"GlobalMovieID\", uuidUDF())\r\n",
+					"                    )"
+				],
+				"execution_count": 11
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"#### Read data from lake - Fourth Coffee OnlineMovieMappings"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": true
+				},
+				"source": [
+					"df_FourthCoffee_OnlineMovieMappings = spark.read.load('abfss://movies@demosynapsedls01.dfs.core.windows.net/raw/FourthCoffee/Rentals/OnlineMovieMappings.csv',\r\n",
+					"                        format='csv',\r\n",
+					"                        inferSchema=True,\r\n",
+					"                        header=True, \r\n",
+					"                        ignoreLeadingWhiteSpace=True, \r\n",
+					"                        ignoreTrailingWhiteSpace=True\r\n",
+					"                        )"
+				],
+				"execution_count": 12
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"#### Read data from lake - VanArsdel Actors"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"df_vanArsdel_Actors = spark.read.load('abfss://movies@demosynapsedls01.dfs.core.windows.net/raw/VanArsdel/OnPremRentals/dbo.Actors.parquet',\r\n",
+					"                        format='parquet',\r\n",
+					"                        inferSchema=True,\r\n",
+					"                        header=True, \r\n",
+					"                        ignoreLeadingWhiteSpace=True, \r\n",
+					"                        ignoreTrailingWhiteSpace=True\r\n",
+					"                        )"
+				],
+				"execution_count": 14
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": true
+				},
+				"source": [
+					"df_vanArsdel_MovieActors = spark.read.load('abfss://movies@demosynapsedls01.dfs.core.windows.net/raw/VanArsdel/OnPremRentals/dbo.MovieActors.parquet',\r\n",
+					"                        format='parquet',\r\n",
+					"                        inferSchema=True,\r\n",
+					"                        header=True, \r\n",
+					"                        ignoreLeadingWhiteSpace=True, \r\n",
+					"                        ignoreTrailingWhiteSpace=True\r\n",
+					"                        )"
+				],
+				"execution_count": 15
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"#### Read data from lake - VanArsdel Movies"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": true
+				},
+				"source": [
+					"df_vanArsdel_Movies = ( spark.read.load('abfss://movies@demosynapsedls01.dfs.core.windows.net/raw/VanArsdel/OnPremRentals/dbo.Movies.parquet',\r\n",
+					"                        format='parquet',\r\n",
+					"                        inferSchema=True,\r\n",
+					"                        header=True, \r\n",
+					"                        ignoreLeadingWhiteSpace=True, \r\n",
+					"                        ignoreTrailingWhiteSpace=True\r\n",
+					"                        )\r\n",
+					"                        .withColumn(\"GlobalMovieID\", uuidUDF())\r\n",
+					")"
+				],
+				"execution_count": 18
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"#### Read data from lake - VanArsdel OnlineMovieMappings"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": true
+				},
+				"source": [
+					"df_vanArsdel_OnlineMovieMappings = spark.read.load('abfss://movies@demosynapsedls01.dfs.core.windows.net/raw/VanArsdel/OnPremRentals/dbo.OnlineMovieMappings.parquet',\r\n",
+					"                        format='parquet',\r\n",
+					"                        inferSchema=True,\r\n",
+					"                        header=True, \r\n",
+					"                        ignoreLeadingWhiteSpace=True, \r\n",
+					"                        ignoreTrailingWhiteSpace=True\r\n",
+					"                        )"
+				],
+				"execution_count": 19
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Join data"
+				]
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"#### Join Fourth Coffee Movie Catalog"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": true
+				},
+				"source": [
+					"df_FourthCoffee_Catalog = (\r\n",
+					"    df_FourthCoffee_Movies.alias(\"Movies\")\r\n",
+					"        .join(df_FourthCoffee_MovieActors.alias(\"MovieActors\"), df_FourthCoffee_Movies.MovieID == df_FourthCoffee_MovieActors.MovieID, 'left')\r\n",
+					"        .join(df_FourthCoffee_Actors.alias(\"Actors\"), df_FourthCoffee_MovieActors.ActorID == df_FourthCoffee_Actors.ActorID, 'left')\r\n",
+					"        .join(df_FourthCoffee_OnlineMovieMappings.alias(\"Mappings\"), df_FourthCoffee_Movies.MovieID == df_FourthCoffee_OnlineMovieMappings.MovieID, 'left')\r\n",
+					")"
+				],
+				"execution_count": 13
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"#### Join VanArsdel Movie Catalog"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"df_vanArsdel_Catalog = (\r\n",
+					"    df_vanArsdel_Movies.alias(\"Movies\")\r\n",
+					"        .join(df_vanArsdel_MovieActors.alias(\"MovieActors\"), df_vanArsdel_Movies.MovieID == df_vanArsdel_MovieActors.MovieID, 'left')\r\n",
+					"        .join(df_vanArsdel_Actors.alias(\"Actors\"), df_vanArsdel_MovieActors.ActorID == df_vanArsdel_Actors.ActorID, 'left')\r\n",
+					"        .join(df_vanArsdel_OnlineMovieMappings.alias(\"Mappings\"), df_vanArsdel_Movies.MovieID == df_vanArsdel_OnlineMovieMappings.MovieID, 'left')\r\n",
+					")"
+				],
+				"execution_count": 20
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Transform data"
+				]
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"#### Transform Southridge Catalog data"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"# Add columns\r\n",
+					"df_Southridge_Catalog_Modified = (\r\n",
+					"    df_Southridge_Catalog\r\n",
+					"        .withColumn(\"SourceSystemID\", lit(\"1\").cast(IntegerType()))\r\n",
+					"        .withColumn(\"SouthridgeMovieID\", col(\"id\").cast(StringType()))\r\n",
+					"        .withColumn(\"ActorID\", lit(None).cast(StringType()))\r\n",
+					"        .withColumn(\"ActorGender\", lit(None).cast(StringType()))\r\n",
+					")\r\n",
+					"\r\n",
+					"# Rename columns\r\n",
+					"df_Southridge_Catalog_Modified = (\r\n",
+					"    df_Southridge_Catalog_Modified\r\n",
+					"        .withColumnRenamed(\"id\", \"SourceSystemMovieID\")\r\n",
+					"        .withColumnRenamed(\"actor\", \"ActorName\")\r\n",
+					"        .withColumnRenamed(\"title\", \"Title\")\r\n",
+					"        .withColumnRenamed(\"genre\", \"Genre\")\r\n",
+					"        .withColumnRenamed(\"rating\", \"Rating\")\r\n",
+					"        .withColumnRenamed(\"runtime\", \"RuntimeMinutes\")\r\n",
+					"        .withColumnRenamed(\"releaseYear\", \"TheatricalReleaseYear\")\r\n",
+					"        .withColumnRenamed(\"availabilityDate\", \"PhysicalAvailabilityDate\")\r\n",
+					"        .withColumnRenamed(\"streamingAvailabilityDate\", \"StreamingAvailabilityDate\")\r\n",
+					")\r\n",
+					"\r\n",
+					"# Reorder colums\r\n",
+					"df_Southridge_Catalog_Modified = df_Southridge_Catalog_Modified.select(\r\n",
+					"    'SourceSystemID',\r\n",
+					"    'GlobalMovieID',\r\n",
+					"    'SourceSystemMovieID',\r\n",
+					"    'SouthridgeMovieID',\r\n",
+					"    'ActorID',\r\n",
+					"    'ActorName',\r\n",
+					"    'ActorGender',\r\n",
+					"    'Title',\r\n",
+					"    'Genre',\r\n",
+					"    'Rating',\r\n",
+					"    'RuntimeMinutes',\r\n",
+					"    'TheatricalReleaseYear',\r\n",
+					"    'PhysicalAvailabilityDate',\r\n",
+					"    'StreamingAvailabilityDate'\r\n",
+					")\r\n",
+					"\r\n",
+					"# Convert column types\r\n",
+					"df_Southridge_Catalog_Modified = (\r\n",
+					"    df_Southridge_Catalog_Modified.withColumn(\"SourceSystemID\", col(\"SourceSystemID\").cast(IntegerType()))\r\n",
+					"                           .withColumn(\"SourceSystemMovieID\", upper(col(\"SourceSystemMovieID\").cast(StringType())))\r\n",
+					"                           .withColumn(\"SouthridgeMovieID\", upper(col(\"SouthridgeMovieID\").cast(StringType())))\r\n",
+					"                           .withColumn(\"ActorID\", upper(col(\"ActorID\").cast(StringType())))\r\n",
+					"                           .withColumn(\"ActorName\", col(\"ActorName\").cast(StringType()))\r\n",
+					"                           .withColumn(\"ActorGender\", col(\"ActorGender\").cast(StringType()))\r\n",
+					"                           .withColumn(\"Title\", col(\"Title\").cast(StringType()))\r\n",
+					"                           .withColumn(\"Genre\", col(\"Genre\").cast(StringType()))\r\n",
+					"                           .withColumn(\"Rating\", col(\"Rating\").cast(StringType()))\r\n",
+					"                           .withColumn(\"RuntimeMinutes\", col(\"RuntimeMinutes\").cast(IntegerType()))\r\n",
+					"                           .withColumn(\"TheatricalReleaseYear\", col(\"TheatricalReleaseYear\").cast(IntegerType()))\r\n",
+					"                           .withColumn(\"PhysicalAvailabilityDate\", to_date(col(\"PhysicalAvailabilityDate\"), 'yyyy-MM-dd HH:mm:ss'))\r\n",
+					"                           .withColumn(\"StreamingAvailabilityDate\", to_date(col(\"StreamingAvailabilityDate\"), 'yyyy-MM-dd HH:mm:ss'))\r\n",
+					")"
+				],
+				"execution_count": 21
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"#### Transform Fourth Coffee Catalog data"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"# Add columns\r\n",
+					"df_FourthCoffee_Catalog_Modified = (\r\n",
+					"    df_FourthCoffee_Catalog\r\n",
+					"        .withColumn(\"SourceSystemID\", lit(\"2\").cast(IntegerType()))\r\n",
+					"        .withColumn(\"TheatricalReleaseYear\", lit(None).cast(StringType()))\r\n",
+					"        .withColumn(\"StreamingAvailabilityDate\", lit(None).cast(StringType()))\r\n",
+					")\r\n",
+					"\r\n",
+					"# Reorder colums\r\n",
+					"df_FourthCoffee_Catalog_Modified = df_FourthCoffee_Catalog_Modified.select(\r\n",
+					"    'SourceSystemID',\r\n",
+					"    'GlobalMovieID',\r\n",
+					"    'Movies.MovieID',\r\n",
+					"    'OnlineMovieID',\r\n",
+					"    'Actors.ActorID',\r\n",
+					"    'ActorName',\r\n",
+					"    'Gender',\r\n",
+					"    'MovieTitle',\r\n",
+					"    'Category',\r\n",
+					"    'Rating',\r\n",
+					"    'RunTimeMin',\r\n",
+					"    'TheatricalReleaseYear',\r\n",
+					"    'ReleaseDate',\r\n",
+					"    'StreamingAvailabilityDate'\r\n",
+					")\r\n",
+					"\r\n",
+					"# Rename columns\r\n",
+					"df_FourthCoffee_Catalog_Modified = (\r\n",
+					"    df_FourthCoffee_Catalog_Modified\r\n",
+					"        .withColumnRenamed(\"MovieID\", \"SourceSystemMovieID\")\r\n",
+					"        .withColumnRenamed(\"OnlineMovieID\", \"SouthridgeMovieID\")\r\n",
+					"        .withColumnRenamed(\"Gender\", \"ActorGender\")\r\n",
+					"        .withColumnRenamed(\"MovieTitle\", \"Title\")\r\n",
+					"        .withColumnRenamed(\"Category\", \"Genre\")\r\n",
+					"        .withColumnRenamed(\"RunTimeMin\", \"RuntimeMinutes\")\r\n",
+					"        .withColumnRenamed(\"ReleaseDate\", \"PhysicalAvailabilityDate\")\r\n",
+					")\r\n",
+					"\r\n",
+					"# Convert column types\r\n",
+					"df_FourthCoffee_Catalog_Modified = (\r\n",
+					"    df_FourthCoffee_Catalog_Modified.withColumn(\"SourceSystemID\", col(\"SourceSystemID\").cast(IntegerType()))\r\n",
+					"                           .withColumn(\"SourceSystemMovieID\", upper(col(\"SourceSystemMovieID\").cast(StringType())))\r\n",
+					"                           .withColumn(\"SouthridgeMovieID\", upper(col(\"SouthridgeMovieID\").cast(StringType())))\r\n",
+					"                           .withColumn(\"ActorID\", upper(col(\"ActorID\").cast(StringType())))\r\n",
+					"                           .withColumn(\"ActorName\", col(\"ActorName\").cast(StringType()))\r\n",
+					"                           .withColumn(\"ActorGender\", col(\"ActorGender\").cast(StringType()))\r\n",
+					"                           .withColumn(\"Title\", col(\"Title\").cast(StringType()))\r\n",
+					"                           .withColumn(\"Genre\", col(\"Genre\").cast(StringType()))\r\n",
+					"                           .withColumn(\"Rating\", col(\"Rating\").cast(StringType()))\r\n",
+					"                           .withColumn(\"RuntimeMinutes\", col(\"RuntimeMinutes\").cast(IntegerType()))\r\n",
+					"                           .withColumn(\"TheatricalReleaseYear\", col(\"TheatricalReleaseYear\").cast(IntegerType()))\r\n",
+					"                           .withColumn(\"PhysicalAvailabilityDate\", to_date(col(\"PhysicalAvailabilityDate\"), 'MM-dd-yyyy'))\r\n",
+					"                           .withColumn(\"StreamingAvailabilityDate\", col(\"StreamingAvailabilityDate\").cast(DateType()))\r\n",
+					")"
+				],
+				"execution_count": 22
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"#### Transform VanArsdel Catalog data"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"# Add columns\r\n",
+					"df_vanArsdel_Catalog_Modified = (\r\n",
+					"    df_vanArsdel_Catalog\r\n",
+					"        .withColumn(\"SourceSystemID\", lit(\"3\").cast(IntegerType()))\r\n",
+					"        .withColumn(\"TheatricalReleaseYear\", lit(None).cast(StringType()))\r\n",
+					"        .withColumn(\"StreamingAvailabilityDate\", lit(None).cast(StringType()))\r\n",
+					")\r\n",
+					"\r\n",
+					"# Reorder colums\r\n",
+					"df_vanArsdel_Catalog_Modified = df_vanArsdel_Catalog_Modified.select(\r\n",
+					"    'SourceSystemID',\r\n",
+					"    'GlobalMovieID',\r\n",
+					"    'Movies.MovieID',\r\n",
+					"    'OnlineMovieID',\r\n",
+					"    'Actors.ActorID',\r\n",
+					"    'ActorName',\r\n",
+					"    'Gender',\r\n",
+					"    'MovieTitle',\r\n",
+					"    'Category',\r\n",
+					"    'Rating',\r\n",
+					"    'RunTimeMin',\r\n",
+					"    'TheatricalReleaseYear',\r\n",
+					"    'ReleaseDate',\r\n",
+					"    'StreamingAvailabilityDate'\r\n",
+					")\r\n",
+					"\r\n",
+					"# Rename columns\r\n",
+					"df_vanArsdel_Catalog_Modified = (\r\n",
+					"    df_vanArsdel_Catalog_Modified\r\n",
+					"        .withColumnRenamed(\"MovieID\", \"SourceSystemMovieID\")\r\n",
+					"        .withColumnRenamed(\"OnlineMovieID\", \"SouthridgeMovieID\")\r\n",
+					"        .withColumnRenamed(\"Gender\", \"ActorGender\")\r\n",
+					"        .withColumnRenamed(\"MovieTitle\", \"Title\")\r\n",
+					"        .withColumnRenamed(\"Category\", \"Genre\")\r\n",
+					"        .withColumnRenamed(\"RunTimeMin\", \"RuntimeMinutes\")\r\n",
+					"        .withColumnRenamed(\"ReleaseDate\", \"PhysicalAvailabilityDate\")\r\n",
+					")\r\n",
+					"\r\n",
+					"# Convert column types\r\n",
+					"df_vanArsdel_Catalog_Modified = (\r\n",
+					"    df_vanArsdel_Catalog_Modified.withColumn(\"SourceSystemID\", col(\"SourceSystemID\").cast(IntegerType()))\r\n",
+					"                           .withColumn(\"SourceSystemMovieID\", upper(col(\"SourceSystemMovieID\").cast(StringType())))\r\n",
+					"                           .withColumn(\"SouthridgeMovieID\", upper(col(\"SouthridgeMovieID\").cast(StringType())))\r\n",
+					"                           .withColumn(\"ActorID\", upper(col(\"ActorID\").cast(StringType())))\r\n",
+					"                           .withColumn(\"ActorName\", col(\"ActorName\").cast(StringType()))\r\n",
+					"                           .withColumn(\"ActorGender\", col(\"ActorGender\").cast(StringType()))\r\n",
+					"                           .withColumn(\"Title\", col(\"Title\").cast(StringType()))\r\n",
+					"                           .withColumn(\"Genre\", col(\"Genre\").cast(StringType()))\r\n",
+					"                           .withColumn(\"Rating\", col(\"Rating\").cast(StringType()))\r\n",
+					"                           .withColumn(\"RuntimeMinutes\", col(\"RuntimeMinutes\").cast(IntegerType()))\r\n",
+					"                           .withColumn(\"TheatricalReleaseYear\", col(\"TheatricalReleaseYear\").cast(IntegerType()))\r\n",
+					"                           .withColumn(\"PhysicalAvailabilityDate\", to_date(col(\"PhysicalAvailabilityDate\"), 'MM-dd-yyyy'))\r\n",
+					"                           .withColumn(\"StreamingAvailabilityDate\", col(\"StreamingAvailabilityDate\").cast(DateType()))\r\n",
+					")"
+				],
+				"execution_count": 23
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Combine all dataframes"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"df_unioned = (\r\n",
+					"    df_Southridge_Catalog_Modified\r\n",
+					"        .union(df_FourthCoffee_Catalog_Modified)\r\n",
+					"        .union(df_vanArsdel_Catalog_Modified)\r\n",
+					")"
+				],
+				"execution_count": 24
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Writed curated data back to the data lake"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": true
+				},
+				"source": [
+					"df_unioned.write.format('parquet').mode('overwrite').save('abfss://movies@demosynapsedls01.dfs.core.windows.net/curated/catalog.parquet')\r\n",
+					"# Should be 9.331 Rows"
+				],
+				"execution_count": 25
+			}
+		]
+	}
+}

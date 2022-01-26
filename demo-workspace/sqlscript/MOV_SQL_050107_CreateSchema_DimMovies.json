@@ -1,0 +1,20 @@
+{
+	"name": "MOV_SQL_050107_CreateSchema_DimMovies",
+	"properties": {
+		"description": "OpenHack MDWH\nAzure Synapse Analytics Demo\nhttps://github.com/aessing/demo-azuresynapse\n\nDeveloper: Andre Essing\n(https://www.andre-essing.de/)\n(https://github.com/aessing)\n(https://twitter.com/aessing)\n(https://www.linkedin.com/in/aessing/)\n\nTHIS CODE AND INFORMATION ARE PROVIDED \"AS IS\" WITHOUT WARRANTY OF ANY KIND,\nEITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED\nWARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.",
+		"folder": {
+			"name": "Movies/Challenge 05 - 01 Create Schema"
+		},
+		"content": {
+			"query": "-- =============================================================================\n-- OpenHack MDWH\n-- Azure Synapse Analytics Demo\n-- https://github.com/aessing/demo-azuresynapse\n-- -----------------------------------------------------------------------------\n-- Developer.......: Andre Essing (https://www.andre-essing.de/)\n--                                (https://github.com/aessing)\n--                                (https://twitter.com/aessing)\n--                                (https://www.linkedin.com/in/aessing/)\n-- -----------------------------------------------------------------------------\n-- THIS CODE AND INFORMATION ARE PROVIDED \"AS IS\" WITHOUT WARRANTY OF ANY KIND,\n-- EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED\n-- WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.\n-- =============================================================================\n\nCREATE TABLE [dbo].[DimMovies] (\n    [MovieSK]         INT              NOT NULL,\n    [MovieID]         UNIQUEIDENTIFIER NOT NULL,\n    [MovieTitle]      VARCHAR (100)    NOT NULL,\n    [MovieCategorySK] TINYINT          NOT NULL,\n    [MovieRatingSK]   TINYINT          NOT NULL,\n    [MovieRunTimeMin] SMALLINT         NOT NULL\n)\nWITH (HEAP, DISTRIBUTION = REPLICATE);",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"poolName": "Movies",
+				"databaseName": "Movies"
+			}
+		},
+		"type": "SqlQuery"
+	}
+}

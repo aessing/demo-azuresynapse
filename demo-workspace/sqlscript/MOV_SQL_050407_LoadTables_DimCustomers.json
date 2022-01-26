@@ -1,0 +1,20 @@
+{
+	"name": "MOV_SQL_050407_LoadTables_DimCustomers",
+	"properties": {
+		"description": "OpenHack MDWH\nAzure Synapse Analytics Demo\nhttps://github.com/aessing/demo-azuresynapse\n\nDeveloper: Andre Essing\n(https://www.andre-essing.de/)\n(https://github.com/aessing)\n(https://twitter.com/aessing)\n(https://www.linkedin.com/in/aessing/)\n\nTHIS CODE AND INFORMATION ARE PROVIDED \"AS IS\" WITHOUT WARRANTY OF ANY KIND,\nEITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED\nWARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.",
+		"folder": {
+			"name": "Movies/Challenge 05 - 04 Load Tables"
+		},
+		"content": {
+			"query": "-- =============================================================================\n-- OpenHack MDWH\n-- Azure Synapse Analytics Demo\n-- https://github.com/aessing/demo-azuresynapse\n-- -----------------------------------------------------------------------------\n-- Developer.......: Andre Essing (https://www.andre-essing.de/)\n--                                (https://github.com/aessing)\n--                                (https://twitter.com/aessing)\n--                                (https://www.linkedin.com/in/aessing/)\n-- -----------------------------------------------------------------------------\n-- THIS CODE AND INFORMATION ARE PROVIDED \"AS IS\" WITHOUT WARRANTY OF ANY KIND,\n-- EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED\n-- WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.\n-- =============================================================================\n\n-- TRUNCATE TABLE [dbo].[DimCustomers]\n\n-- Load table\nDECLARE @MaxSK INT;\nSELECT @MaxSK = ISNULL(MAX(CustomerSK), 0) FROM [dbo].[DimCustomers]\n\nINSERT INTO [dbo].[DimCustomers] (\n    [CustomerSK],\n    [CustomerID],\n    [LastName],\n    [FirstName],\n    [AddressLine1],\n    [AddressLine2],\n    [City],\n    [State],\n    [ZipCode],\n    [PhoneNumber],\n    [RecordStartDate],\n    [RecordEndDate],\n    [ActiveFlag]\n)\nSELECT * FROM (\n\tSELECT \n\t\t@MaxSK + ROW_NUMBER() OVER (ORDER BY ExternalTable.LastName, ExternalTable.FirstName) AS CustomerSK,\n\t\tExternalTable.SourceSystemCustomerID AS CustomerID,\n\t\tExternalTable.LastName AS LastName,\n\t\tExternalTable.FirstName AS FirstName,\n\t\tExternalTable.AddressLine1 AS AddressLine1,\n\t\tExternalTable.AddressLine2 AS AddressLine2,\n\t\tExternalTable.City AS City,\n\t\tExternalTable.State AS State,\n\t\tExternalTable.ZipCode AS ZipCode,\n\t\tExternalTable.PhoneNumber AS PhoneNumber,\n\t\tExternalTable.RecordStartDate AS RecordStartDate,\n\t\tExternalTable.RecordEndDate AS RecordEndDate,\n\t\tExternalTable.ActiveFlag AS ActiveFlag\n\tFROM (\n\t\tSELECT\n\t\t\tMAX(SourceSystemCustomerID) AS SourceSystemCustomerID,\n\t\t\tLastName,\n\t\t\tFirstName,\n\t\t\tAddressLine1,\n\t\t\tAddressLine2,\n\t\t\tCity,\n\t\t\tState,\n\t\t\tZipCode,\n\t\t\tPhoneNumber,\n\t\t\tMAX(UpdatedDate) AS RecordStartDate,\n\t\t\tNULL AS RecordEndDate,\n\t\t\t1 AS ActiveFlag\n\t\tFROM\n\t\t\t[ext].[customers] cust\n\t\tGROUP BY\n\t\t\tLastName,\n\t\t\tFirstName,\n\t\t\tAddressLine1,\n\t\t\tAddressLine2,\n\t\t\tCity,\n\t\t\tState,\n\t\t\tZipCode,\n\t\t\tPhoneNumber\n\t) ExternalTable\n) CleansedTable\nWHERE CleansedTable.CustomerID NOT IN (SELECT CustomerID FROM [dbo].[DimCustomers])\n\n-- Check Load\n-- SELECT * FROM [dbo].[DimCustomers]",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"poolName": "Movies",
+				"databaseName": "Movies"
+			}
+		},
+		"type": "SqlQuery"
+	}
+}

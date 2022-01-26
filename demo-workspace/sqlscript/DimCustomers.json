@@ -1,0 +1,20 @@
+{
+	"name": "DimCustomers",
+	"properties": {
+		"folder": {
+			"name": "Movies/LH-OH"
+		},
+		"content": {
+			"query": "SET ANSI_NULLS ON\nGO\nSET QUOTED_IDENTIFIER ON\nGO\nALTER PROC [dbo].[ImportDimCustomers] AS begin\n;with d as (\nselect\n\tSourceSystemId\n\t, SourceSystemCustomerID\n\t, LastName\n\t, FirstName\n\t, AddressLine1\n\t, AddressLine2\n\t, City\n\t, State\n\t, ZipCode\n\t, PhoneNumber\n\t, CreatedDate\n\t, UpdatedDate\n\t, row_number() over (partition by SourceSystemCustomerID order by UpdatedDate desc, CreatedDate desc, LastName) as rowno\nfrom extern.customers\n--order by SourceSystemCustomerID, LastName, FirstName\n)\nselect *\ninto #clean_cust\nfrom d where rowno = 1\n\ninsert into dbo.DimCustomers\n(\n\tCustomerID\n\t, LastName\n\t, FirstName\n\t, AddressLine1\n\t, AddressLine2\n\t, City\n\t, State\n\t, ZipCode\n\t, PhoneNumber\n\t, RecordStartDate\n\t, RecordEndDate\n\t, ActiveFlag\n)\nselect\n\tc.SourceSystemCustomerID\n\t, c.LastName\n\t, c.FirstName\n\t, c.AddressLine1\n\t, c.AddressLine2\n\t, c.City\n\t, c.State\n\t, c.ZipCode\n\t, c.PhoneNumber\n\t, isnull(c.UpdatedDate, c.CreatedDate)\n\t, null\n\t, 1\nfrom #clean_cust c\nwhere not exists (select 1 from dbo.DimCustomers d where d.CustomerID = c.SourceSystemCustomerID)\n\ncreate table #to_update (id uniqueidentifier)\ninsert into #to_update\n(\n\tid\n)\nselect\n\td.CustomerID\nfrom dbo.DimCustomers d\ninner join #clean_cust c on d.CustomerID = c.SourceSystemCustomerID\nwhere\n\td.RecordStartDate <> c.UpdatedDate\t-- cust has been updated since last load\n\tand d.ActiveFlag = 1\n\nupdate t set\n\tt.RecordEndDate = c.UpdatedDate\n\t, t.ActiveFlag = 0\nfrom dbo.DimCustomers t\ninner join #clean_cust c on t.CustomerID = c.SourceSystemCustomerID\nwhere\n\tt.ActiveFlag = 1\n\tand\texists (\n\t\tselect 1\n\t\tfrom #to_update d\n\t\twhere\n\t\t\td.id = c.SourceSystemCustomerID\n\t)\n\ninsert into dbo.DimCustomers\n(\n\tCustomerID\n\t, LastName\n\t, FirstName\n\t, AddressLine1\n\t, AddressLine2\n\t, City\n\t, State\n\t, ZipCode\n\t, PhoneNumber\n\t, RecordStartDate\n\t, RecordEndDate\n\t, ActiveFlag\n)\nselect\n\tc.SourceSystemCustomerID\n\t, c.LastName\n\t, c.FirstName\n\t, c.AddressLine1\n\t, c.AddressLine2\n\t, c.City\n\t, c.State\n\t, c.ZipCode\n\t, c.PhoneNumber\n\t, c.UpdatedDate\n\t, null\n\t, 1\nfrom #clean_cust c\nwhere exists (\n\tselect 1\n\tfrom #to_update d\n\twhere\n\t\td.id = c.SourceSystemCustomerID\n)\n\nEND\nGO\n",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"poolName": "Built-in",
+				"databaseName": "master"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

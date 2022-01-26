@@ -1,0 +1,20 @@
+{
+	"name": "DimMovieActors",
+	"properties": {
+		"folder": {
+			"name": "Movies/LH-OH"
+		},
+		"content": {
+			"query": "SET ANSI_NULLS ON\nGO\nSET QUOTED_IDENTIFIER ON\nGO\nALTER PROC [dbo].[ImportDimMovieActors] AS begin\n\n;with d as (\n\tselect distinct\n\t\tc.SourceSystemMovieID\n\t\t, a.ActorID\n\tfrom extern.[catalog] c\n\tinner join dbo.DimActors a on a.ActorName = c.ActorName\n)\ninsert into dbo.DimMovieActors\n(\n\tMovieID\n\t, ActorID\n)\nselect\n\td.SourceSystemMovieID\n\t, d.ActorID\nfrom d\nwhere not exists (\n\tselect 1 from dbo.DimMovieActors ma where ma.MovieID = d.SourceSystemMovieID and ma.ActorID = d.ActorID\n)\n\n\nEND\nGO\n",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"poolName": "Built-in",
+				"databaseName": "master"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

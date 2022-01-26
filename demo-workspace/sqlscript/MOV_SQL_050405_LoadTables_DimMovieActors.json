@@ -1,0 +1,20 @@
+{
+	"name": "MOV_SQL_050405_LoadTables_DimMovieActors",
+	"properties": {
+		"description": "OpenHack MDWH\nAzure Synapse Analytics Demo\nhttps://github.com/aessing/demo-azuresynapse\n\nDeveloper: Andre Essing\n(https://www.andre-essing.de/)\n(https://github.com/aessing)\n(https://twitter.com/aessing)\n(https://www.linkedin.com/in/aessing/)\n\nTHIS CODE AND INFORMATION ARE PROVIDED \"AS IS\" WITHOUT WARRANTY OF ANY KIND,\nEITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED\nWARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.",
+		"folder": {
+			"name": "Movies/Challenge 05 - 04 Load Tables"
+		},
+		"content": {
+			"query": "-- =============================================================================\n-- OpenHack MDWH\n-- Azure Synapse Analytics Demo\n-- https://github.com/aessing/demo-azuresynapse\n-- -----------------------------------------------------------------------------\n-- Developer.......: Andre Essing (https://www.andre-essing.de/)\n--                                (https://github.com/aessing)\n--                                (https://twitter.com/aessing)\n--                                (https://www.linkedin.com/in/aessing/)\n-- -----------------------------------------------------------------------------\n-- THIS CODE AND INFORMATION ARE PROVIDED \"AS IS\" WITHOUT WARRANTY OF ANY KIND,\n-- EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED\n-- WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.\n-- =============================================================================\n\n-- TRUNCATE TABLE [dbo].[DimMovieActors]\n\n-- Load table\nINSERT INTO [dbo].[DimMovieActors] (\n\t[MovieID],\n    [ActorID]\n)\nSELECT * FROM (\n\tSELECT \n\t\tExternalTable.MovieID AS MovieID,\n\t\tExternalTable.ActorID AS ActorID\n\tFROM (\n\t\tSELECT\n\t\t\tmov.MovieID,\n\t\t\tact.ActorID\n\t\tFROM\n\t\t\t[ext].[Catalog] cat\n\t\tLEFT JOIN\n\t\t\t[dbo].[DimMovies] mov\n\t\t\tON cat.Title = mov.MovieTitle\n\t\tLEFT JOIN \n\t\t\t[dbo].[DimActors] act \n\t\t\tON cat.ActorName = act.ActorName\n\t\tGROUP BY mov.MovieID, act.ActorID\n\t) ExternalTable\n) CleansedTable\nWHERE CleansedTable.MovieID NOT IN (SELECT MovieID FROM [dbo].[DimMovieActors])\n\n-- Check Load\n-- SELECT * FROM [dbo].[DimMovieActors]",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"poolName": "Movies",
+				"databaseName": "Movies"
+			}
+		},
+		"type": "SqlQuery"
+	}
+}

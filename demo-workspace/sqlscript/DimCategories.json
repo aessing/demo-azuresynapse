@@ -1,0 +1,20 @@
+{
+	"name": "DimCategories",
+	"properties": {
+		"folder": {
+			"name": "Movies/LH-OH"
+		},
+		"content": {
+			"query": "SET ANSI_NULLS ON\nGO\nSET QUOTED_IDENTIFIER ON\nGO\nALTER PROC [dbo].[ImportDimCategories] AS begin\ninsert into dbo.DimCategories\n(\n\tMovieCategoryDescription\n)\nSELECT * FROM (\n    select distinct\n        Genre\n    from extern.catalog\n) cleaned_table\nWHERE cleaned_table.Genre NOT IN (SELECT MovieCategoryDescription FROM [dbo].[DimCategories])\n;\nEND\nGO\n",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"poolName": "Built-in",
+				"databaseName": "master"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

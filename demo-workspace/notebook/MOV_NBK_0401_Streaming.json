@@ -1,0 +1,354 @@
+{
+	"name": "MOV_NBK_0401_Streaming",
+	"properties": {
+		"description": "Modern Data Warehousing OpenHack\nAzure Synapse Analytics Demo\nhttps://github.com/aessing/demo-azuresynapse\n\nDeveloper\nAndre Essing\n(https://www.andre-essing.de/\n(https://github.com/aessing\n(https://twitter.com/aessing\n(https://www.linkedin.com/in/aessing/)\n\nTHIS CODE AND INFORMATION ARE PROVIDED \"AS IS\" WITHOUT WARRANTY OF ANY KIND,\nEITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED\nWARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.",
+		"folder": {
+			"name": "Movies/Challenge 04"
+		},
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "DemoSpark01",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 1,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "true",
+				"spark.dynamicAllocation.minExecutors": "1",
+				"spark.dynamicAllocation.maxExecutors": "4",
+				"spark.autotune.trackingId": "420c96a3-73bf-4028-8a56-a2e7badde67b"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/f6c0b928-7078-4332-a106-e7a9c5253249/resourceGroups/demo-synapse-rg/providers/Microsoft.Synapse/workspaces/demosynapsesws01/bigDataPools/DemoSpark01",
+				"name": "DemoSpark01",
+				"type": "Spark",
+				"endpoint": "https://demosynapsesws01.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DemoSpark01",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.1",
+				"nodeCount": 10,
+				"cores": 16,
+				"memory": 112,
+				"automaticScaleJobs": true
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# OpenHack MDWH - Azure Synapse Analytics Demo\r\n",
+					"## Challenge 4 - More than meets the eye - Streaming Data\r\n",
+					"\r\n",
+					"### Azure Synapse Analytics Demo\r\n",
+					"https://github.com/aessing/demo-azuresynapse\r\n",
+					"\r\n",
+					"### Developer\r\n",
+					"Andre Essing</br>\r\n",
+					"https://www.andre-essing.de/</br>\r\n",
+					"https://github.com/aessing</br>\r\n",
+					"https://twitter.com/aessing</br>\r\n",
+					"https://www.linkedin.com/in/aessing/\r\n",
+					"\r\n",
+					"> THIS CODE AND INFORMATION ARE PROVIDED \"AS IS\" WITHOUT WARRANTY OF ANY KIND,\r\n",
+					"> EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED\r\n",
+					"> WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE."
+				]
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Set some parameters\r\n",
+					"\r\n",
+					"Can be overriden by Azure Synapse Pipelines"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"tags": [
+						"parameters"
+					]
+				},
+				"source": [
+					"# Parameter Cell: https://docs.microsoft.com/en-us/azure/synapse-analytics/spark/apache-spark-development-using-notebooks#integrate-a-notebook"
+				],
+				"execution_count": 27
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Import some libraries and build some functions for internal use"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": true
+				},
+				"source": [
+					"from pyspark.sql.types import StringType, TimestampType, IntegerType\r\n",
+					"from pyspark.sql.functions import concat, col, lit, udf, upper\r\n",
+					"import uuid"
+				],
+				"execution_count": 28
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": true
+				},
+				"source": [
+					"# Function to generate a UUID\r\n",
+					"uuidUDF = udf(lambda : str(uuid.uuid4()),StringType())"
+				],
+				"execution_count": 29
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Import data"
+				]
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"#### Read data from lake - Southridge Transactions"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"collapsed": false
+				},
+				"source": [
+					"df_Southridge = ( spark.read.load('abfss://movies@demosynapsedls01.dfs.core.windows.net/raw/Southridge/CloudStreaming/dbo.Transactions.parquet',\r\n",
+					"                        format='parquet',\r\n",
+					"                        inferSchema=True,\r\n",
+					"                        header=True, \r\n",
+					"                        ignoreLeadingWhiteSpace=True, \r\n",
+					"                        ignoreTrailingWhiteSpace=True\r\n",
+					"                        ))\r\n",
+					"\r\n",
+					"display(df_Southridge, summary=True)"
+				],
+				"execution_count": 30
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Transform data"
+				]
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"#### Transform Southridge Transaction data"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"# Add columns\r\n",
+					"df_SouthridgeModified = (\r\n",
+					"    df_Southridge.withColumn(\"SourceID\", lit(\"1\").cast(IntegerType()))\r\n",
+					"            .withColumn(\"UniqueOrderID\", concat(col('SourceID'), col('TransactionID')).cast(StringType()))\r\n",
+					"            .withColumn(\"UniqueMovieID\", concat(col('SourceID'), col('MovieID')).cast(StringType()))\r\n",
+					"            .withColumn(\"UniqueCustomerID\", concat(col('SourceID'), col('CustomerID')).cast(StringType()))\r\n",
+					"#           .withColumn(\"GlobalTransactionID\", uuidUDF())\r\n",
+					"\r\n",
+					")\r\n",
+					"\r\n",
+					"# Reorder colums\r\n",
+					"df_SouthridgeModified = df_SouthridgeModified.select(\r\n",
+					"    'SourceID',\r\n",
+					"    'UniqueOrderID',\r\n",
+					"    'TransactionID',\r\n",
+					"    'UniqueMovieID',\r\n",
+					"    'MovieID',\r\n",
+					"    'CustomerID',\r\n",
+					"    'UniqueCustomerID',\r\n",
+					"    'StreamStart',\r\n",
+					"    'StreamEnd',\r\n",
+					")\r\n",
+					"\r\n",
+					"# Convert column types\r\n",
+					"df_SouthridgeModified = (\r\n",
+					"    df_SouthridgeModified.withColumn(\"SourceID\", col(\"SourceID\").cast(IntegerType()))\r\n",
+					"                           .withColumn(\"UniqueOrderID\", upper(col(\"UniqueOrderID\").cast(StringType())))\r\n",
+					"                           .withColumn(\"TransactionID\", upper(col(\"TransactionID\").cast(StringType())))\r\n",
+					"                           .withColumn(\"UniqueMovieID\", upper(col(\"UniqueMovieID\").cast(StringType())))\r\n",
+					"                           .withColumn(\"MovieID\", upper(col(\"MovieID\").cast(StringType())))\r\n",
+					"                           .withColumn(\"CustomerID\", upper(col(\"CustomerID\").cast(StringType())))\r\n",
+					"                           .withColumn(\"UniqueCustomerID\", upper(col(\"UniqueCustomerID\").cast(StringType())))\r\n",
+					"                           .withColumn(\"StreamStart\", col(\"StreamStart\").cast(TimestampType()))\r\n",
+					"                           .withColumn(\"StreamEnd\", col(\"StreamEnd\").cast(TimestampType()))\r\n",
+					")\r\n",
+					"\r\n",
+					"display(df_SouthridgeModified, summary=True)"
+				],
+				"execution_count": 36
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Writed curated data back to the data lake"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": true
+				},
+				"source": [
+					"df_SouthridgeModified.write.format('parquet').mode('overwrite').save('abfss://movies@demosynapsedls01.dfs.core.windows.net/curated/streaming.parquet')\r\n",
+					"\r\n",
+					"df_SouthridgeModified.count()\r\n",
+					"# Should be 721.696 Rows"
+				],
+				"execution_count": 37
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"df_SouthridgeModified.show()"
+				],
+				"execution_count": 38
+			}
+		]
+	}
+}

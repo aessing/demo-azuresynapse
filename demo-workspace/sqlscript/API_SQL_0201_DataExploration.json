@@ -1,0 +1,21 @@
+{
+	"name": "API_SQL_0201_DataExploration",
+	"properties": {
+		"description": "API Analytics Demo\nAzure Synapse Analytics Demo\nhttps://github.com/aessing/demo-azuresynapse\n\nDeveloper\nAndre Essing\n(https://www.andre-essing.de/\n(https://github.com/aessing\n(https://twitter.com/aessing\n(https://www.linkedin.com/in/aessing/)\n\nTHIS CODE AND INFORMATION ARE PROVIDED \"AS IS\" WITHOUT WARRANTY OF ANY KIND,\nEITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED\nWARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.",
+		"folder": {
+			"name": "API Analytics/02 Data Analyst"
+		},
+		"content": {
+			"query": "-- =============================================================================\n-- API Analytics Demo\n-- Azure Synapse Analytics Demo\n-- https://github.com/aessing/demo-azuresynapse\n-- -----------------------------------------------------------------------------\n-- Developer.......: Andre Essing (https://www.andre-essing.de/)\n--                                (https://github.com/aessing)\n--                                (https://twitter.com/aessing)\n--                                (https://www.linkedin.com/in/aessing/)\n-- -----------------------------------------------------------------------------\n-- THIS CODE AND INFORMATION ARE PROVIDED \"AS IS\" WITHOUT WARRANTY OF ANY KIND,\n-- EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED\n-- WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.\n-- =============================================================================\n\n-- The Data Analyst has a deeper look into the data than the Data Engineer.\n-- Where the Data Engineer has a look if data is valid, the analyst tries to\n-- get some insights and find the meaning of data\n\n-- #############################################################################\n-- DON'T FORGET TO CHOOSE THE CORRECT ENGINE AND DATABASE\n-- #############################################################################\n\n-- -----------------------------------------------------------------------------\n-- Have a look if some services has more errors than other.\n-- -----------------------------------------------------------------------------\nSELECT TOP 10\n    serviceId,\n    operationId,\n    UsageKindDesc,\n    COUNT(UsageKind) numErrors\nFROM \n    [api].[Timeseries]\nWHERE\n    UsageKind in (2, 3)\nGROUP BY\n    serviceId,\n    operationId,\n    UsageKindDesc\nORDER BY\n    numErrors DESC\n\n-- Also, lets see the top 10 requests with validation errors\n-- (Service 390 and operation 500 is on position three)\nSELECT TOP 10\n    serviceId,\n    operationId,\n    UsageKindDesc,\n    COUNT(UsageKind) numValidationErrors\nFROM\n    [api].[Timeseries]\nWHERE\n    UsageKind = 1\nGROUP BY\n    serviceId,\n    operationId,\n    UsageKindDesc\nORDER BY\n    numValidationErrors DESC\n\n-- -----------------------------------------------------------------------------\n-- Have a look, if there is something location based anomalies\n-- -----------------------------------------------------------------------------\n-- Get the highest average call duration by geo-location\nSELECT TOP 10\n    geoId,\n    AVG(CAST(callDurationMillis AS BIGINT)) AS [avgDuration]\nFROM\n    [api].[Timeseries]\nGROUP BY\n    geoId\nORDER BY\n    avgDuration DESC\n\n-- Also, have a look on the average call duration on a service base\n-- Keep an eye on the avgDuration and compare to geo-locations\nSELECT TOP 10\n    serviceId,\n    AVG(CAST(callDurationMillis AS BIGINT)) AS [avgDuration]\nFROM\n    [api].[Timeseries]\nGROUP BY\n    serviceId\nORDER BY\n    avgDuration DESC\n\n-- TOP geo, customer, service, operation und usageKind\nSELECT DISTINCT TOP 10\n    geoId,\n    customerId,\n    serviceId,\n    operationId,\n    UsageKind,\n    LEFT(timestampUtc, 16) as Date,\n    AVG(CAST(callDurationMillis AS BIGINT)) OVER(PARTITION BY LEFT(timestampUtc, 16), geoId) AS avgDuration\nFROM\n    [api].[Timeseries]\nORDER BY\n    avgDuration DESC,\n    Date",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "DemoPool01",
+				"poolName": "DemoPool01"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

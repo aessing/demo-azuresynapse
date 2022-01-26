@@ -1,0 +1,103 @@
+{
+	"name": "API_IDS_SQLPool_Timeseries",
+	"properties": {
+		"description": "API Analytics Demo\nAzure Synapse Analytics Demo\nhttps://github.com/aessing/demo-azuresynapse\n\nDeveloper\nAndre Essing\n(https://www.andre-essing.de/\n(https://github.com/aessing\n(https://twitter.com/aessing\n(https://www.linkedin.com/in/aessing/)\n\nTHIS CODE AND INFORMATION ARE PROVIDED \"AS IS\" WITHOUT WARRANTY OF ANY KIND,\nEITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED\nWARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.",
+		"linkedServiceName": {
+			"referenceName": "demosynapsesws01-WorkspaceDefaultSqlServer",
+			"type": "LinkedServiceReference",
+			"parameters": {
+				"DBName": "DemoPool01"
+			}
+		},
+		"folder": {
+			"name": "API Analytics"
+		},
+		"annotations": [],
+		"type": "AzureSqlDWTable",
+		"schema": [
+			{
+				"name": "Id",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "TimestampUtc",
+				"type": "datetime2",
+				"scale": 7
+			},
+			{
+				"name": "UsageKind",
+				"type": "smallint",
+				"precision": 5
+			},
+			{
+				"name": "OperationId",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "ServiceId",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "GeoId",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "CallDurationMillis",
+				"type": "bigint",
+				"precision": 19
+			},
+			{
+				"name": "CustomerId",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "UsageKindDesc",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Year",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "Month",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "YearMonth",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "WeekOfYear",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "DayOfYear",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "DayOfMonth",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "DayOfWeek",
+				"type": "int",
+				"precision": 10
+			}
+		],
+		"typeProperties": {
+			"schema": "api",
+			"table": "Timeseries"
+		}
+	}
+}

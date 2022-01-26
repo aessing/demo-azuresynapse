@@ -1,0 +1,231 @@
+{
+	"name": "API_NBK_0101_Extract7Z",
+	"properties": {
+		"description": "API Analytics Demo\nAzure Synapse Analytics Demo\nhttps://github.com/aessing/demo-azuresynapse\n\nDeveloper\nAndre Essing\n(https://www.andre-essing.de/\n(https://github.com/aessing\n(https://twitter.com/aessing\n(https://www.linkedin.com/in/aessing/)\n\nTHIS CODE AND INFORMATION ARE PROVIDED \"AS IS\" WITHOUT WARRANTY OF ANY KIND,\nEITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED\nWARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.",
+		"folder": {
+			"name": "API Analytics/01 Data Engineer"
+		},
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "DemoSpark01",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 1,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "true",
+				"spark.dynamicAllocation.minExecutors": "1",
+				"spark.dynamicAllocation.maxExecutors": "1",
+				"spark.autotune.trackingId": "f26655fb-c45f-48fa-b79b-32a9ea780115"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/f6c0b928-7078-4332-a106-e7a9c5253249/resourceGroups/demo-synapse-rg/providers/Microsoft.Synapse/workspaces/demosynapsesws01/bigDataPools/DemoSpark01",
+				"name": "DemoSpark01",
+				"type": "Spark",
+				"endpoint": "https://demosynapsesws01.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DemoSpark01",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.1",
+				"nodeCount": 10,
+				"cores": 16,
+				"memory": 112,
+				"automaticScaleJobs": true
+			},
+			"sessionKeepAliveTimeout": 15
+		},
+		"cells": [
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# API Analytics Demo\r\n",
+					"## Azure Synapse Analytics Demo\r\n",
+					"https://github.com/aessing/demo-azuresynapse\r\n",
+					"\r\n",
+					"## Developer\r\n",
+					"Andre Essing</br>\r\n",
+					"https://www.andre-essing.de/</br>\r\n",
+					"https://github.com/aessing</br>\r\n",
+					"https://twitter.com/aessing</br>\r\n",
+					"https://www.linkedin.com/in/aessing/\r\n",
+					"\r\n",
+					"> THIS CODE AND INFORMATION ARE PROVIDED \"AS IS\" WITHOUT WARRANTY OF ANY KIND,\r\n",
+					"> EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED\r\n",
+					"> WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE."
+				]
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Notebook information\r\n",
+					"\r\n",
+					"7Zip Extract Library (https://github.com/miurahr/py7zr) is needed to run this notebook and extract the incoming data.\r\n",
+					"The library needs to be added to the Spark session (https://docs.microsoft.com/en-us/azure/synapse-analytics/spark/apache-spark-manage-python-packages#session-scoped-packages-preview)\r\n",
+					"\r\n",
+					"Content of yaml file below:\r\n",
+					"```yaml\r\n",
+					"name: unzip\r\n",
+					"channels:\r\n",
+					"  - defaults\r\n",
+					"dependencies:\r\n",
+					"  - pip:\r\n",
+					"    - py7zr==0.16.3\r\n",
+					"```\r\n",
+					""
+				]
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Set some parameters\r\n",
+					"\r\n",
+					"Can be overriden by Azure Synapse Pipelines"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"tags": [
+						"parameters"
+					]
+				},
+				"source": [
+					"# Parameter Cell: https://docs.microsoft.com/en-us/azure/synapse-analytics/spark/apache-spark-development-using-notebooks#integrate-a-notebook\n",
+					"\n",
+					"# Storage account linked service name\n",
+					"linkedService = 'demosynapsesws01-WorkspaceDefaultStorage'\n",
+					"\n",
+					"# file system where 7z archive is located\n",
+					"container = 'abfss://apianalytics@demosynapsedls01.dfs.core.windows.net'\n",
+					"\n",
+					"# 7z file to extract\n",
+					"inputFile = '/temp/downloaded/APIAnaltics.7z'\n",
+					"\n",
+					"# target directory for extracted files\n",
+					"targetDir = '/temp/extracted'"
+				],
+				"execution_count": 4
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Import some libraries"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"import py7zr\r\n",
+					"from os import listdir\r\n",
+					"from notebookutils import mssparkutils"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Extract the data"
+				]
+			},
+			{
+				"cell_type": "code",
+				"source": [
+					"# set up mount point\n",
+					"mountPoint = '/fs-extract'\n",
+					"mssparkutils.fs.mount(container, mountPoint, { \"linkedService\": linkedService })\n",
+					"\n",
+					"try: \n",
+					"    # job session id required to access mount point files\n",
+					"    jobId = mssparkutils.env.getJobId()\n",
+					"    \n",
+					"    # extraction\n",
+					"    mountPointPath = f\"/synfs/{jobId}{mountPoint}\"\n",
+					"    with py7zr.SevenZipFile(f\"{mountPointPath}{inputFile}\", mode='r') as z:\n",
+					"        z.extractall(path=f\"{mountPointPath}/extract-{jobId}\")\n",
+					"\n",
+					"    # move from temporary to target path\n",
+					"    targetPath = f\"{container}{targetDir}\"\n",
+					"    mssparkutils.fs.rm(targetPath, recurse=True)\n",
+					"    mssparkutils.fs.mv(f\"{container}/extract-{jobId}\", targetPath, overwrite=True)\n",
+					"\n",
+					"finally:\n",
+					"    # release mount point\n",
+					"    mssparkutils.fs.unmount(mountPoint)"
+				],
+				"execution_count": null
+			}
+		]
+	}
+}

@@ -1,0 +1,21 @@
+{
+	"name": "MOV_SQL_050402_LoadTables_DimActors",
+	"properties": {
+		"description": "OpenHack MDWH\nAzure Synapse Analytics Demo\nhttps://github.com/aessing/demo-azuresynapse\n\nDeveloper: Andre Essing\n(https://www.andre-essing.de/)\n(https://github.com/aessing)\n(https://twitter.com/aessing)\n(https://www.linkedin.com/in/aessing/)\n\nTHIS CODE AND INFORMATION ARE PROVIDED \"AS IS\" WITHOUT WARRANTY OF ANY KIND,\nEITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED\nWARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.",
+		"folder": {
+			"name": "Movies/Challenge 05 - 04 Load Tables"
+		},
+		"content": {
+			"query": "-- =============================================================================\n-- OpenHack MDWH\n-- Azure Synapse Analytics Demo\n-- https://github.com/aessing/demo-azuresynapse\n-- -----------------------------------------------------------------------------\n-- Developer.......: Andre Essing (https://www.andre-essing.de/)\n--                                (https://github.com/aessing)\n--                                (https://twitter.com/aessing)\n--                                (https://www.linkedin.com/in/aessing/)\n-- -----------------------------------------------------------------------------\n-- THIS CODE AND INFORMATION ARE PROVIDED \"AS IS\" WITHOUT WARRANTY OF ANY KIND,\n-- EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED\n-- WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.\n-- =============================================================================\n\n-- Check out the distinct values\n-- SELECT DISTINCT [ActorGender] FROM [ext].[Catalog]\n-- SELECT DISTINCT [ActorName], COUNT(DISTINCT ISNULL(ActorGender,1)) AS 'GenderCount' FROM [ext].[Catalog] GROUP BY ActorName ORDER BY ActorName\n-- SELECT DISTINCT [ActorID] FROM [ext].[Catalog] WHERE ActorID IS NULL\n\n--TRUNCATE TABLE [dbo].[DimActors]\n\n-- Load table\nDECLARE @MaxSK INTEGER;\nSELECT @MaxSK = ISNULL(MAX(ActorSK), 0) FROM [dbo].[DimActors]\n\nINSERT INTO [dbo].[DimActors] (\n\tActorSK\n  , ActorID\n  , ActorName\n  , ActorGender\n)\nSELECT * FROM (\n\tSELECT\n\t\t@MaxSK + ROW_NUMBER() OVER (ORDER BY ExternalTable.ActorName) AS ActorSK\n      , ExternalTable.ActorID AS ActorID\n      , ExternalTable.ActorName AS ActorName\n      , ExternalTable.ActorGender AS ActorGender\n\tFROM (\t\n\t\tSELECT\n\t\t    [ActorName]\n\t\t  , ISNULL(MAX([ActorID]), NEWID()) AS ActorID\n\t\t  , ISNULL(MAX([ActorGender]), 'N') AS ActorGender\n\t\tFROM\n\t\t\t[ext].[Catalog]\n\t\tGROUP BY\n\t\t\t[ActorName]\n\t  ) ExternalTable\n) CleansedTable\nWHERE CleansedTable.ActorID NOT IN (SELECT [ActorID] FROM [dbo].[DimActors])\n\n-- Check Load\n--SELECT * FROM [dbo].[DimActors] ORDER BY ActorName",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"poolName": "Movies",
+				"databaseName": "Movies"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

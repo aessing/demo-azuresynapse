@@ -1,0 +1,20 @@
+{
+	"name": "FactStreaming",
+	"properties": {
+		"folder": {
+			"name": "Movies/LH-OH"
+		},
+		"content": {
+			"query": "SET ANSI_NULLS ON\nGO\nSET QUOTED_IDENTIFIER ON\nGO\nCREATE PROC [dbo].[ImportFactStreaming] AS begin\n\ninsert into dbo.FactStreaming\n(\n\tTransactionID\n\t, CustomerSK\n\t, MovieSK\n\t, StreamStartDateSK\n\t, StreamStartTimeSK\n\t, StreamEndDateSK\n\t, StreamEndTimeSK\n\t, StreamDurationSec\n\t, StreamDurationMin\n)\nselect\n\ts.SourceSystemTransactionID\n\t, c.CustomerSK\n\t, m.MovieSK\n\t, ssd.DateSK\n\t, sst.TimeSK\n\t, sed.DateSK\n\t, [set].TimeSK\n\t, datediff(second, s.StreamStart, s.StreamEnd) as StreamDurationSec\n\t, datediff(second, s.StreamStart, s.StreamEnd) / 60.0 as StreamDurationMin\nfrom extern.streaming s\ninner join dbo.DimCustomers c on c.CustomerID = s.CustomerID\ninner join dbo.DimMovies m on m.MovieID = s.MovieID\ninner join dbo.DimDate as ssd on ssd.DateValue = cast(s.StreamStart as date)\ninner join dbo.DimTime as sst on sst.TimeValue = cast(s.StreamStart as time(0))\nleft outer join dbo.DimDate as sed on sed.DateValue = cast(s.StreamEnd as date)\nleft outer join dbo.DimTime as [set] on [set].TimeValue = cast(s.StreamEnd as time(0))\nwhere\n\tnot exists (select 1 from dbo.FactStreaming f where f.TransactionID = s.SourceSystemTransactionID)\n\nEND\nGO\n",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"poolName": "Built-in",
+				"databaseName": "master"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

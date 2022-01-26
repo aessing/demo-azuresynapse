@@ -1,0 +1,20 @@
+{
+	"name": "FactRentals",
+	"properties": {
+		"folder": {
+			"name": "Movies/LH-OH"
+		},
+		"content": {
+			"query": "SET ANSI_NULLS ON\nGO\nSET QUOTED_IDENTIFIER ON\nGO\nCREATE PROC [dbo].[ImportFactRentals] AS begin\n\ninsert into dbo.FactRentals\n(\n\tTransactionID\n\t, CustomerSK\n\t, LocationSK\n\t, MovieSK\n\t, RentalDateSK\n\t, ReturnDateSK\n\t, RentalDuration\n\t, RentalCost\n\t, LateFee\n\t, TotalCost\n\t, RewindFlag\n)\nselect\n\tr.SourceSystemTransactionID as TransactionID\n\t, c.CustomerSK\n\t, r.SourceSystemId\n\t, m.MovieSK\n\t, rent.DateSK\n\t, ret.DateSK\n\t, datediff(day, r.RentalDate, r.ReturnDate) + 1 as RentalDuration\n\t, r.RentalCost\n\t, r.LateFee\n\t, r.RentalCost + r.LateFee as TotalCost\n\t, r.RewindFlag\nfrom extern.rentals r\ninner join dbo.DimCustomers c on c.CustomerID = r.CustomerID\ninner join dbo.DimMovies m on m.MovieID = r.MovieID\ninner join dbo.DimDate as rent on rent.DateValue = r.RentalDate\nleft outer join dbo.DimDate as ret on ret.DateValue = r.ReturnDate\nwhere\n\tnot exists (select 1 from dbo.FactRentals f where f.TransactionID = r.SourceSystemTransactionID)\n\nEND\nGO\n",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"poolName": "Built-in",
+				"databaseName": "master"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

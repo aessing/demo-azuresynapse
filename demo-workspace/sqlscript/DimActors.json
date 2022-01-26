@@ -1,0 +1,20 @@
+{
+	"name": "DimActors",
+	"properties": {
+		"folder": {
+			"name": "Movies/LH-OH"
+		},
+		"content": {
+			"query": "SET ANSI_NULLS ON\nGO\nSET QUOTED_IDENTIFIER ON\nGO\nALTER PROC [dbo].[ImportDimActors] AS begin\ninsert into dbo.DimActors\n(\n\tActorID\n\t, ActorName\n\t, ActorGender\n)\nSELECT * FROM (  \nselect\n\tisnull(max(ActorID), lower(newid()))\n\t, ActorName\n\t, isnull(max(ActorGender), 'U')\nfrom extern.[catalog]\ngroup by ActorName\n) cleaned_table\nWHERE cleaned_table.ActorID NOT IN (SELECT ActorID FROM [dbo].[DimActors])\n;\nEND\nGO\n",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"poolName": "Built-in",
+				"databaseName": "master"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

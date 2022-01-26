@@ -1,0 +1,20 @@
+{
+	"name": "DimRatings",
+	"properties": {
+		"folder": {
+			"name": "Movies/LH-OH"
+		},
+		"content": {
+			"query": "SET ANSI_NULLS ON\nGO\nSET QUOTED_IDENTIFIER ON\nGO\nCREATE PROC [dbo].[ImportDimRatings] AS begin\nINSERT INTO dbo.DimRatings\n(\n    MovieRatingDescription\n)\nSELECT * FROM (  \n    SELECT\n        DISTINCT Rating = \n        CASE Rating \n            WHEN 'PG=13' THEN 'PG-13'\n            ELSE Rating\n        END\n    FROM\n        extern.[catalog]\n) cleaned_table\nWHERE cleaned_table.Rating NOT IN (SELECT MovieRatingDescription FROM [dbo].[DimRatings])\n;\nEND\nGO\n",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"poolName": "Built-in",
+				"databaseName": "master"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

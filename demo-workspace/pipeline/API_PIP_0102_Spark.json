@@ -1,0 +1,746 @@
+{
+	"name": "API_PIP_0102_Spark",
+	"properties": {
+		"description": "API Analytics Demo\nAzure Synapse Analytics Demo\nhttps://github.com/aessing/demo-azuresynapse\n\nDeveloper\nAndre Essing\n(https://www.andre-essing.de/\n(https://github.com/aessing\n(https://twitter.com/aessing\n(https://www.linkedin.com/in/aessing/)\n\nTHIS CODE AND INFORMATION ARE PROVIDED \"AS IS\" WITHOUT WARRANTY OF ANY KIND,\nEITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED\nWARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.",
+		"activities": [
+			{
+				"name": "PrepareCustomers",
+				"type": "SynapseNotebook",
+				"dependsOn": [
+					{
+						"activity": "Extract-Data",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "Delete-Raw-Data",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebook": {
+						"referenceName": "API_NBK_0111_PrepareCustomers",
+						"type": "NotebookReference"
+					},
+					"parameters": {
+						"table": {
+							"value": "Customers",
+							"type": "string"
+						},
+						"container": {
+							"value": "abfss://apianalytics@demosynapsedls01.dfs.core.windows.net",
+							"type": "string"
+						}
+					},
+					"snapshot": true
+				}
+			},
+			{
+				"name": "PrepareServices",
+				"type": "SynapseNotebook",
+				"dependsOn": [
+					{
+						"activity": "Extract-Data",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "Delete-Raw-Data",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebook": {
+						"referenceName": "API_NBK_0114_PrepareServices",
+						"type": "NotebookReference"
+					},
+					"parameters": {
+						"table": {
+							"value": "Services",
+							"type": "string"
+						},
+						"container": {
+							"value": "abfss://apianalytics@demosynapsedls01.dfs.core.windows.net",
+							"type": "string"
+						}
+					},
+					"snapshot": true
+				}
+			},
+			{
+				"name": "PrepareOperations",
+				"type": "SynapseNotebook",
+				"dependsOn": [
+					{
+						"activity": "Extract-Data",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "Delete-Raw-Data",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebook": {
+						"referenceName": "API_NBK_0113_PrepareOperations",
+						"type": "NotebookReference"
+					},
+					"parameters": {
+						"table": {
+							"value": "Operations",
+							"type": "string"
+						},
+						"container": {
+							"value": "abfss://apianalytics@demosynapsedls01.dfs.core.windows.net",
+							"type": "string"
+						}
+					},
+					"snapshot": true
+				}
+			},
+			{
+				"name": "PrepareGeodata",
+				"type": "SynapseNotebook",
+				"dependsOn": [
+					{
+						"activity": "Extract-Data",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "Delete-Raw-Data",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebook": {
+						"referenceName": "API_NBK_0112_PrepareGeodata",
+						"type": "NotebookReference"
+					},
+					"parameters": {
+						"table": {
+							"value": "Geodata",
+							"type": "string"
+						},
+						"container": {
+							"value": "abfss://apianalytics@demosynapsedls01.dfs.core.windows.net",
+							"type": "string"
+						}
+					},
+					"snapshot": true
+				}
+			},
+			{
+				"name": "PrepareTimeseries",
+				"type": "SynapseNotebook",
+				"dependsOn": [
+					{
+						"activity": "Extract-Data",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "Delete-Raw-Data",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebook": {
+						"referenceName": "API_NBK_0115_PrepareTimeseries",
+						"type": "NotebookReference"
+					},
+					"parameters": {
+						"table": {
+							"value": "Timeseries",
+							"type": "string"
+						},
+						"container": {
+							"value": "abfss://apianalytics@demosynapsedls01.dfs.core.windows.net",
+							"type": "string"
+						}
+					},
+					"snapshot": true
+				}
+			},
+			{
+				"name": "Download-Data",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Delete-Downloaded-Data",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "BinarySource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": false
+						},
+						"formatSettings": {
+							"type": "BinaryReadSettings"
+						}
+					},
+					"sink": {
+						"type": "BinarySink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						}
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "API_IDS_Datalake_Folder_Binary",
+						"type": "DatasetReference",
+						"parameters": {
+							"container": {
+								"value": "@variables('StorageFolderSource')",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "API_IDS_Datalake_Folder_Binary",
+						"type": "DatasetReference",
+						"parameters": {
+							"container": {
+								"value": "@variables('StorageFolderDownloaded')",
+								"type": "Expression"
+							}
+						}
+					}
+				]
+			},
+			{
+				"name": "Extract-Data",
+				"type": "SynapseNotebook",
+				"dependsOn": [
+					{
+						"activity": "Download-Data",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "Delete-Extracted-Data",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebook": {
+						"referenceName": "API_NBK_0101_Extract7Z",
+						"type": "NotebookReference"
+					},
+					"parameters": {
+						"inputFile": {
+							"value": "/temp/downloaded/APIAnaltics.7z",
+							"type": "string"
+						},
+						"targetDir": {
+							"value": "/temp/extracted",
+							"type": "string"
+						},
+						"linkedService": {
+							"value": "demosynapsesws01-WorkspaceDefaultStorage",
+							"type": "string"
+						},
+						"container": {
+							"value": "abfss://apianalytics@demosynapsedls01.dfs.core.windows.net",
+							"type": "string"
+						}
+					},
+					"snapshot": true
+				}
+			},
+			{
+				"name": "Delete-Downloaded-Data",
+				"type": "Delete",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataset": {
+						"referenceName": "API_IDS_Datalake_Folder_Binary",
+						"type": "DatasetReference",
+						"parameters": {
+							"container": {
+								"value": "@variables('StorageFolderDownloaded')",
+								"type": "Expression"
+							}
+						}
+					},
+					"enableLogging": false,
+					"storeSettings": {
+						"type": "AzureBlobFSReadSettings",
+						"recursive": true,
+						"wildcardFileName": "*.7z",
+						"enablePartitionDiscovery": false
+					}
+				}
+			},
+			{
+				"name": "Delete-Extracted-Data",
+				"type": "Delete",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataset": {
+						"referenceName": "API_IDS_Datalake_Folder_Binary",
+						"type": "DatasetReference",
+						"parameters": {
+							"container": {
+								"value": "@variables('StorageFolderExtracted')",
+								"type": "Expression"
+							}
+						}
+					},
+					"enableLogging": false,
+					"storeSettings": {
+						"type": "AzureBlobFSReadSettings",
+						"recursive": true,
+						"wildcardFileName": "*.txt",
+						"enablePartitionDiscovery": false
+					}
+				}
+			},
+			{
+				"name": "Delete-Raw-Data",
+				"type": "Delete",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataset": {
+						"referenceName": "API_IDS_Datalake_Folder_Binary",
+						"type": "DatasetReference",
+						"parameters": {
+							"container": {
+								"value": "@variables('StorageFolderRAW')",
+								"type": "Expression"
+							}
+						}
+					},
+					"enableLogging": false,
+					"storeSettings": {
+						"type": "AzureBlobFSReadSettings",
+						"recursive": true,
+						"wildcardFileName": "*.csv",
+						"enablePartitionDiscovery": false
+					}
+				}
+			},
+			{
+				"name": "Copy-Curated-SQL-Customers",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "PrepareCustomers",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "ParquetSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"wildcardFileName": "*",
+							"enablePartitionDiscovery": false
+						}
+					},
+					"sink": {
+						"type": "SqlDWSink",
+						"preCopyScript": "TRUNCATE TABLE [api].[customers]",
+						"allowCopyCommand": true,
+						"disableMetricsCollection": false
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "API_IDS_Datalake_Folder_Parquet",
+						"type": "DatasetReference",
+						"parameters": {
+							"container": {
+								"value": "@variables('StorageFolderCurated')",
+								"type": "Expression"
+							},
+							"directory": "customers.parquet"
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "API_IDS_SQLPool_Customers",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "Copy-Curated-SQL-Services",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "PrepareServices",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "ParquetSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"wildcardFileName": "*",
+							"enablePartitionDiscovery": false
+						}
+					},
+					"sink": {
+						"type": "SqlDWSink",
+						"preCopyScript": "TRUNCATE TABLE [api].[services]",
+						"allowCopyCommand": true,
+						"disableMetricsCollection": false
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "API_IDS_Datalake_Folder_Parquet",
+						"type": "DatasetReference",
+						"parameters": {
+							"container": {
+								"value": "@variables('StorageFolderCurated')",
+								"type": "Expression"
+							},
+							"directory": "services.parquet"
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "API_IDS_SQLPool_Services",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "Copy-Curated-SQL-Operations",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "PrepareOperations",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "ParquetSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"wildcardFileName": "*",
+							"enablePartitionDiscovery": false
+						}
+					},
+					"sink": {
+						"type": "SqlDWSink",
+						"preCopyScript": "TRUNCATE TABLE [api].[operations]",
+						"allowCopyCommand": true,
+						"disableMetricsCollection": false
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "API_IDS_Datalake_Folder_Parquet",
+						"type": "DatasetReference",
+						"parameters": {
+							"container": {
+								"value": "@variables('StorageFolderCurated')",
+								"type": "Expression"
+							},
+							"directory": "operations.parquet"
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "API_IDS_SQLPool_Operations",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "Copy-Curated-SQL-Geodata",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "PrepareGeodata",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "ParquetSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"wildcardFileName": "*",
+							"enablePartitionDiscovery": false
+						}
+					},
+					"sink": {
+						"type": "SqlDWSink",
+						"preCopyScript": "TRUNCATE TABLE [api].[geodata]",
+						"allowCopyCommand": true,
+						"disableMetricsCollection": false
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "API_IDS_Datalake_Folder_Parquet",
+						"type": "DatasetReference",
+						"parameters": {
+							"container": {
+								"value": "@variables('StorageFolderCurated')",
+								"type": "Expression"
+							},
+							"directory": "geodata.parquet"
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "API_IDS_SQLPool_Geodata",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "Copy-Curated-SQL-Timeseries",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "PrepareTimeseries",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "ParquetSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"wildcardFileName": "*",
+							"enablePartitionDiscovery": false
+						}
+					},
+					"sink": {
+						"type": "SqlDWSink",
+						"preCopyScript": "TRUNCATE TABLE [api].[timeseries]",
+						"allowCopyCommand": true,
+						"disableMetricsCollection": false
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "API_IDS_Datalake_Folder_Parquet",
+						"type": "DatasetReference",
+						"parameters": {
+							"container": {
+								"value": "@variables('StorageFolderCurated')",
+								"type": "Expression"
+							},
+							"directory": "timeseries.parquet"
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "API_IDS_SQLPool_Timeseries",
+						"type": "DatasetReference"
+					}
+				]
+			}
+		],
+		"variables": {
+			"StorageFolderDownloaded": {
+				"type": "String",
+				"defaultValue": "/apianalytics/temp/downloaded"
+			},
+			"StorageFolderExtracted": {
+				"type": "String",
+				"defaultValue": "/apianalytics/temp/extracted"
+			},
+			"StorageFolderRAW": {
+				"type": "String",
+				"defaultValue": "/apianalytics/raw"
+			},
+			"StorageFolderSource": {
+				"type": "String",
+				"defaultValue": "/apianalytics/_source"
+			},
+			"StorageFolderCurated": {
+				"type": "String",
+				"defaultValue": "/apianalytics/curated"
+			}
+		},
+		"folder": {
+			"name": "API Analytics/01 Data Engineer"
+		},
+		"annotations": [],
+		"lastPublishTime": "2021-12-01T22:01:40Z"
+	},
+	"type": "Microsoft.Synapse/workspaces/pipelines"
+}

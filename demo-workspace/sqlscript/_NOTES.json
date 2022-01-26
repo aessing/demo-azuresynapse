@@ -1,0 +1,20 @@
+{
+	"name": "_NOTES",
+	"properties": {
+		"folder": {
+			"name": "Movies"
+		},
+		"content": {
+			"query": "/*\n\n--- Parquet ---\nStreaming: 721.696 Rows\nRentals:  98.644 Rows\nCustomers: 1.999 Rows\nSales: 208.960 Rows\nCatalog: 9.331 Rows\n\n--- SQLOD ---\nStreaming: 721.696 Rows\nRentals:  98.644 Rows\nCustomers: 1.999 Rows\nSales: 208.960 Rows\nCatalog: 9.331 Rows\n\n--- SQLDW ---\nDimActors: 392\nDimCategories: 6\nDimCustomers: 1.899\nDimDate: 365\nDimLocation: 3\nDimMovieActors: 4.708\nDimMovies: 1.407\nDimRatings: 4\nDimTime: 86.400\nFactRentals: 98.644\nFactSales: 208.960\nFactStreaming: 721.696\nNumbers: 1.048.576\n\n*/",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"poolName": "Built-in",
+				"databaseName": "master"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

@@ -1,0 +1,21 @@
+{
+	"name": "MOV_SQL_050404_LoadTables_DimMovies",
+	"properties": {
+		"description": "OpenHack MDWH\nAzure Synapse Analytics Demo\nhttps://github.com/aessing/demo-azuresynapse\n\nDeveloper: Andre Essing\n(https://www.andre-essing.de/)\n(https://github.com/aessing)\n(https://twitter.com/aessing)\n(https://www.linkedin.com/in/aessing/)\n\nTHIS CODE AND INFORMATION ARE PROVIDED \"AS IS\" WITHOUT WARRANTY OF ANY KIND,\nEITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED\nWARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.",
+		"folder": {
+			"name": "Movies/Challenge 05 - 04 Load Tables"
+		},
+		"content": {
+			"query": "-- =============================================================================\n-- OpenHack MDWH\n-- Azure Synapse Analytics Demo\n-- https://github.com/aessing/demo-azuresynapse\n-- -----------------------------------------------------------------------------\n-- Developer.......: Andre Essing (https://www.andre-essing.de/)\n--                                (https://github.com/aessing)\n--                                (https://twitter.com/aessing)\n--                                (https://www.linkedin.com/in/aessing/)\n-- -----------------------------------------------------------------------------\n-- THIS CODE AND INFORMATION ARE PROVIDED \"AS IS\" WITHOUT WARRANTY OF ANY KIND,\n-- EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED\n-- WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.\n-- =============================================================================\n\n-- Check out the distinct values\n-- SELECT DISTINCT [Title] FROM [ext].[Catalog]\n\n-- TRUNCATE TABLE [dbo].[DimMovies]\n\n-- Load table\nDECLARE @MaxSK INT;\nSELECT @MaxSK = ISNULL(MAX(MovieCategorySK), 0) FROM [dbo].[DimMovies]\n\nINSERT INTO [dbo].[DimMovies] (\n\t[MovieSK],\n\t[MovieID],\n    [MovieTitle],\n    [MovieCategorySK],\n    [MovieRatingSK],\n    [MovieRunTimeMin]\n)\nSELECT * FROM (\n\tSELECT \n\t\t@MaxSK + ROW_NUMBER() OVER (ORDER BY ExternalTable.Title) AS MovieSK,\n\t\tExternalTable.SourceSystemMovieID AS MovieID,\n\t\tExternalTable.Title AS MovieTitle,\n\t\tExternalTable.MovieCategorySK AS MovieCategorySK,\n\t\tExternalTable.MovieRatingSK AS MovieRatingSK,\n\t\tExternalTable.RuntimeMinutes AS MovieRunTimeMin\n\tFROM (\n\t\tSELECT \n\t\t\tTitle,\n\t\t\tgen.MovieCategorySK,\n\t\t\trat.MovieRatingSK,\n\t\t\tRuntimeMinutes,\n\t\t\tMAX(SourceSystemMovieID) AS SourceSystemMovieID\n\t\tFROM\n\t\t\t[ext].[Catalog] cat\n\t\tLEFT JOIN\n\t\t\t[dbo].[DimCategories] gen\n\t\t\tON (cat.Genre = gen.MovieCategoryDescription)\n\t\tLEFT JOIN\n\t\t\t[dbo].[DimRatings] rat\n\t\t\tON CASE\n\t\t\t\tWHEN cat.Rating = 'PG=13' AND ('PG-13' = rat.MovieRatingDescription) THEN 1\n\t\t\t\tWHEN cat.Rating = rat.MovieRatingDescription THEN 1\n\t\t\t\tELSE 0\n\t\t\t\tEND = 1\n\t\tGROUP BY\n\t\t\tTitle,\n\t\t\tgen.MovieCategorySK,\n\t\t\trat.MovieRatingSK,\n\t\t\tRuntimeMinutes\n\t) ExternalTable \n) CleansedTable\nWHERE CleansedTable.MovieTitle NOT IN (SELECT MovieTitle FROM [dbo].[DimMovies])\n\n-- Check Load\n-- SELECT * FROM [dbo].[DimMovies]",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"poolName": "Movies",
+				"databaseName": "Movies"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}
