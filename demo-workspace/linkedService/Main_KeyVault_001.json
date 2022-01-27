@@ -1,0 +1,10 @@
+{
+	"name": "Main_KeyVault_001",
+	"properties": {
+		"annotations": [],
+		"type": "AzureKeyVault",
+		"typeProperties": {
+			"baseUrl": "https://demomdwhakv001weu.vault.azure.net/"
+		}
+	}
+}
