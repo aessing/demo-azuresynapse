@@ -7,20 +7,20 @@
 		"nbformat": 4,
 		"nbformat_minor": 2,
 		"bigDataPool": {
-			"referenceName": "SoccerEvents",
+			"referenceName": "DemoSparkPool",
 			"type": "BigDataPoolReference"
 		},
 		"sessionProperties": {
-			"driverMemory": "28g",
-			"driverCores": 4,
-			"executorMemory": "28g",
-			"executorCores": 4,
-			"numExecutors": 2,
+			"driverMemory": "56g",
+			"driverCores": 8,
+			"executorMemory": "56g",
+			"executorCores": 8,
+			"numExecutors": 1,
 			"conf": {
-				"spark.dynamicAllocation.enabled": "false",
-				"spark.dynamicAllocation.minExecutors": "2",
-				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "29095e7c-63ab-4bc8-8d20-a93e90bcbdf9"
+				"spark.dynamicAllocation.enabled": "true",
+				"spark.dynamicAllocation.minExecutors": "1",
+				"spark.dynamicAllocation.maxExecutors": "8",
+				"spark.autotune.trackingId": "6805264d-758d-4f49-83c3-3089bfa39b97"
 			}
 		},
 		"metadata": {
@@ -34,19 +34,19 @@
 				"name": "python"
 			},
 			"a365ComputeOptions": {
-				"id": "/subscriptions/f6c0b928-7078-4332-a106-e7a9c5253249/resourceGroups/demo-synapse-rg/providers/Microsoft.Synapse/workspaces/demosynapsesws01/bigDataPools/SoccerEvents",
-				"name": "SoccerEvents",
+				"id": "/subscriptions/f6c0b928-7078-4332-a106-e7a9c5253249/resourceGroups/demo-mdwh-rg/providers/Microsoft.Synapse/workspaces/demomdwhsws001weu/bigDataPools/DemoSparkPool",
+				"name": "DemoSparkPool",
 				"type": "Spark",
-				"endpoint": "https://demosynapsesws01.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/SoccerEvents",
+				"endpoint": "https://demomdwhsws001weu.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DemoSparkPool",
 				"auth": {
 					"type": "AAD",
 					"authResource": "https://dev.azuresynapse.net"
 				},
-				"sparkVersion": "2.4",
+				"sparkVersion": "3.1",
 				"nodeCount": 3,
-				"cores": 8,
-				"memory": 56,
-				"automaticScaleJobs": false
+				"cores": 16,
+				"memory": 112,
+				"automaticScaleJobs": true
 			},
 			"sessionKeepAliveTimeout": 30
 		},
@@ -63,19 +63,19 @@
 				"source": [
 					"# European Soccer Events - Azure Synapse Analytics Demo\r\n",
 					"\r\n",
-					"#### Project URL\r\n",
-					"- <https://github.com/aessing/demo-azuresynapse>\r\n",
+					"### Azure Synapse Analytics Demo\r\n",
+					"https://github.com/aessing/demo-azuresynapse\r\n",
 					"\r\n",
-					"#### Developer\r\n",
-					"Andre Essing\r\n",
-					"- <https://www.andre-essing.de/>\r\n",
-					"- <https://github.com/aessing>\r\n",
-					"- <https://twitter.com/aessing>\r\n",
-					"- <https://www.linkedin.com/in/aessing/>\r\n",
+					"### Developer\r\n",
+					"Andre Essing</br>\r\n",
+					"https://www.andre-essing.de/</br>\r\n",
+					"https://github.com/aessing</br>\r\n",
+					"https://twitter.com/aessing</br>\r\n",
+					"https://www.linkedin.com/in/aessing/\r\n",
 					"\r\n",
-					"> THIS CODE AND INFORMATION ARE PROVIDED \"AS IS\" WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.\r\n",
-					"\r\n",
-					"---"
+					"> THIS CODE AND INFORMATION ARE PROVIDED \"AS IS\" WITHOUT WARRANTY OF ANY KIND,\r\n",
+					"> EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED\r\n",
+					"> WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE."
 				]
 			},
 			{
@@ -95,7 +95,7 @@
 					"  * Or what does the win-loss percentage looks like with different combinations of players in different on-field positions*\r\n",
 					"  * Or what does a sportsperson's performance graph look like across the years/seasons and teams etc.*\r\n",
 					"\r\n",
-					"![](https://raw.githubusercontent.com/aessing/demo-azuresynapse/development/demo-companion/Europe%20Soccer%20Events/images/EuropeSoccerEvent.png)\r\n",
+					"![](https://github.com/aessing/demo-azuresynapse/raw/development/demo-companion/EuropeSoccerEvents/images/EuropeSoccerEvent.png)\r\n",
 					"\r\n",
 					"This demo uses a European Soccer Games events dataset, and demonstrates:\r\n",
 					"  * End-to-end Data Engineering pipeline including data extraction, transformation and loading*\r\n",
@@ -156,8 +156,9 @@
 					}
 				},
 				"source": [
-					"## Extraction\r\n",
-					"The first task is to create a DataFrame schema for the larger game events dataset, so the read operation doesn’t spend time inferring it from the data. Once extracted, we’ll replace “null” values for interesting fields with data-type specific constants as noted in the code snippet below."
+					"## Set some parameters\r\n",
+					"\r\n",
+					"Can be overriden by Azure Synapse Pipelines"
 				]
 			},
 			{
@@ -172,22 +173,90 @@
 							"deleting": false
 						}
 					},
-					"microsoft": {
-						"language": "python"
-					}
+					"tags": [
+						"parameters"
+					]
 				},
 				"source": [
-					"%%pyspark\r\n",
+					"# Parameter Cell: https://docs.microsoft.com/en-us/azure/synapse-analytics/spark/apache-spark-development-using-notebooks#integrate-a-notebook\r\n",
 					"\r\n",
 					"# =============================================================================\r\n",
 					"# DON'T FORGET TO CHANGE KEYVAULT NAME, SECRET NAMES and PATH\r\n",
 					"# =============================================================================\r\n",
 					"\r\n",
-					"# Grab some secret stuff from the Azure Key Vault\r\n",
-					"adls_accountname = TokenLibrary.getSecret('demosynapseakv01', 'Soccer-ADLSAccountName')\r\n",
-					"adls_conatinername = TokenLibrary.getSecret('demosynapseakv01', 'Soccer-ADLSContainerName')"
+					"adls_accountname = 'demomdwhdls001weu'\r\n",
+					"adls_conatinername = 'europesoccerevents'"
 				],
-				"execution_count": 10
+				"execution_count": 1
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Import some libraries and build some functions for internal use"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"from pyspark.sql.functions import udf, col\r\n",
+					"from pyspark.sql.types import StringType, IntegerType, StructType\r\n",
+					"from pyspark.ml.feature import QuantileDiscretizer"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# Define a generic dictionary/map lookup function\r\n",
+					"def mapKeyToVal(mapping):\r\n",
+					"    def mapKeyToVal_(col):\r\n",
+					"        return mapping.get(col)\r\n",
+					"    return udf(mapKeyToVal_, StringType())"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Extraction\r\n",
+					"The first task is to create a DataFrame schema for the larger game events dataset, so the read operation doesn’t spend time inferring it from the data. Once extracted, we’ll replace “null” values for interesting fields with data-type specific constants as noted in the code snippet below."
+				]
 			},
 			{
 				"cell_type": "code",
@@ -227,8 +296,6 @@
 				},
 				"source": [
 					"# Specify the schema for game events data\n",
-					"from pyspark.sql.types import StringType, IntegerType, StructType\n",
-					"\n",
 					"schema = (StructType().\n",
 					"          add(\"id_odsp\", StringType()).\n",
 					"          add(\"id_event\", StringType()).\n",
@@ -266,7 +333,7 @@
 					"                             'shot_outcome': 99, 'location': 99, 'bodypart': 99, \n",
 					"                             'assist_method': 99, 'situation': 99})\n",
 					"\n",
-					"display(eventsDf.limit(100))"
+					"display(eventsDf, summary=True)"
 				],
 				"execution_count": 11
 			},
@@ -314,7 +381,7 @@
 					"                         ignoreTrailingWhiteSpace=True,\r\n",
 					"                         nullValue=\"NA\")\r\n",
 					"\r\n",
-					"display(gameInfDf.limit(100))"
+					"display(gameInfDf, summary=True)"
 				],
 				"execution_count": 12
 			},
@@ -334,31 +401,6 @@
 					"\r\n",
 					"The next step is to transform and join the DataFrames into one. Many fields of interest in the game events DataFrame have numeric IDs, so we define a generic UDF that could use look-up tables for mapping IDs to descriptions."
 				]
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					},
-					"collapsed": true
-				},
-				"source": [
-					"# Define a generic dictionary/map lookup function\r\n",
-					"from pyspark.sql.functions import udf, col\r\n",
-					"\r\n",
-					"def mapKeyToVal(mapping):\r\n",
-					"    def mapKeyToVal_(col):\r\n",
-					"        return mapping.get(col)\r\n",
-					"    return udf(mapKeyToVal_, StringType())"
-				],
-				"execution_count": 13
 			},
 			{
 				"cell_type": "code",
@@ -441,6 +483,7 @@
 				},
 				"source": [
 					"gameInfDf = gameInfDf.withColumn('country_code', mapKeyToVal(countryCodeMap)('country'))\r\n",
+					"\r\n",
 					"display(gameInfDf['id_odsp','country','country_code'].limit(100))"
 				],
 				"execution_count": 15
@@ -520,6 +563,7 @@
 					"  eventsDf.join(gameInfDf, eventsDf.id_odsp == gameInfDf.id_odsp, 'inner').\n",
 					"  select(eventsDf.id_odsp, eventsDf.id_event, eventsDf.sort_order, eventsDf.time, eventsDf.event_type, eventsDf.event_type_str, eventsDf.event_type2, eventsDf.event_type2_str, eventsDf.side, eventsDf.side_str, eventsDf.event_team, eventsDf.opponent, eventsDf.player, eventsDf.player2, eventsDf.player_in, eventsDf.player_out, eventsDf.shot_place, eventsDf.shot_place_str, eventsDf.shot_outcome, eventsDf.shot_outcome_str, eventsDf.is_goal, eventsDf.location, eventsDf.location_str, eventsDf.bodypart, eventsDf.bodypart_str, eventsDf.assist_method, eventsDf.assist_method_str, eventsDf.situation, eventsDf.situation_str, gameInfDf.country_code)\n",
 					")\n",
+					"\n",
 					"display(joinedDf.limit(100))"
 				],
 				"execution_count": 18
@@ -562,8 +606,8 @@
 				},
 				"source": [
 					"# Create time bins for game events\r\n",
-					"from pyspark.ml.feature import QuantileDiscretizer\r\n",
 					"joinedDf = QuantileDiscretizer(numBuckets=10, inputCol=\"time\", outputCol=\"time_bin\").fit(joinedDf).transform(joinedDf)\r\n",
+					"\r\n",
 					"display(joinedDf)"
 				],
 				"execution_count": 19
@@ -578,7 +622,7 @@
 					}
 				},
 				"source": [
-					"## Loading\n",
+					"## Writed curated data back to the data lake\n",
 					"Once the data is in the desired shape, we’ll load it as Parquet and CSV into the data lake."
 				]
 			},
@@ -598,7 +642,7 @@
 				},
 				"source": [
 					"# Write game event data as a csv into the data lake\r\n",
-					"joinedDf.repartition(1).write.format('csv').mode('overwrite').save('abfss://' + adls_conatinername + '@' + adls_accountname + '.dfs.core.windows.net/curated/game_events.csv')"
+					"joinedDf.write.format('csv').mode('overwrite').save('abfss://' + adls_conatinername + '@' + adls_accountname + '.dfs.core.windows.net/curated/game_events.csv')"
 				],
 				"execution_count": 20
 			},
@@ -618,7 +662,7 @@
 				},
 				"source": [
 					"# Write game event data as a parquet file into the data lake\r\n",
-					"joinedDf.repartition(1).write.format('parquet').mode('overwrite').save('abfss://' + adls_conatinername + '@' + adls_accountname + '.dfs.core.windows.net/curated/game_events.parquet')"
+					"joinedDf.write.format('parquet').mode('overwrite').save('abfss://' + adls_conatinername + '@' + adls_accountname + '.dfs.core.windows.net/curated/game_events.parquet')"
 				],
 				"execution_count": 21
 			}
