@@ -11,9 +11,10 @@
 				"language": "sql"
 			},
 			"currentConnection": {
-				"poolName": "Movies",
-				"databaseName": "Movies"
-			}
+				"databaseName": "Movies",
+				"poolName": "Movies"
+			},
+			"resultLimit": 5000
 		},
 		"type": "SqlQuery"
 	}
