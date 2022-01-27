@@ -1,0 +1,21 @@
+{
+	"name": "API_DataDownload_001",
+	"properties": {
+		"annotations": [],
+		"type": "AzureBlobStorage",
+		"typeProperties": {
+			"sasUri": {
+				"type": "AzureKeyVaultSecret",
+				"store": {
+					"referenceName": "Main_KeyVault_001",
+					"type": "LinkedServiceReference"
+				},
+				"secretName": "API-DataDownload-001-SASURI"
+			}
+		},
+		"connectVia": {
+			"referenceName": "AutoResolveIntegrationRuntime",
+			"type": "IntegrationRuntimeReference"
+		}
+	}
+}
