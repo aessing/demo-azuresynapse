@@ -1,0 +1,28 @@
+{
+	"name": "Companion_FileStorage_001",
+	"properties": {
+		"parameters": {
+			"FileShare": {
+				"type": "string",
+				"defaultValue": "movies-fourthcoffee"
+			}
+		},
+		"annotations": [],
+		"type": "AzureFileStorage",
+		"typeProperties": {
+			"connectionString": {
+				"type": "AzureKeyVaultSecret",
+				"store": {
+					"referenceName": "Main_KeyVault_001",
+					"type": "LinkedServiceReference"
+				},
+				"secretName": "Companion-FileStorage-001-AccountKey"
+			},
+			"fileShare": "@{linkedService().FileShare}"
+		},
+		"connectVia": {
+			"referenceName": "AutoResolveIntegrationRuntime",
+			"type": "IntegrationRuntimeReference"
+		}
+	}
+}
