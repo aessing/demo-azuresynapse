@@ -1,0 +1,21 @@
+{
+	"name": "CosmosDb1",
+	"properties": {
+		"annotations": [],
+		"type": "CosmosDb",
+		"typeProperties": {
+			"connectionString": {
+				"type": "AzureKeyVaultSecret",
+				"store": {
+					"referenceName": "demomdwhakv001weu",
+					"type": "LinkedServiceReference"
+				},
+				"secretName": "demomdwhcmpcos001weu-AccountKey"
+			}
+		},
+		"connectVia": {
+			"referenceName": "AutoResolveIntegrationRuntime",
+			"type": "IntegrationRuntimeReference"
+		}
+	}
+}
