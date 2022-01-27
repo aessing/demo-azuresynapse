@@ -7,7 +7,7 @@
 			"connectionString": {
 				"type": "AzureKeyVaultSecret",
 				"store": {
-					"referenceName": "AzureKeyVault_001",
+					"referenceName": "Main_KeyVault_001",
 					"type": "LinkedServiceReference"
 				},
 				"secretName": "Companion-CosmosDB-001-AccountKey"
