@@ -3,8 +3,7 @@
 	"properties": {
 		"parameters": {
 			"FileShare": {
-				"type": "string",
-				"defaultValue": "movies-fourthcoffee"
+				"type": "string"
 			}
 		},
 		"annotations": [],
