@@ -18,6 +18,10 @@
 					"notebook": {
 						"referenceName": "ESE_NBK_01_ETL",
 						"type": "NotebookReference"
+					},
+					"sparkPool": {
+						"referenceName": "DemoSparkPool",
+						"type": "BigDataPoolReference"
 					}
 				}
 			},
@@ -40,10 +44,6 @@
 					"secureInput": false
 				},
 				"userProperties": [],
-				"sqlPool": {
-					"referenceName": "SoccerEvents",
-					"type": "SqlPoolReference"
-				},
 				"typeProperties": {
 					"storedProcedureName": "[Spark].[load_GameEvents]"
 				}
