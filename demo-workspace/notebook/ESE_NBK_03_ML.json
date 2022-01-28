@@ -7,20 +7,20 @@
 		"nbformat": 4,
 		"nbformat_minor": 2,
 		"bigDataPool": {
-			"referenceName": "SoccerEvents",
+			"referenceName": "DemoSparkPool",
 			"type": "BigDataPoolReference"
 		},
 		"sessionProperties": {
-			"driverMemory": "28g",
-			"driverCores": 4,
-			"executorMemory": "28g",
-			"executorCores": 4,
-			"numExecutors": 8,
+			"driverMemory": "56g",
+			"driverCores": 8,
+			"executorMemory": "56g",
+			"executorCores": 8,
+			"numExecutors": 1,
 			"conf": {
-				"spark.dynamicAllocation.enabled": "false",
-				"spark.dynamicAllocation.minExecutors": "8",
+				"spark.dynamicAllocation.enabled": "true",
+				"spark.dynamicAllocation.minExecutors": "1",
 				"spark.dynamicAllocation.maxExecutors": "8",
-				"spark.autotune.trackingId": "478987c3-3171-412c-b588-3d0948e16380"
+				"spark.autotune.trackingId": "cbd54ff3-a298-4578-9a7b-0d4776d14d77"
 			}
 		},
 		"metadata": {
@@ -34,21 +34,21 @@
 				"name": "python"
 			},
 			"a365ComputeOptions": {
-				"id": "/subscriptions/f6c0b928-7078-4332-a106-e7a9c5253249/resourceGroups/demo-synapse-rg/providers/Microsoft.Synapse/workspaces/demosynapsesws01/bigDataPools/SoccerEvents",
-				"name": "SoccerEvents",
+				"id": "/subscriptions/f6c0b928-7078-4332-a106-e7a9c5253249/resourceGroups/demo-mdwh-rg/providers/Microsoft.Synapse/workspaces/demomdwhsws001weu/bigDataPools/DemoSparkPool",
+				"name": "DemoSparkPool",
 				"type": "Spark",
-				"endpoint": "https://demosynapsesws01.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/SoccerEvents",
+				"endpoint": "https://demomdwhsws001weu.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DemoSparkPool",
 				"auth": {
 					"type": "AAD",
 					"authResource": "https://dev.azuresynapse.net"
 				},
-				"sparkVersion": "2.4",
-				"nodeCount": 3,
-				"cores": 8,
-				"memory": 56,
-				"automaticScaleJobs": false
+				"sparkVersion": "3.1",
+				"nodeCount": 10,
+				"cores": 16,
+				"memory": 112,
+				"automaticScaleJobs": true
 			},
-			"sessionKeepAliveTimeout": 30
+			"sessionKeepAliveTimeout": 60
 		},
 		"cells": [
 			{
@@ -63,19 +63,19 @@
 				"source": [
 					"# European Soccer Events - Azure Synapse Analytics Demo\r\n",
 					"\r\n",
-					"#### Project URL\r\n",
-					"- <https://github.com/aessing/demo-azuresynapse>\r\n",
+					"### Azure Synapse Analytics Demo\r\n",
+					"https://github.com/aessing/demo-azuresynapse\r\n",
 					"\r\n",
-					"#### Developer\r\n",
-					"Andre Essing\r\n",
-					"- <https://www.andre-essing.de/>\r\n",
-					"- <https://github.com/aessing>\r\n",
-					"- <https://twitter.com/aessing>\r\n",
-					"- <https://www.linkedin.com/in/aessing/>\r\n",
+					"### Developer\r\n",
+					"Andre Essing</br>\r\n",
+					"https://www.andre-essing.de/</br>\r\n",
+					"https://github.com/aessing</br>\r\n",
+					"https://twitter.com/aessing</br>\r\n",
+					"https://www.linkedin.com/in/aessing/\r\n",
 					"\r\n",
-					"> THIS CODE AND INFORMATION ARE PROVIDED \"AS IS\" WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.\r\n",
-					"\r\n",
-					"---"
+					"> THIS CODE AND INFORMATION ARE PROVIDED \"AS IS\" WITHOUT WARRANTY OF ANY KIND,\r\n",
+					"> EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED\r\n",
+					"> WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE."
 				]
 			},
 			{
@@ -88,7 +88,7 @@
 					}
 				},
 				"source": [
-					"# European Soccer Events Analysis - Machine Learning\r\n",
+					"# Machine Learning\r\n",
 					"\r\n",
 					"As we saw, doing descriptive analysis on big data has been made super easy with Spark SQL. But what if you’re a data scientist who’s looking at the same data to find combinations of on-field playing conditions that lead to “goals”?\r\n",
 					"\r\n",
@@ -96,6 +96,98 @@
 					"\r\n",
 					"First, we need to do the necessary imports from Spark ML:"
 				]
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Set some parameters\r\n",
+					"\r\n",
+					"Can be overriden by Azure Synapse Pipelines"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"tags": [
+						"parameters"
+					]
+				},
+				"source": [
+					"# Parameter Cell: https://docs.microsoft.com/en-us/azure/synapse-analytics/spark/apache-spark-development-using-notebooks#integrate-a-notebook\r\n",
+					"\r\n",
+					"adls_accountname = 'demomdwhdls001weu'\r\n",
+					"adls_conatinername = 'europesoccerevents'"
+				],
+				"execution_count": 2
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Import some libraries and build some functions for internal use"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"from pyspark.ml import Pipeline\r\n",
+					"from pyspark.ml.classification import GBTClassifier\r\n",
+					"from pyspark.ml.feature import OneHotEncoder, StringIndexer, VectorAssembler\r\n",
+					"from pyspark.ml.evaluation import BinaryClassificationEvaluator"
+				],
+				"execution_count": 3
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# Build some path variables that will help reading and writing data from and to lake\r\n",
+					"adls_path = '/curated/game_events.parquet'"
+				],
+				"execution_count": 4
 			},
 			{
 				"cell_type": "markdown",
@@ -121,79 +213,16 @@
 						"transient": {
 							"deleting": false
 						}
-					}
-				},
-				"source": [
-					"# =============================================================================\r\n",
-					"# DON'T FORGET TO CHANGE KEYVAULT NAME, SECRET NAMES and PATH\r\n",
-					"# =============================================================================\r\n",
-					"\r\n",
-					"# Grab some secret stuff from the Azure Key Vault\r\n",
-					"adls_accountname = TokenLibrary.getSecret('demosynapseakv01', 'Soccer-ADLSAccountName')\r\n",
-					"adls_conatinername = TokenLibrary.getSecret('demosynapseakv01', 'Soccer-ADLSContainerName')\r\n",
-					"\r\n",
-					"adls_path = '/curated/game_events.parquet"
-				],
-				"execution_count": 1
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					},
-					"collapsed": true
-				},
-				"source": [
-					"gameEventsDf = spark.read.load('abfss://' + adls_conatinername + '@' + adls_accountname + '.dfs.core.windows.net' + adls_path, format='parquet')\r\n",
-					"gameEventsDf.createOrReplaceTempView('gameEvents')"
-				],
-				"execution_count": 2
-			},
-			{
-				"cell_type": "markdown",
-				"metadata": {
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					"## Explore data to establish features\r\n",
-					""
-				]
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					},
-					"microsoft": {
-						"language": "sparksql"
 					},
 					"collapsed": false
 				},
 				"source": [
-					"%%sql\r\n",
-					"SELECT * \r\n",
-					"  FROM gameEvents\r\n",
-					" LIMIT 100"
+					"gameEventsDf = spark.read.load('abfss://' + adls_conatinername + '@' + adls_accountname + '.dfs.core.windows.net' + adls_path, format='parquet')\r\n",
+					"gameEventsDf.createOrReplaceTempView('gameEvents')\r\n",
+					"\r\n",
+					"display(gameEventsDf, summary=True)"
 				],
-				"execution_count": 3
+				"execution_count": 5
 			},
 			{
 				"cell_type": "markdown",
@@ -226,42 +255,7 @@
 					"gameEventsDf = spark.sql(\"select event_type_str, event_team, shot_place_str, location_str, assist_method_str, situation_str, country_code, is_goal from gameEvents\")\r\n",
 					"display(gameEventsDf.limit(100))"
 				],
-				"execution_count": 4
-			},
-			{
-				"cell_type": "markdown",
-				"metadata": {
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					"## Necessary imports for Spark ML pipeline"
-				]
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					},
-					"collapsed": true
-				},
-				"source": [
-					"from pyspark.ml import Pipeline\r\n",
-					"from pyspark.ml.classification import GBTClassifier\r\n",
-					"from pyspark.ml.feature import OneHotEncoder, StringIndexer, VectorAssembler\r\n",
-					"from pyspark.ml.evaluation import BinaryClassificationEvaluator"
-				],
-				"execution_count": 5
+				"execution_count": 7
 			},
 			{
 				"cell_type": "markdown",
@@ -311,7 +305,7 @@
 					"featureAssembler.setInputCols([baseFeature + \"_vec\" for baseFeature in categFeatures])\r\n",
 					"featureAssembler.setOutputCol(\"features\")"
 				],
-				"execution_count": 6
+				"execution_count": 8
 			},
 			{
 				"cell_type": "markdown",
@@ -348,7 +342,7 @@
 					"pipelineStages = stringIndexers + encoders + [featureAssembler, gbtClassifier]\r\n",
 					"pipeline = Pipeline(stages=pipelineStages)"
 				],
-				"execution_count": 7
+				"execution_count": 9
 			},
 			{
 				"cell_type": "markdown",
@@ -381,7 +375,7 @@
 					"(trainingData, testData) = gameEventsDf.randomSplit([0.75, 0.25])\r\n",
 					"model = pipeline.fit(trainingData)"
 				],
-				"execution_count": 8
+				"execution_count": 10
 			},
 			{
 				"cell_type": "markdown",
@@ -416,7 +410,7 @@
 					"predictions = model.transform(testData)\r\n",
 					"display(predictions.select(\"prediction\", \"is_goal\", \"features\"))"
 				],
-				"execution_count": 9
+				"execution_count": 11
 			},
 			{
 				"cell_type": "markdown",
@@ -450,7 +444,7 @@
 					"    labelCol=\"is_goal\", rawPredictionCol=\"prediction\")\r\n",
 					"evaluator.evaluate(predictions)"
 				],
-				"execution_count": 10
+				"execution_count": 12
 			}
 		]
 	}
