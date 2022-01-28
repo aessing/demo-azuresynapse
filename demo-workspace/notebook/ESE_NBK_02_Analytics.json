@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "true",
 				"spark.dynamicAllocation.minExecutors": "1",
 				"spark.dynamicAllocation.maxExecutors": "4",
-				"spark.autotune.trackingId": "f3379ec2-a44d-4b71-a2af-4afff1824143"
+				"spark.autotune.trackingId": "cbf23590-0ab8-4978-94e9-a67c0f5adc21"
 			}
 		},
 		"metadata": {
@@ -439,7 +439,7 @@
 					"\r\n",
 					"Once we observe that Spanish league has had most goals over the term of this data, we could find the top 3 goals locations per shot place from the games in Spain, by writing a more involved query using Window functions in Spark SQL. It would be a stepwise nested query.\r\n",
 					"\r\n",
-					"> Column chart - Keys: SHOT_PLACE_STR,Values: TOT_GOALS, Series groupings: LOCATION_STR, Aggregation: String: Sum, Stacked"
+					"> Column chart - Keys: SHOT_PLACE_STR,Values: TOT_GOALS, Series groupings: LOCATION_STR, Aggregation: Sum, Stacked"
 				]
 			},
 			{
@@ -490,7 +490,7 @@
 					"\r\n",
 					"We could do time-based analysis as well, e.g. by observing the total number of goals over the course of a game (0-90+ minutes), across all games in the five leagues. We could use the “time_bin” column created as part of the transformation process earlier, rather than a continuous variable like “time”.\r\n",
 					"\r\n",
-					"> Line chart - Keys: TIME_BIN, Values: TOT_GOALS, Series groupings: COUNTRY_CODE, Aggregation: String: Sum"
+					"> Line chart - Keys: TIME_BIN, Values: TOT_GOALS, Series groupings: COUNTRY_CODE, Aggregation: Sum"
 				]
 			},
 			{
@@ -514,7 +514,7 @@
 					" GROUP BY COUNTRY_CODE, TIME_BIN\r\n",
 					" ORDER BY COUNTRY_CODE, TIME_BIN"
 				],
-				"execution_count": 9
+				"execution_count": 17
 			},
 			{
 				"cell_type": "markdown",
@@ -541,25 +541,6 @@
 							"deleting": false
 						}
 					},
-					"collapsed": true
-				},
-				"source": [
-					""
-				],
-				"execution_count": 11
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					},
 					"microsoft": {
 						"language": "python"
 					},
@@ -573,7 +554,7 @@
 					"vizDf = vizDf.groupBy(\"shot_place_str\",\"location_str\").sum(\"is_goal\").withColumnRenamed(\"sum(is_goal)\",\"tot_goals\").na.fill(0)\r\n",
 					"display(vizDf.limit(100))"
 				],
-				"execution_count": 12
+				"execution_count": 18
 			},
 			{
 				"cell_type": "code",
@@ -597,29 +578,7 @@
 					"\r\n",
 					"# Convert DataFrame to JSON\r\n",
 					"vizJson = dfToJson(vizDf)\r\n",
-					"vizJson[:5]"
-				],
-				"execution_count": 13
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					},
-					"microsoft": {
-						"language": "python"
-					},
-					"collapsed": true
-				},
-				"source": [
-					"%%pyspark\r\n",
+					"vizJson[:5]\r\n",
 					"\r\n",
 					"# Create the 3-D scatter plot\r\n",
 					"init_notebook_mode(connected=True)\r\n",
@@ -658,10 +617,9 @@
 					"    )\r\n",
 					")\r\n",
 					"fig = go.Figure(data=data, layout=layout)\r\n",
-					"displayHTML(plot(fig, filename='3d-scatter-colorscale', output_type='div'))\r\n",
-					""
+					"displayHTML(plot(fig, filename='3d-scatter-colorscale', output_type='div'))"
 				],
-				"execution_count": 14
+				"execution_count": 20
 			}
 		]
 	}
