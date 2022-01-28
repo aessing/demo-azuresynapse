@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "true",
 				"spark.dynamicAllocation.minExecutors": "1",
 				"spark.dynamicAllocation.maxExecutors": "4",
-				"spark.autotune.trackingId": "b0f07250-d590-44b8-9247-13ace1528178"
+				"spark.autotune.trackingId": "2065f62c-07da-490a-a6f6-9e0322eeaa1e"
 			}
 		},
 		"metadata": {
@@ -282,6 +282,19 @@
 				"execution_count": 3
 			},
 			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Start analyzing the data"
+				]
+			},
+			{
 				"cell_type": "code",
 				"metadata": {
 					"jupyter": {
@@ -301,19 +314,6 @@
 					"  FROM gameEvents"
 				],
 				"execution_count": 4
-			},
-			{
-				"cell_type": "markdown",
-				"metadata": {
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					"## Start analyzing the data"
-				]
 			},
 			{
 				"cell_type": "code",
