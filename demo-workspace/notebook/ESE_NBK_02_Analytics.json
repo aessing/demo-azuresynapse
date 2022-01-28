@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "true",
 				"spark.dynamicAllocation.minExecutors": "1",
 				"spark.dynamicAllocation.maxExecutors": "4",
-				"spark.autotune.trackingId": "cbf23590-0ab8-4978-94e9-a67c0f5adc21"
+				"spark.autotune.trackingId": "deb28e0d-2b42-4604-af28-3708474f53b7"
 			}
 		},
 		"metadata": {
@@ -62,7 +62,6 @@
 				},
 				"source": [
 					"# European Soccer Events - Azure Synapse Analytics Demo\r\n",
-					"## Explore Data - Analytics\r\n",
 					"\r\n",
 					"### Azure Synapse Analytics Demo\r\n",
 					"https://github.com/aessing/demo-azuresynapse\r\n",
@@ -89,7 +88,7 @@
 					}
 				},
 				"source": [
-					"# European Soccer Events Analysis - Ad-hoc Data Analysis\r\n",
+					"# Ad-hoc Data Analysis\r\n",
 					"\r\n",
 					"Now that the data shape and format is all set, it’s time to dig in and try and find answers to a few business questions. We’ll use plain-old super-strong SQL (Spark SQL) for that purpose, and create a second notebook from the perspective of data analysts.\r\n",
 					"\r\n",
