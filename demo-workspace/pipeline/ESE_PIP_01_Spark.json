@@ -40,8 +40,12 @@
 					"secureInput": false
 				},
 				"userProperties": [],
+				"sqlPool": {
+					"referenceName": "DemoSQLPool",
+					"type": "SqlPoolReference"
+				},
 				"typeProperties": {
-					"storedProcedureName": "[Spark].[load_GameEvents]"
+					"storedProcedureName": "[ese_Spark].[sp_LoadGameEventsPolybase]"
 				}
 			}
 		],
