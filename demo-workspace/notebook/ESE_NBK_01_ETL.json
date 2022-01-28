@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "true",
 				"spark.dynamicAllocation.minExecutors": "1",
 				"spark.dynamicAllocation.maxExecutors": "8",
-				"spark.autotune.trackingId": "3b0858b7-cca8-4cbf-b8e4-70107ec0b34b"
+				"spark.autotune.trackingId": "101361d2-1884-4921-944c-da32a4d02e9d"
 			}
 		},
 		"metadata": {
@@ -89,7 +89,7 @@
 					}
 				},
 				"source": [
-					"# European Soccer Events Analysis - Data Engineering\r\n",
+					"# Data Engineering\r\n",
 					"\r\n",
 					"A soccer game or any other sport generates many events, which help solve a number of use cases across the Sports and Media & Entertainment industries:\r\n",
 					"  * Like what on-field playing conditions and events (passes, positions etc.) leads to more goals/touch-downs etc.*\r\n",
