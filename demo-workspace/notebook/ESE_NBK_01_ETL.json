@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "true",
 				"spark.dynamicAllocation.minExecutors": "1",
 				"spark.dynamicAllocation.maxExecutors": "8",
-				"spark.autotune.trackingId": "352d2c94-e768-415f-a76d-d914ea346a87"
+				"spark.autotune.trackingId": "dc861f2b-32bb-4148-b9ee-d89f1584d46c"
 			}
 		},
 		"metadata": {
@@ -62,6 +62,7 @@
 				},
 				"source": [
 					"# European Soccer Events - Azure Synapse Analytics Demo\r\n",
+					"## Data Transformation - ETL\r\n",
 					"\r\n",
 					"### Azure Synapse Analytics Demo\r\n",
 					"https://github.com/aessing/demo-azuresynapse\r\n",
@@ -172,6 +173,24 @@
 						"transient": {
 							"deleting": false
 						}
+					}
+				},
+				"source": [
+					""
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
 					},
 					"tags": [
 						"parameters"
@@ -179,10 +198,6 @@
 				},
 				"source": [
 					"# Parameter Cell: https://docs.microsoft.com/en-us/azure/synapse-analytics/spark/apache-spark-development-using-notebooks#integrate-a-notebook\r\n",
-					"\r\n",
-					"# =============================================================================\r\n",
-					"# DON'T FORGET TO CHANGE KEYVAULT NAME, SECRET NAMES and PATH\r\n",
-					"# =============================================================================\r\n",
 					"\r\n",
 					"adls_accountname = 'demomdwhdls001weu'\r\n",
 					"adls_conatinername = 'europesoccerevents'"
