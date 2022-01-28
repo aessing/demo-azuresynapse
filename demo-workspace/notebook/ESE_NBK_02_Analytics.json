@@ -7,7 +7,7 @@
 		"nbformat": 4,
 		"nbformat_minor": 2,
 		"bigDataPool": {
-			"referenceName": "SoccerEvents",
+			"referenceName": "DemoSparkPool",
 			"type": "BigDataPoolReference"
 		},
 		"sessionProperties": {
@@ -15,12 +15,12 @@
 			"driverCores": 4,
 			"executorMemory": "28g",
 			"executorCores": 4,
-			"numExecutors": 2,
+			"numExecutors": 1,
 			"conf": {
-				"spark.dynamicAllocation.enabled": "false",
-				"spark.dynamicAllocation.minExecutors": "2",
-				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "ea96536b-f29a-49d8-8fc2-11a8166b9825"
+				"spark.dynamicAllocation.enabled": "true",
+				"spark.dynamicAllocation.minExecutors": "1",
+				"spark.dynamicAllocation.maxExecutors": "4",
+				"spark.autotune.trackingId": "b0f07250-d590-44b8-9247-13ace1528178"
 			}
 		},
 		"metadata": {
@@ -34,21 +34,21 @@
 				"name": "sql"
 			},
 			"a365ComputeOptions": {
-				"id": "/subscriptions/f6c0b928-7078-4332-a106-e7a9c5253249/resourceGroups/demo-synapse-rg/providers/Microsoft.Synapse/workspaces/demosynapsesws01/bigDataPools/SoccerEvents",
-				"name": "SoccerEvents",
+				"id": "/subscriptions/f6c0b928-7078-4332-a106-e7a9c5253249/resourceGroups/demo-mdwh-rg/providers/Microsoft.Synapse/workspaces/demomdwhsws001weu/bigDataPools/DemoSparkPool",
+				"name": "DemoSparkPool",
 				"type": "Spark",
-				"endpoint": "https://demosynapsesws01.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/SoccerEvents",
+				"endpoint": "https://demomdwhsws001weu.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DemoSparkPool",
 				"auth": {
 					"type": "AAD",
 					"authResource": "https://dev.azuresynapse.net"
 				},
-				"sparkVersion": "2.4",
-				"nodeCount": 3,
-				"cores": 8,
-				"memory": 56,
-				"automaticScaleJobs": false
+				"sparkVersion": "3.1",
+				"nodeCount": 10,
+				"cores": 16,
+				"memory": 112,
+				"automaticScaleJobs": true
 			},
-			"sessionKeepAliveTimeout": 30
+			"sessionKeepAliveTimeout": 60
 		},
 		"cells": [
 			{
@@ -62,20 +62,21 @@
 				},
 				"source": [
 					"# European Soccer Events - Azure Synapse Analytics Demo\r\n",
+					"## Explore Data - Analytics\r\n",
 					"\r\n",
-					"#### Project URL\r\n",
-					"- <https://github.com/aessing/demo-azuresynapse>\r\n",
+					"### Azure Synapse Analytics Demo\r\n",
+					"https://github.com/aessing/demo-azuresynapse\r\n",
 					"\r\n",
-					"#### Developer\r\n",
-					"Andre Essing\r\n",
-					"- <https://www.andre-essing.de/>\r\n",
-					"- <https://github.com/aessing>\r\n",
-					"- <https://twitter.com/aessing>\r\n",
-					"- <https://www.linkedin.com/in/aessing/>\r\n",
+					"### Developer\r\n",
+					"Andre Essing</br>\r\n",
+					"https://www.andre-essing.de/</br>\r\n",
+					"https://github.com/aessing</br>\r\n",
+					"https://twitter.com/aessing</br>\r\n",
+					"https://www.linkedin.com/in/aessing/\r\n",
 					"\r\n",
-					"> THIS CODE AND INFORMATION ARE PROVIDED \"AS IS\" WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.\r\n",
-					"\r\n",
-					"---"
+					"> THIS CODE AND INFORMATION ARE PROVIDED \"AS IS\" WITHOUT WARRANTY OF ANY KIND,\r\n",
+					"> EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED\r\n",
+					"> WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE."
 				]
 			},
 			{
@@ -127,7 +128,52 @@
 					}
 				},
 				"source": [
-					"## Load data from Data Lake and create a TempView"
+					"## Set some parameters\r\n",
+					"\r\n",
+					"Can be overriden by Azure Synapse Pipelines"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "python"
+					},
+					"tags": [
+						"parameters"
+					]
+				},
+				"source": [
+					"%%pyspark\r\n",
+					"\r\n",
+					"# Parameter Cell: https://docs.microsoft.com/en-us/azure/synapse-analytics/spark/apache-spark-development-using-notebooks#integrate-a-notebook\r\n",
+					"\r\n",
+					"adls_accountname = 'demomdwhdls001weu'\r\n",
+					"adls_conatinername = 'europesoccerevents'\r\n",
+					"adls_path = '/curated/game_events.parquet'"
+				],
+				"execution_count": 2
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Import some libraries and build some functions for internal use"
 				]
 			},
 			{
@@ -149,17 +195,76 @@
 				"source": [
 					"%%pyspark\r\n",
 					"\r\n",
-					"# =============================================================================\r\n",
-					"# DON'T FORGET TO CHANGE KEYVAULT NAME, SECRET NAMES and PATH\r\n",
-					"# =============================================================================\r\n",
-					"\r\n",
-					"# Grab some secret stuff from the Azure Key Vault\r\n",
-					"adls_accountname = TokenLibrary.getSecret('demosynapseakv01', 'Soccer-ADLSAccountName')\r\n",
-					"adls_conatinername = TokenLibrary.getSecret('demosynapseakv01', 'Soccer-ADLSContainerName')\r\n",
-					"\r\n",
-					"adls_path = '/curated/game_events.parquet'"
+					"from plotly.offline import download_plotlyjs, init_notebook_mode, plot, iplot\r\n",
+					"from plotly.graph_objs import *\r\n",
+					"import plotly.graph_objs as go\r\n",
+					"import numpy as np\r\n",
+					"import json"
 				],
-				"execution_count": 2
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "python"
+					}
+				},
+				"source": [
+					"%%pyspark\r\n",
+					"\r\n",
+					"# Define a function to convert a dataframe into JSON\r\n",
+					"def dfToJson(df):\r\n",
+					"  \"\"\"\r\n",
+					"  Dataframe as JSON.\r\n",
+					"  \"\"\"\r\n",
+					"  return (\r\n",
+					"   df\r\n",
+					"    .toJSON() # python api only\r\n",
+					"    .map(lambda r : json.loads(r))\r\n",
+					"  ).collect()\r\n",
+					"\r\n",
+					"def jsonColList(jlist, col, default_val, limit=10000):\r\n",
+					"  \"\"\"\r\n",
+					"  Convenience function for column list comprehension.\r\n",
+					"  \"\"\"\r\n",
+					"  result=[]\r\n",
+					"  c = 0\r\n",
+					"  for r in jlist:\r\n",
+					"    try:\r\n",
+					"        result.append(r[col])\r\n",
+					"    except Exception as e:\r\n",
+					"        result.append(default_val)\r\n",
+					"        pass\r\n",
+					"    \r\n",
+					"    c += 1\r\n",
+					"    if c >= limit:\r\n",
+					"      return result   \r\n",
+					"  return result"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Read the data from the lake"
+				]
 			},
 			{
 				"cell_type": "code",
@@ -410,71 +515,10 @@
 							"deleting": false
 						}
 					},
-					"microsoft": {
-						"language": "python"
-					},
 					"collapsed": true
 				},
 				"source": [
-					"%%pyspark\r\n",
-					"\r\n",
-					"# Necessary imports\r\n",
-					"from plotly.offline import download_plotlyjs, init_notebook_mode, plot, iplot\r\n",
-					"from plotly.graph_objs import *\r\n",
-					"import plotly.graph_objs as go\r\n",
-					"import numpy as np\r\n",
-					"import json"
-				],
-				"execution_count": 10
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					},
-					"microsoft": {
-						"language": "python"
-					},
-					"collapsed": true
-				},
-				"source": [
-					"%%pyspark\r\n",
-					"\r\n",
-					"# Define a function to convert a dataframe into JSON\r\n",
-					"def dfToJson(df):\r\n",
-					"  \"\"\"\r\n",
-					"  Dataframe as JSON.\r\n",
-					"  \"\"\"\r\n",
-					"  return (\r\n",
-					"   df\r\n",
-					"    .toJSON() # python api only\r\n",
-					"    .map(lambda r : json.loads(r))\r\n",
-					"  ).collect()\r\n",
-					"\r\n",
-					"def jsonColList(jlist, col, default_val, limit=10000):\r\n",
-					"  \"\"\"\r\n",
-					"  Convenience function for column list comprehension.\r\n",
-					"  \"\"\"\r\n",
-					"  result=[]\r\n",
-					"  c = 0\r\n",
-					"  for r in jlist:\r\n",
-					"    try:\r\n",
-					"        result.append(r[col])\r\n",
-					"    except Exception as e:\r\n",
-					"        result.append(default_val)\r\n",
-					"        pass\r\n",
-					"    \r\n",
-					"    c += 1\r\n",
-					"    if c >= limit:\r\n",
-					"      return result   \r\n",
-					"  return result"
+					""
 				],
 				"execution_count": 11
 			},
