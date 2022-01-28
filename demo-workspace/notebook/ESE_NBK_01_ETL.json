@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "true",
 				"spark.dynamicAllocation.minExecutors": "1",
 				"spark.dynamicAllocation.maxExecutors": "8",
-				"spark.autotune.trackingId": "dc861f2b-32bb-4148-b9ee-d89f1584d46c"
+				"spark.autotune.trackingId": "36f79664-45c4-4cdb-b79a-a13d8685f73e"
 			}
 		},
 		"metadata": {
@@ -161,24 +161,6 @@
 					"\r\n",
 					"Can be overriden by Azure Synapse Pipelines"
 				]
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					""
-				],
-				"execution_count": null
 			},
 			{
 				"cell_type": "code",
