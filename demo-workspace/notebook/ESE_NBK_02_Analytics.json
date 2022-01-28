@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "true",
 				"spark.dynamicAllocation.minExecutors": "1",
 				"spark.dynamicAllocation.maxExecutors": "4",
-				"spark.autotune.trackingId": "a80b0cf4-3533-4918-b410-4dc8167344db"
+				"spark.autotune.trackingId": "f3379ec2-a44d-4b71-a2af-4afff1824143"
 			}
 		},
 		"metadata": {
@@ -474,7 +474,7 @@
 					"WHERE goals_rank <= 3 AND LOCATION_STR != 'Unknown' AND SHOT_PLACE_STR != 'Unknown'\r\n",
 					"ORDER BY SHOT_PLACE_STR"
 				],
-				"execution_count": 8
+				"execution_count": 16
 			},
 			{
 				"cell_type": "markdown",
