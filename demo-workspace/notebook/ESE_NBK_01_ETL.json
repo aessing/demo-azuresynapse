@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "true",
 				"spark.dynamicAllocation.minExecutors": "1",
 				"spark.dynamicAllocation.maxExecutors": "8",
-				"spark.autotune.trackingId": "c8f4b39a-9a52-4164-9131-1ed978efaacb"
+				"spark.autotune.trackingId": "352d2c94-e768-415f-a76d-d914ea346a87"
 			}
 		},
 		"metadata": {
@@ -187,52 +187,7 @@
 					"adls_accountname = 'demomdwhdls001weu'\r\n",
 					"adls_conatinername = 'europesoccerevents'"
 				],
-				"execution_count": 18
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					"eventsDf = spark.read.load('abfss://' + adls_conatinername + '@' + adls_accountname + '.dfs.core.windows.net/raw/events.csv', format='csv',\r\n",
-					"                         schema=schema, header=True, \r\n",
-					"                         ignoreLeadingWhiteSpace=True, \r\n",
-					"                         ignoreTrailingWhiteSpace=True,\r\n",
-					"                         nullValue='NA')\r\n",
-					""
-				],
-				"execution_count": 17
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					"gameInfDf = spark.read.load('abfss://' + adls_conatinername + '@' + adls_accountname + '.dfs.core.windows.net/raw/gameinfo.csv', format='csv',\r\n",
-					"                         inferSchema=True, header=True, \r\n",
-					"                         ignoreLeadingWhiteSpace=True, \r\n",
-					"                         ignoreTrailingWhiteSpace=True,\r\n",
-					"                         nullValue=\"NA\")"
-				],
-				"execution_count": 8
+				"execution_count": 5
 			},
 			{
 				"cell_type": "markdown",
@@ -265,7 +220,7 @@
 					"from pyspark.sql.types import StringType, IntegerType, StructType\r\n",
 					"from pyspark.ml.feature import QuantileDiscretizer"
 				],
-				"execution_count": 2
+				"execution_count": 6
 			},
 			{
 				"cell_type": "code",
@@ -287,7 +242,7 @@
 					"        return mapping.get(col)\r\n",
 					"    return udf(mapKeyToVal_, StringType())"
 				],
-				"execution_count": 3
+				"execution_count": 7
 			},
 			{
 				"cell_type": "markdown",
@@ -380,7 +335,7 @@
 					"\n",
 					"display(eventsDf, summary=True)"
 				],
-				"execution_count": 4
+				"execution_count": 8
 			},
 			{
 				"cell_type": "code",
@@ -428,7 +383,7 @@
 					"\r\n",
 					"display(gameInfDf, summary=True)"
 				],
-				"execution_count": 12
+				"execution_count": 9
 			},
 			{
 				"cell_type": "markdown",
@@ -474,7 +429,7 @@
 					"situationMap = {1:'Open play', 2:'Set piece', 3:'Corner', 4:'Free kick', 99:'NA'}\r\n",
 					"countryCodeMap = {'germany':'DEU', 'france':'FRA', 'england':'GBR', 'spain':'ESP', 'italy':'ITA'}"
 				],
-				"execution_count": 14
+				"execution_count": 10
 			},
 			{
 				"cell_type": "markdown",
@@ -531,7 +486,7 @@
 					"\r\n",
 					"display(gameInfDf['id_odsp','country','country_code'].limit(100))"
 				],
-				"execution_count": 15
+				"execution_count": 11
 			},
 			{
 				"cell_type": "markdown",
@@ -564,7 +519,7 @@
 					"             withColumn(\"situation_str\", mapKeyToVal(situationMap)(\"situation\"))\n",
 					"           )"
 				],
-				"execution_count": 17
+				"execution_count": 12
 			},
 			{
 				"cell_type": "code",
@@ -611,7 +566,7 @@
 					"\n",
 					"display(joinedDf.limit(100))"
 				],
-				"execution_count": 18
+				"execution_count": 13
 			},
 			{
 				"cell_type": "code",
@@ -653,9 +608,9 @@
 					"# Create time bins for game events\r\n",
 					"joinedDf = QuantileDiscretizer(numBuckets=10, inputCol=\"time\", outputCol=\"time_bin\").fit(joinedDf).transform(joinedDf)\r\n",
 					"\r\n",
-					"display(joinedDf)"
+					"display(joinedDf.limit(100))"
 				],
-				"execution_count": 19
+				"execution_count": 14
 			},
 			{
 				"cell_type": "markdown",
@@ -689,7 +644,7 @@
 					"# Write game event data as a csv into the data lake\r\n",
 					"joinedDf.write.format('csv').mode('overwrite').save('abfss://' + adls_conatinername + '@' + adls_accountname + '.dfs.core.windows.net/curated/game_events.csv')"
 				],
-				"execution_count": 20
+				"execution_count": 15
 			},
 			{
 				"cell_type": "code",
@@ -709,7 +664,7 @@
 					"# Write game event data as a parquet file into the data lake\r\n",
 					"joinedDf.write.format('parquet').mode('overwrite').save('abfss://' + adls_conatinername + '@' + adls_accountname + '.dfs.core.windows.net/curated/game_events.parquet')"
 				],
-				"execution_count": 21
+				"execution_count": 16
 			}
 		]
 	}
