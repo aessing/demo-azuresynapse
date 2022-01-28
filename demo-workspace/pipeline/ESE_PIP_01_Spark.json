@@ -3,37 +3,18 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "Soccer Event ETL",
-				"type": "SynapseNotebook",
-				"dependsOn": [],
-				"policy": {
-					"timeout": "7.00:00:00",
-					"retry": 0,
-					"retryIntervalInSeconds": 30,
-					"secureOutput": false,
-					"secureInput": false
-				},
-				"userProperties": [],
-				"typeProperties": {
-					"notebook": {
-						"referenceName": "ESE_NBK_01_ETL",
-						"type": "NotebookReference"
-					}
-				}
-			},
-			{
-				"name": "Run Load Procedure",
+				"name": "Load-SQLPool",
 				"type": "SqlPoolStoredProcedure",
 				"dependsOn": [
 					{
-						"activity": "Soccer Event ETL",
+						"activity": "Transform-Data",
 						"dependencyConditions": [
 							"Succeeded"
 						]
 					}
 				],
 				"policy": {
-					"timeout": "7.00:00:00",
+					"timeout": "00:30:00",
 					"retry": 0,
 					"retryIntervalInSeconds": 30,
 					"secureOutput": false,
@@ -46,6 +27,30 @@
 				},
 				"typeProperties": {
 					"storedProcedureName": "[ese_Spark].[sp_LoadGameEventsPolybase]"
+				}
+			},
+			{
+				"name": "Transform-Data",
+				"type": "SynapseNotebook",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "00:30:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebook": {
+						"referenceName": "ESE_NBK_01_ETL",
+						"type": "NotebookReference"
+					},
+					"snapshot": true,
+					"sparkPool": {
+						"referenceName": "DemoSparkPool",
+						"type": "BigDataPoolReference"
+					}
 				}
 			}
 		],
