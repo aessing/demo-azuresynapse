@@ -59,7 +59,11 @@
 						"referenceName": "ESE_NBK_01_ETL",
 						"type": "NotebookReference"
 					},
-					"snapshot": true
+					"snapshot": true,
+					"sparkPool": {
+						"referenceName": "DemoSparkPool",
+						"type": "BigDataPoolReference"
+					}
 				}
 			},
 			{
