@@ -1,13 +1,6 @@
 {
-	"name": "ESE_IDS_SNK_DimensionsFLW_CORE_SQL",
+	"name": "zzz_ESE_IDS_SNK_DimensionsFLW_CORE_SQL",
 	"properties": {
-		"linkedServiceName": {
-			"referenceName": "demosynapsesws01-WorkspaceDefaultSqlServer",
-			"type": "LinkedServiceReference",
-			"parameters": {
-				"DBName": "SoccerEvents"
-			}
-		},
 		"folder": {
 			"name": "Europe Soccer Events"
 		},

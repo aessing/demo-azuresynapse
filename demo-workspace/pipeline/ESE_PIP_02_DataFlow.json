@@ -20,10 +20,6 @@
 						"type": "DataFlowReference"
 					},
 					"staging": {
-						"linkedService": {
-							"referenceName": "demosynapsesws01-WorkspaceDefaultStorage",
-							"type": "LinkedServiceReference"
-						},
 						"folderPath": "europesoccer/staging"
 					},
 					"compute": {
@@ -53,7 +49,7 @@
 						"partitionOption": "None"
 					},
 					"dataset": {
-						"referenceName": "ESE_IDS_CFG_DimensionConfigurationFLW_CORE_SQL",
+						"referenceName": "zzz_ESE_IDS_CFG_DimensionConfigurationFLW_CORE_SQL",
 						"type": "DatasetReference"
 					},
 					"firstRowOnly": false
@@ -127,13 +123,13 @@
 							},
 							"inputs": [
 								{
-									"referenceName": "ESE_IDS_SRC_DimensionsFLW_DYN_CSV",
+									"referenceName": "zzz_ESE_IDS_SRC_DimensionsFLW_DYN_CSV",
 									"type": "DatasetReference"
 								}
 							],
 							"outputs": [
 								{
-									"referenceName": "ESE_IDS_SNK_DimensionsFLW_CORE_SQL",
+									"referenceName": "zzz_ESE_IDS_SNK_DimensionsFLW_CORE_SQL",
 									"type": "DatasetReference"
 								}
 							]
