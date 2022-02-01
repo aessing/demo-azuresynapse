@@ -1,7 +1,0 @@
-{
-	"name": "Companion_CosmosDB_001_PEP001_SQL",
-	"properties": {
-		"privateLinkResourceId": "/subscriptions/f6c0b928-7078-4332-a106-e7a9c5253249/resourceGroups/demo-mdwh-companion-rg/providers/Microsoft.DocumentDB/databaseAccounts/demomdwhcmpcos001weu",
-		"groupId": "Sql"
-	}
-}
