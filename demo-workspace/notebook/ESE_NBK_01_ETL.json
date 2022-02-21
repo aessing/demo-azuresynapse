@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "true",
 				"spark.dynamicAllocation.minExecutors": "1",
 				"spark.dynamicAllocation.maxExecutors": "8",
-				"spark.autotune.trackingId": "101361d2-1884-4921-944c-da32a4d02e9d"
+				"spark.autotune.trackingId": "6d1c0acc-e8b9-4f24-88cc-d376993c5c5c"
 			}
 		},
 		"metadata": {
@@ -184,7 +184,7 @@
 					"adls_accountname = 'demomdwhdls001weu'\r\n",
 					"adls_conatinername = 'europesoccerevents'"
 				],
-				"execution_count": 17
+				"execution_count": 1
 			},
 			{
 				"cell_type": "markdown",
@@ -217,7 +217,7 @@
 					"from pyspark.sql.types import StringType, IntegerType, StructType\r\n",
 					"from pyspark.ml.feature import QuantileDiscretizer"
 				],
-				"execution_count": 18
+				"execution_count": 2
 			},
 			{
 				"cell_type": "code",
@@ -239,7 +239,7 @@
 					"        return mapping.get(col)\r\n",
 					"    return udf(mapKeyToVal_, StringType())"
 				],
-				"execution_count": 19
+				"execution_count": 3
 			},
 			{
 				"cell_type": "markdown",
@@ -332,7 +332,7 @@
 					"\n",
 					"display(eventsDf, summary=True)"
 				],
-				"execution_count": 20
+				"execution_count": 4
 			},
 			{
 				"cell_type": "code",
@@ -380,7 +380,7 @@
 					"\r\n",
 					"display(gameInfDf, summary=True)"
 				],
-				"execution_count": 21
+				"execution_count": 5
 			},
 			{
 				"cell_type": "markdown",
@@ -426,7 +426,7 @@
 					"situationMap = {1:'Open play', 2:'Set piece', 3:'Corner', 4:'Free kick', 99:'NA'}\r\n",
 					"countryCodeMap = {'germany':'DEU', 'france':'FRA', 'england':'GBR', 'spain':'ESP', 'italy':'ITA'}"
 				],
-				"execution_count": 22
+				"execution_count": 6
 			},
 			{
 				"cell_type": "markdown",
@@ -483,7 +483,7 @@
 					"\r\n",
 					"display(gameInfDf['id_odsp','country','country_code'].limit(100))"
 				],
-				"execution_count": 23
+				"execution_count": 7
 			},
 			{
 				"cell_type": "markdown",
@@ -516,7 +516,7 @@
 					"             withColumn(\"situation_str\", mapKeyToVal(situationMap)(\"situation\"))\n",
 					"           )"
 				],
-				"execution_count": 24
+				"execution_count": 8
 			},
 			{
 				"cell_type": "code",
@@ -563,7 +563,7 @@
 					"\n",
 					"display(joinedDf.limit(100))"
 				],
-				"execution_count": 25
+				"execution_count": 9
 			},
 			{
 				"cell_type": "code",
@@ -607,7 +607,7 @@
 					"\r\n",
 					"display(joinedDf.limit(100))"
 				],
-				"execution_count": 26
+				"execution_count": 10
 			},
 			{
 				"cell_type": "markdown",
@@ -641,7 +641,7 @@
 					"# Write game event data as a csv into the data lake\r\n",
 					"joinedDf.write.format('csv').mode('overwrite').save('abfss://' + adls_conatinername + '@' + adls_accountname + '.dfs.core.windows.net/curated/game_events.csv')"
 				],
-				"execution_count": 27
+				"execution_count": 11
 			},
 			{
 				"cell_type": "code",
@@ -661,7 +661,7 @@
 					"# Write game event data as a parquet file into the data lake\r\n",
 					"joinedDf.write.format('parquet').mode('overwrite').save('abfss://' + adls_conatinername + '@' + adls_accountname + '.dfs.core.windows.net/curated/game_events.parquet')"
 				],
-				"execution_count": 28
+				"execution_count": 12
 			}
 		]
 	}
