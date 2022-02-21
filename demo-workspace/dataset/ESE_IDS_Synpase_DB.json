@@ -1,0 +1,33 @@
+{
+	"name": "ESE_IDS_Synpase_DB",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "demomdwhsws001weu-WorkspaceDefaultSqlServer",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"schemaName": {
+				"type": "string"
+			},
+			"tableName": {
+				"type": "string"
+			},
+			"dbName": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "AzureSqlDWTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": {
+				"value": "@dataset().schemaName",
+				"type": "Expression"
+			},
+			"table": {
+				"value": "@dataset().tableName",
+				"type": "Expression"
+			}
+		}
+	}
+}
