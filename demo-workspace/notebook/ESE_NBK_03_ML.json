@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "true",
 				"spark.dynamicAllocation.minExecutors": "1",
 				"spark.dynamicAllocation.maxExecutors": "8",
-				"spark.autotune.trackingId": "cbd54ff3-a298-4578-9a7b-0d4776d14d77"
+				"spark.autotune.trackingId": "331af3ea-dd81-42cc-b9dd-793c1330d84b"
 			}
 		},
 		"metadata": {
@@ -134,7 +134,7 @@
 					"adls_accountname = 'demomdwhdls001weu'\r\n",
 					"adls_conatinername = 'europesoccerevents'"
 				],
-				"execution_count": 2
+				"execution_count": 1
 			},
 			{
 				"cell_type": "markdown",
@@ -168,7 +168,7 @@
 					"from pyspark.ml.feature import OneHotEncoder, StringIndexer, VectorAssembler\r\n",
 					"from pyspark.ml.evaluation import BinaryClassificationEvaluator"
 				],
-				"execution_count": 3
+				"execution_count": 2
 			},
 			{
 				"cell_type": "code",
@@ -187,7 +187,7 @@
 					"# Build some path variables that will help reading and writing data from and to lake\r\n",
 					"adls_path = '/curated/game_events.parquet'"
 				],
-				"execution_count": 4
+				"execution_count": 3
 			},
 			{
 				"cell_type": "markdown",
@@ -222,7 +222,7 @@
 					"\r\n",
 					"display(gameEventsDf, summary=True)"
 				],
-				"execution_count": 5
+				"execution_count": 4
 			},
 			{
 				"cell_type": "markdown",
@@ -255,7 +255,7 @@
 					"gameEventsDf = spark.sql(\"select event_type_str, event_team, shot_place_str, location_str, assist_method_str, situation_str, country_code, is_goal from gameEvents\")\r\n",
 					"display(gameEventsDf.limit(100))"
 				],
-				"execution_count": 7
+				"execution_count": 5
 			},
 			{
 				"cell_type": "markdown",
@@ -305,7 +305,7 @@
 					"featureAssembler.setInputCols([baseFeature + \"_vec\" for baseFeature in categFeatures])\r\n",
 					"featureAssembler.setOutputCol(\"features\")"
 				],
-				"execution_count": 8
+				"execution_count": 6
 			},
 			{
 				"cell_type": "markdown",
@@ -342,7 +342,7 @@
 					"pipelineStages = stringIndexers + encoders + [featureAssembler, gbtClassifier]\r\n",
 					"pipeline = Pipeline(stages=pipelineStages)"
 				],
-				"execution_count": 9
+				"execution_count": 7
 			},
 			{
 				"cell_type": "markdown",
@@ -375,7 +375,7 @@
 					"(trainingData, testData) = gameEventsDf.randomSplit([0.75, 0.25])\r\n",
 					"model = pipeline.fit(trainingData)"
 				],
-				"execution_count": 10
+				"execution_count": 8
 			},
 			{
 				"cell_type": "markdown",
@@ -410,7 +410,7 @@
 					"predictions = model.transform(testData)\r\n",
 					"display(predictions.select(\"prediction\", \"is_goal\", \"features\"))"
 				],
-				"execution_count": 11
+				"execution_count": 9
 			},
 			{
 				"cell_type": "markdown",
@@ -444,7 +444,7 @@
 					"    labelCol=\"is_goal\", rawPredictionCol=\"prediction\")\r\n",
 					"evaluator.evaluate(predictions)"
 				],
-				"execution_count": 12
+				"execution_count": 10
 			}
 		]
 	}
