@@ -3,26 +3,6 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "Load-SQLPool",
-				"type": "SqlPoolStoredProcedure",
-				"dependsOn": [],
-				"policy": {
-					"timeout": "00:30:00",
-					"retry": 0,
-					"retryIntervalInSeconds": 30,
-					"secureOutput": false,
-					"secureInput": false
-				},
-				"userProperties": [],
-				"sqlPool": {
-					"referenceName": "DemoSQLPool",
-					"type": "SqlPoolReference"
-				},
-				"typeProperties": {
-					"storedProcedureName": "[ese_Spark].[sp_LoadGameEventsPolybase]"
-				}
-			},
-			{
 				"name": "Transform-Data",
 				"type": "SynapseNotebook",
 				"dependsOn": [
@@ -122,14 +102,7 @@
 			{
 				"name": "Delete-RAW-Data",
 				"type": "Delete",
-				"dependsOn": [
-					{
-						"activity": "Load-SQLPool",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					}
-				],
+				"dependsOn": [],
 				"policy": {
 					"timeout": "00:30:00",
 					"retry": 0,
@@ -158,14 +131,7 @@
 			{
 				"name": "Delete-CURATED-Data",
 				"type": "Delete",
-				"dependsOn": [
-					{
-						"activity": "Load-SQLPool",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					}
-				],
+				"dependsOn": [],
 				"policy": {
 					"timeout": "00:30:00",
 					"retry": 0,
@@ -214,7 +180,7 @@
 					"source": {
 						"type": "BinarySource",
 						"storeSettings": {
-							"type": "AzureBlobStorageReadSettings",
+							"type": "AzureBlobFSReadSettings",
 							"recursive": true
 						},
 						"formatSettings": {
@@ -222,31 +188,31 @@
 						}
 					},
 					"sink": {
-						"type": "BinarySink",
-						"storeSettings": {
-							"type": "AzureBlobFSWriteSettings",
-							"copyBehavior": "PreserveHierarchy"
-						}
+						"type": "SqlDWSink",
+						"preCopyScript": "TRUNCATE TABLE ese_Spark.GameEvents;",
+						"allowCopyCommand": true,
+						"disableMetricsCollection": false
 					},
 					"enableStaging": false
 				},
 				"inputs": [
 					{
-						"referenceName": "ESE_IDS_Blob_Folder_Binary",
+						"referenceName": "ESE_IDS_Datalake_Folder_Binary",
 						"type": "DatasetReference",
 						"parameters": {
 							"container": "europesoccerevents",
-							"folder": "data"
+							"folder": "curated/game_events.parquet"
 						}
 					}
 				],
 				"outputs": [
 					{
-						"referenceName": "ESE_IDS_Datalake_Folder_Binary",
+						"referenceName": "ESE_IDS_Synpase_DB",
 						"type": "DatasetReference",
 						"parameters": {
-							"container": "europesoccerevents",
-							"folder": "raw"
+							"schemaName": "ese_Spark",
+							"tableName": "GameEvents",
+							"dbName": "DemoSQLPool"
 						}
 					}
 				]

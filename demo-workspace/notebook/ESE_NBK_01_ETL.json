@@ -285,7 +285,11 @@
 						"aggData": "{\"sort_order\":{\"UFot0hit/\":5050}}",
 						"isSummary": false,
 						"previewData": {
-							"filter": null
+							"filter": null,
+							"table": {
+								"rows": [],
+								"schema": {}
+							}
 						},
 						"isSql": false
 					},
@@ -364,7 +368,11 @@
 						"aggData": "{\"date\":{\"0Ed6GSCi/\":0,\"0QSBhGQ1/\":0,\"0vWe9vtS/\":0,\"29kj1anI/\":0,\"2Pyjt8KA/\":0,\"2iMUPaQ8/\":0,\"4WY4SljB/\":0,\"4nHmUALb/\":0,\"4xCdEwYE/\":0,\"6F7IXGI1/\":0,\"84Llk2m6/\":0,\"8G9ykJld/\":0,\"A5DsExWN/\":0,\"ADHR3I3k/\":0,\"Aw5DflLH/\":0,\"C2F4CH2R/\":0,\"CQJ2BZ8q/\":0,\"CnFrLcl2/\":0,\"CtEdUSdJ/\":0,\"CzPV312a/\":0,\"CzqwqAzh/\":0,\"EXAMtLeF/\":0,\"Ea52eLBS/\":0,\"EkQZqjLo/\":0,\"GUOdmtII/\":0,\"I5sHJt2n/\":0,\"IV8qAKQL/\":0,\"K4vgcjya/\":0,\"KABIs1t9/\":0,\"KSGZOJuF/\":0,\"KhlsbNR9/\":0,\"M3FzCtd9/\":0,\"M7PhlM2C/\":0,\"MZT7gdBe/\":0,\"O0NQQuB2/\":0,\"O2rLz4Jh/\":0,\"OIjn2uXB/\":0,\"Q7zaeItq/\":0,\"QVCWNa4q/\":0,\"QeIqVj6h/\":0,\"QuWqjrYa/\":0,\"SEqvxt5j/\":0,\"StGWCMt3/\":0,\"SzFQuuBL/\":0,\"UBZQ4smg/\":0,\"UFot0hit/\":0,\"UPAXkaZk/\":0,\"WEEwFIGH/\":0,\"WMIN4blq/\":0,\"WQGN5NXn/\":0,\"WUdMGvn5/\":0,\"Wn69eU5B/\":0,\"WzGcd1dM/\":0,\"YBCVCpCG/\":0,\"YRfEE6s4/\":0,\"YeGvMwZe/\":0,\"YkXosl54/\":0,\"Yu8B9Dwd/\":0,\"bHbEI0Hh/\":0,\"bJFwOweL/\":0,\"bgY8R85H/\":0,\"bkjpaC6n/\":0,\"bw0Yaqcc/\":0,\"byqaawHU/\":0,\"dEc4HHIr/\":0,\"dUDqL6ro/\":0,\"fLN0n0XO/\":0,\"faYsrUkb/\":0,\"fqnr3LH5/\":0,\"fydAFnSc/\":0,\"htFsNcAR/\":0,\"hx7W2xJe/\":0,\"j3kJDQdA/\":0,\"jHI6AgOk/\":0,\"jRPmWlS6/\":0,\"lOpzwMkp/\":0,\"lShocssG/\":0,\"ljHSD2Rd/\":0,\"ljPYFb1B/\":0,\"lvg2H8co/\":0,\"nB6hTUz5/\":0,\"pYb2uSZG/\":0,\"pYve0J1O/\":0,\"pzdU0Psi/\":0,\"rNNmGa32/\":0,\"t2kwa3C3/\":0,\"tKCErsR2/\":0,\"tl4D8Ggo/\":0,\"vFrDKMnt/\":0,\"vZGzNJJk/\":0,\"vuIoDdoU/\":0,\"vwm9GyYl/\":0,\"x4HJ63It/\":0,\"x8cIHKWb/\":0,\"xQ65dAj5/\":0,\"xpXCQSKN/\":0,\"xtklbWLh/\":0,\"z3BTjuKq/\":0,\"z7JvB0BF/\":0,\"zeViBqAP/\":0}}",
 						"isSummary": false,
 						"previewData": {
-							"filter": null
+							"filter": null,
+							"table": {
+								"rows": [],
+								"schema": {}
+							}
 						},
 						"isSql": false
 					},
@@ -472,7 +480,11 @@
 						"aggData": "{\"id_odsp\":{\"0Ed6GSCi/\":1,\"0QSBhGQ1/\":1,\"0vWe9vtS/\":1,\"29kj1anI/\":1,\"2Pyjt8KA/\":1,\"2iMUPaQ8/\":1,\"4WY4SljB/\":1,\"4nHmUALb/\":1,\"4xCdEwYE/\":1,\"6F7IXGI1/\":1,\"84Llk2m6/\":1,\"8G9ykJld/\":1,\"A5DsExWN/\":1,\"ADHR3I3k/\":1,\"Aw5DflLH/\":1,\"C2F4CH2R/\":1,\"CQJ2BZ8q/\":1,\"CnFrLcl2/\":1,\"CtEdUSdJ/\":1,\"CzPV312a/\":1,\"CzqwqAzh/\":1,\"EXAMtLeF/\":1,\"Ea52eLBS/\":1,\"EkQZqjLo/\":1,\"GUOdmtII/\":1,\"I5sHJt2n/\":1,\"IV8qAKQL/\":1,\"K4vgcjya/\":1,\"KABIs1t9/\":1,\"KSGZOJuF/\":1,\"KhlsbNR9/\":1,\"M3FzCtd9/\":1,\"M7PhlM2C/\":1,\"MZT7gdBe/\":1,\"O0NQQuB2/\":1,\"O2rLz4Jh/\":1,\"OIjn2uXB/\":1,\"Q7zaeItq/\":1,\"QVCWNa4q/\":1,\"QeIqVj6h/\":1,\"QuWqjrYa/\":1,\"SEqvxt5j/\":1,\"StGWCMt3/\":1,\"SzFQuuBL/\":1,\"UBZQ4smg/\":1,\"UFot0hit/\":1,\"UPAXkaZk/\":1,\"WEEwFIGH/\":1,\"WMIN4blq/\":1,\"WQGN5NXn/\":1,\"WUdMGvn5/\":1,\"Wn69eU5B/\":1,\"WzGcd1dM/\":1,\"YBCVCpCG/\":1,\"YRfEE6s4/\":1,\"YeGvMwZe/\":1,\"YkXosl54/\":1,\"Yu8B9Dwd/\":1,\"bHbEI0Hh/\":1,\"bJFwOweL/\":1,\"bgY8R85H/\":1,\"bkjpaC6n/\":1,\"bw0Yaqcc/\":1,\"byqaawHU/\":1,\"dEc4HHIr/\":1,\"dUDqL6ro/\":1,\"fLN0n0XO/\":1,\"faYsrUkb/\":1,\"fqnr3LH5/\":1,\"fydAFnSc/\":1,\"htFsNcAR/\":1,\"hx7W2xJe/\":1,\"j3kJDQdA/\":1,\"jHI6AgOk/\":1,\"jRPmWlS6/\":1,\"lOpzwMkp/\":1,\"lShocssG/\":1,\"ljHSD2Rd/\":1,\"ljPYFb1B/\":1,\"lvg2H8co/\":1,\"nB6hTUz5/\":1,\"pYb2uSZG/\":1,\"pYve0J1O/\":1,\"pzdU0Psi/\":1,\"rNNmGa32/\":1,\"t2kwa3C3/\":1,\"tKCErsR2/\":1,\"tl4D8Ggo/\":1,\"vFrDKMnt/\":1,\"vZGzNJJk/\":1,\"vuIoDdoU/\":1,\"vwm9GyYl/\":1,\"x4HJ63It/\":1,\"x8cIHKWb/\":1,\"xQ65dAj5/\":1,\"xpXCQSKN/\":1,\"xtklbWLh/\":1,\"z3BTjuKq/\":1,\"z7JvB0BF/\":1,\"zeViBqAP/\":1}}",
 						"isSummary": false,
 						"previewData": {
-							"filter": null
+							"filter": null,
+							"table": {
+								"rows": [],
+								"schema": {}
+							}
 						},
 						"isSql": false
 					},
@@ -548,7 +560,11 @@
 						"aggData": "{\"sort_order\":{\"84iqdhso/\":1443,\"AcBjeS4n/\":3828}}",
 						"isSummary": false,
 						"previewData": {
-							"filter": null
+							"filter": null,
+							"table": {
+								"rows": [],
+								"schema": {}
+							}
 						},
 						"isSql": false
 					},
@@ -595,7 +611,11 @@
 						"aggData": "{\"sort_order\":{\"Aw5DflLH/\":7503,\"CzPV312a/\":6555,\"GUOdmtII/\":4095,\"M7PhlM2C/\":6670,\"QuWqjrYa/\":7021,\"UBZQ4smg/\":1830,\"UFot0hit/\":6105,\"bkjpaC6n/\":9453,\"lOpzwMkp/\":9180}}",
 						"isSummary": false,
 						"previewData": {
-							"filter": null
+							"filter": null,
+							"table": {
+								"rows": [],
+								"schema": {}
+							}
 						},
 						"isSql": false
 					},
