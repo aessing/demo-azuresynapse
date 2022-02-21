@@ -3,7 +3,13 @@
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "demomdwhsws001weu-WorkspaceDefaultSqlServer",
-			"type": "LinkedServiceReference"
+			"type": "LinkedServiceReference",
+			"parameters": {
+				"DBName": {
+					"value": "@dataset().dbName",
+					"type": "Expression"
+				}
+			}
 		},
 		"parameters": {
 			"schemaName": {
