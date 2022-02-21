@@ -154,7 +154,7 @@
 				}
 			},
 			{
-				"name": "Copy-Curated-Data",
+				"name": "Copy-CURATED-Data",
 				"type": "Copy",
 				"dependsOn": [
 					{
