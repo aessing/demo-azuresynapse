@@ -178,13 +178,11 @@
 				"userProperties": [],
 				"typeProperties": {
 					"source": {
-						"type": "BinarySource",
+						"type": "ParquetSource",
 						"storeSettings": {
 							"type": "AzureBlobFSReadSettings",
-							"recursive": true
-						},
-						"formatSettings": {
-							"type": "BinaryReadSettings"
+							"recursive": true,
+							"enablePartitionDiscovery": false
 						}
 					},
 					"sink": {
@@ -197,7 +195,7 @@
 				},
 				"inputs": [
 					{
-						"referenceName": "ESE_IDS_Datalake_Folder_Binary",
+						"referenceName": "ESE_IDS_Datalake_Folder_Parquet",
 						"type": "DatasetReference",
 						"parameters": {
 							"container": "europesoccerevents",
