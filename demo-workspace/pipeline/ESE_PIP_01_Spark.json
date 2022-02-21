@@ -190,6 +190,66 @@
 						"enablePartitionDiscovery": false
 					}
 				}
+			},
+			{
+				"name": "Copy-Curated-Data",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Transform-Data",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "00:30:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "BinarySource",
+						"storeSettings": {
+							"type": "AzureBlobStorageReadSettings",
+							"recursive": true
+						},
+						"formatSettings": {
+							"type": "BinaryReadSettings"
+						}
+					},
+					"sink": {
+						"type": "BinarySink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings",
+							"copyBehavior": "PreserveHierarchy"
+						}
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "ESE_IDS_Blob_Folder_Binary",
+						"type": "DatasetReference",
+						"parameters": {
+							"container": "europesoccerevents",
+							"folder": "data"
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ESE_IDS_Datalake_Folder_Binary",
+						"type": "DatasetReference",
+						"parameters": {
+							"container": "europesoccerevents",
+							"folder": "raw"
+						}
+					}
+				]
 			}
 		],
 		"folder": {
