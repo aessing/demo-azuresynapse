@@ -1,0 +1,42 @@
+{
+	"name": "Pipeline 1",
+	"properties": {
+		"activities": [
+			{
+				"name": "create_view",
+				"type": "SqlPoolStoredProcedure",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"sqlPool": {
+					"referenceName": "DemoSQLPool",
+					"type": "SqlPoolReference"
+				},
+				"typeProperties": {
+					"storedProcedureName": "[dbo].[create_procedure]",
+					"storedProcedureParameters": {
+						"params": {
+							"value": "@schema NVARCHAR(50), @view NVARCHAR(50),  @select_statement NVARCHAR(MAX)",
+							"type": "String"
+						},
+						"procedure": {
+							"value": "create_view",
+							"type": "String"
+						},
+						"sql_statement": {
+							"value": "EXECUTE  [dbo].create_schema  @schema\\n\\n        DECLARE @sql NVARCHAR(MAX)\\n\\t\\tIF EXISTS (SELECT * FROM [sys].[all_views] t INNER JOIN sys.schemas s ON s.schema_id=t.schema_id WHERE t.[name]=@view AND  s.name=@schema) \\n\\t\\tBEGIN\\n\\t\\tSET @sql= N'DROP VIEW ['+@schema+'].['+@view+']' \\t\\t\\n        EXEC sp_executesql @tsql = @sql;\\n\\t\\tEND\\n\\t\\t\\t\\t\\n\\t\\tSET @sql= N'CREATE VIEW ['+@schema+'].['+@view+'] AS ' +  @select_statement  \\t\\t\\n        EXEC sp_executesql @tsql = @sql;",
+							"type": "String"
+						}
+					}
+				}
+			}
+		],
+		"annotations": []
+	}
+}
