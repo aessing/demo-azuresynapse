@@ -1,9 +1,6 @@
 {
 	"name": "zzz_ESE_IDS_SRC_Events_RAW_CSV",
 	"properties": {
-		"folder": {
-			"name": "Europe Soccer Events"
-		},
 		"annotations": [],
 		"type": "DelimitedText",
 		"typeProperties": {

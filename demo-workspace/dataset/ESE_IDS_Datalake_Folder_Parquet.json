@@ -13,6 +13,9 @@
 				"type": "string"
 			}
 		},
+		"folder": {
+			"name": "Europe Soccer Events"
+		},
 		"annotations": [],
 		"type": "Parquet",
 		"typeProperties": {

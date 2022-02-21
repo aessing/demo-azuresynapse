@@ -1,9 +1,6 @@
 {
 	"name": "zzz_ESE_IDS_SNK_DimensionsFLW_CORE_SQL",
 	"properties": {
-		"folder": {
-			"name": "Europe Soccer Events"
-		},
 		"annotations": [],
 		"type": "AzureSqlDWTable",
 		"schema": [],

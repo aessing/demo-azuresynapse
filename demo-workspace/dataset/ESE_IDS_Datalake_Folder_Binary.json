@@ -14,6 +14,9 @@
 				"type": "string"
 			}
 		},
+		"folder": {
+			"name": "Europe Soccer Events"
+		},
 		"annotations": [],
 		"type": "Binary",
 		"typeProperties": {
