@@ -1,0 +1,10 @@
+{
+	"name": "synapse-ws-custstgacct--synw-aes-dwh-tmp-001-dlsaesdwhtmp001config",
+	"properties": {
+		"privateLinkResourceId": "/subscriptions/21194b02-afea-4d59-a0c9-9486eeb9d27f/resourceGroups/rg-aes-dwh-tmp-001/providers/Microsoft.Storage/storageAccounts/dlsaesdwhtmp001config",
+		"groupId": "dfs",
+		"fqdns": [
+			"dlsaesdwhtmp001config.dfs.core.windows.net"
+		]
+	}
+}
