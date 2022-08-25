@@ -22,7 +22,7 @@
 				"spark.dynamicAllocation.enabled": "true",
 				"spark.dynamicAllocation.minExecutors": "1",
 				"spark.dynamicAllocation.maxExecutors": "8",
-				"spark.autotune.trackingId": "74e40ea8-df0c-4414-b8c0-f4a676eb0640"
+				"spark.autotune.trackingId": "c3a6fc4e-56ef-435a-902c-2e9458b0c32a"
 			}
 		},
 		"metadata": {
@@ -132,7 +132,7 @@
 					"# file system where the data is located\r\n",
 					"container = 'abfss://apianalytics@dlsaesdwhtmp002data.dfs.core.windows.net'"
 				],
-				"execution_count": 1
+				"execution_count": 2
 			},
 			{
 				"cell_type": "markdown",
@@ -166,7 +166,7 @@
 					"import numpy as np\r\n",
 					"import pandas as pd"
 				],
-				"execution_count": 2
+				"execution_count": 3
 			},
 			{
 				"cell_type": "markdown",
@@ -204,7 +204,7 @@
 					"\n",
 					"display(dfCustomers, summary=True)"
 				],
-				"execution_count": 3
+				"execution_count": 4
 			},
 			{
 				"cell_type": "code",
@@ -229,7 +229,7 @@
 					"\n",
 					"display(dfGeodata, summary=True)"
 				],
-				"execution_count": 4
+				"execution_count": 5
 			},
 			{
 				"cell_type": "code",
@@ -254,7 +254,7 @@
 					"\n",
 					"display(dfOperations, summary=True)"
 				],
-				"execution_count": 5
+				"execution_count": 6
 			},
 			{
 				"cell_type": "code",
@@ -279,7 +279,7 @@
 					"\n",
 					"display(dfServices, summary=True)"
 				],
-				"execution_count": 6
+				"execution_count": 7
 			},
 			{
 				"cell_type": "code",
@@ -304,7 +304,7 @@
 					"\n",
 					"display(dfTimeseries, summary=True)"
 				],
-				"execution_count": 7
+				"execution_count": 8
 			},
 			{
 				"cell_type": "markdown",
@@ -341,7 +341,7 @@
 					")\n",
 					"display(df, summary=True)"
 				],
-				"execution_count": 8
+				"execution_count": 9
 			},
 			{
 				"cell_type": "markdown",
@@ -378,7 +378,7 @@
 					"            .alias('AvgCallDurationMillis'), count('Id').alias('Count'))\n",
 					")"
 				],
-				"execution_count": 9
+				"execution_count": 10
 			},
 			{
 				"cell_type": "code",
@@ -396,7 +396,7 @@
 				"source": [
 					"rollup.orderBy(desc('AvgCallDurationMillis')).show()"
 				],
-				"execution_count": 10
+				"execution_count": 11
 			},
 			{
 				"cell_type": "code",
@@ -418,7 +418,7 @@
 					"            .alias('Count'))\n",
 					")"
 				],
-				"execution_count": 11
+				"execution_count": 12
 			},
 			{
 				"cell_type": "code",
@@ -436,7 +436,7 @@
 				"source": [
 					"rollup.orderBy(desc('Count')).show()"
 				],
-				"execution_count": 12
+				"execution_count": 13
 			},
 			{
 				"cell_type": "code",
@@ -455,30 +455,6 @@
 				"source": [
 					"pdf = df.filter(df['CustomerId'] == 290).select('Id', 'UsageKind', 'CallDurationMillis', 'TimestampUtc').toPandas()\n",
 					"pdf.head(10)"
-				],
-				"execution_count": 13
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					"def plot_df(df, x, y, title=\"\", xlabel='Date', ylabel='Value', dpi=100):\n",
-					"    plt.figure(figsize=(16,5), dpi=dpi)\n",
-					"    plt.plot(x, y, color='tab:red')\n",
-					"    plt.gca().set(title=title, xlabel=xlabel, ylabel=ylabel)\n",
-					"    plt.show()\n",
-					"\n",
-					"plot_df(pdf, x=pdf['TimestampUtc'], y=pdf['UsageKind'], title='UsageKind over time')    "
 				],
 				"execution_count": 14
 			},
@@ -502,9 +478,33 @@
 					"    plt.gca().set(title=title, xlabel=xlabel, ylabel=ylabel)\n",
 					"    plt.show()\n",
 					"\n",
+					"plot_df(pdf, x=pdf['TimestampUtc'], y=pdf['UsageKind'], title='UsageKind over time')    "
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"def plot_df(df, x, y, title=\"\", xlabel='Date', ylabel='Value', dpi=100):\n",
+					"    plt.figure(figsize=(16,5), dpi=dpi)\n",
+					"    plt.plot(x, y, color='tab:red')\n",
+					"    plt.gca().set(title=title, xlabel=xlabel, ylabel=ylabel)\n",
+					"    plt.show()\n",
+					"\n",
 					"plot_df(pdf, x=pdf['TimestampUtc'], y=pdf['CallDurationMillis'], title='CallDurationMillis over time')    "
 				],
-				"execution_count": 15
+				"execution_count": null
 			}
 		]
 	}
