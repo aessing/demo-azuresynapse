@@ -1,0 +1,39 @@
+{
+	"name": "NYC_IDS_CFG_configDataDownload",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "demosynapsesws01-WorkspaceDefaultSqlServer",
+			"type": "LinkedServiceReference",
+			"parameters": {
+				"DBName": "NYCTaxi"
+			}
+		},
+		"folder": {
+			"name": "NYC Taxi"
+		},
+		"annotations": [],
+		"type": "AzureSqlDWTable",
+		"schema": [
+			{
+				"name": "url",
+				"type": "nvarchar"
+			},
+			{
+				"name": "filename",
+				"type": "nvarchar"
+			},
+			{
+				"name": "filepath",
+				"type": "nvarchar"
+			},
+			{
+				"name": "downloaded",
+				"type": "bit"
+			}
+		],
+		"typeProperties": {
+			"schema": "config",
+			"table": "dataDownload"
+		}
+	}
+}

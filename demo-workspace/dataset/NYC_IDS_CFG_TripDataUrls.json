@@ -1,0 +1,36 @@
+{
+	"name": "NYC_IDS_CFG_TripDataUrls",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "demosynapsesws01-WorkspaceDefaultStorage",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "NYC Taxi"
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"folderPath": "config/TripDataURLs.parquet",
+				"fileSystem": "nyctaxi"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": [
+			{
+				"name": "url",
+				"type": "UTF8"
+			},
+			{
+				"name": "filename",
+				"type": "UTF8"
+			},
+			{
+				"name": "filepath",
+				"type": "UTF8"
+			}
+		]
+	}
+}

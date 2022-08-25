@@ -1,0 +1,25 @@
+{
+	"name": "NYC_IDS_SRC_DataDownload",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "nyc_lnk_webdownload",
+			"type": "LinkedServiceReference",
+			"parameters": {
+				"URL": {
+					"value": "@item().url",
+					"type": "Expression"
+				}
+			}
+		},
+		"folder": {
+			"name": "NYC Taxi"
+		},
+		"annotations": [],
+		"type": "Binary",
+		"typeProperties": {
+			"location": {
+				"type": "HttpServerLocation"
+			}
+		}
+	}
+}

@@ -1,0 +1,28 @@
+{
+	"name": "NYC_IDS_SNK_DataDownload_RAW",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "demosynapsesws01-WorkspaceDefaultStorage",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "NYC Taxi"
+		},
+		"annotations": [],
+		"type": "Binary",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": {
+					"value": "@item().filename",
+					"type": "Expression"
+				},
+				"folderPath": {
+					"value": "@item().filepath",
+					"type": "Expression"
+				},
+				"fileSystem": "nyctaxi"
+			}
+		}
+	}
+}

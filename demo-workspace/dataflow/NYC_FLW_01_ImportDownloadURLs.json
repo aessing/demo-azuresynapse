@@ -1,0 +1,45 @@
+{
+	"name": "NYC_FLW_01_ImportDownloadURLs",
+	"properties": {
+		"folder": {
+			"name": "NYC Taxi"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "NYC_IDS_CFG_TripDataUrls",
+						"type": "DatasetReference"
+					},
+					"name": "TripDataUrls"
+				},
+				{
+					"dataset": {
+						"referenceName": "NYC_IDS_CFG_ZoneDataUrls",
+						"type": "DatasetReference"
+					},
+					"name": "ZoneDataUrls"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "NYC_IDS_CFG_configDataDownload",
+						"type": "DatasetReference"
+					},
+					"name": "SynapseConfigTable"
+				}
+			],
+			"transformations": [
+				{
+					"name": "AllUrls"
+				},
+				{
+					"name": "AlterRows"
+				}
+			],
+			"script": "source(output(\n\t\turl as string,\n\t\tfilename as string,\n\t\tfilepath as string\n\t),\n\tallowSchemaDrift: false,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tformat: 'parquet') ~> TripDataUrls\nsource(output(\n\t\turl as string,\n\t\tfilename as string,\n\t\tfilepath as string\n\t),\n\tallowSchemaDrift: false,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tformat: 'parquet') ~> ZoneDataUrls\nTripDataUrls, ZoneDataUrls union(byName: true)~> AllUrls\nAllUrls alterRow(upsertIf(true())) ~> AlterRows\nAlterRows sink(input(\n\t\turl as string,\n\t\tfilename as string,\n\t\tfilepath as string,\n\t\tdownloaded as boolean\n\t),\n\tallowSchemaDrift: false,\n\tvalidateSchema: false,\n\tdeletable:false,\n\tinsertable:false,\n\tupdateable:false,\n\tupsertable:true,\n\tkeys:['url'],\n\tformat: 'table',\n\tstaged: true,\n\tmapColumn(\n\t\turl,\n\t\tfilename,\n\t\tfilepath\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> SynapseConfigTable"
+		}
+	}
+}

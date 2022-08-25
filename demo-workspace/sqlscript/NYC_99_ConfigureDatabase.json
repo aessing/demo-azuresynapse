@@ -1,0 +1,19 @@
+{
+	"name": "NYC_99_ConfigureDatabase",
+	"properties": {
+		"folder": {
+			"name": "NYC Taxi"
+		},
+		"content": {
+			"query": "-- =============================================================================\n-- NYC Taxis Data\n-- Azure Synapse Analytics Demo\n-- https://github.com/aessing/demo-azuresynapse\n-- -----------------------------------------------------------------------------\n-- Developer.......: Andre Essing (https://www.andre-essing.de/)\n--                                (https://github.com/aessing)\n--                                (https://twitter.com/aessing)\n--                                (https://www.linkedin.com/in/aessing/)\n-- -----------------------------------------------------------------------------\n-- THIS CODE AND INFORMATION ARE PROVIDED \"AS IS\" WITHOUT WARRANTY OF ANY KIND,\n-- EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED\n-- WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.\n-- =============================================================================\n\n-- RUN IN MASTER\nALTER DATABASE NYCTaxi SET READ_COMMITTED_SNAPSHOT OFF\nALTER DATABASE NYCTaxi SET RESULT_SET_CACHING ON\nALTER DATABASE NYCTaxi SET ENCRYPTION ON\nGO\n\n-- RUN IN USER DB\nALTER DATABASE NYCTaxi SET AUTO_CREATE_STATISTICS ON\nALTER DATABASE NYCTaxi SET QUERY_STORE = ON\nGO",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"name": "NYCTaxi",
+				"type": "SqlPool"
+			}
+		},
+		"type": "SqlQuery"
+	}
+}
