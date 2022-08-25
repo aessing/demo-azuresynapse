@@ -1,0 +1,28 @@
+{
+	"name": "API_IDS_Blob_File_Binary",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "Companion_BlobStorage_001",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"container": {
+				"type": "string"
+			}
+		},
+		"folder": {
+			"name": "API Analytics"
+		},
+		"annotations": [],
+		"type": "Binary",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"container": {
+					"value": "@dataset().container",
+					"type": "Expression"
+				}
+			}
+		}
+	}
+}
