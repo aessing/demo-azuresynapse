@@ -30,7 +30,7 @@
 		],
 		"typeProperties": {
 			"schema": "nyc",
-			"table": "dataDownloadConfig"
+			"table": "configDataDownload"
 		}
 	}
 }
