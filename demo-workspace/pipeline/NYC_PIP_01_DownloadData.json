@@ -53,7 +53,7 @@
 					},
 					"staging": {
 						"linkedService": {
-							"referenceName": "demosynapsesws01-WorkspaceDefaultStorage",
+							"referenceName": "Main_DataLake_001",
 							"type": "LinkedServiceReference"
 						},
 						"folderPath": "nyctaxi/staging"
