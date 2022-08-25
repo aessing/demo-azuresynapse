@@ -21,8 +21,8 @@
 			"conf": {
 				"spark.dynamicAllocation.enabled": "true",
 				"spark.dynamicAllocation.minExecutors": "1",
-				"spark.dynamicAllocation.maxExecutors": "1",
-				"spark.autotune.trackingId": "1f38dac5-f385-46e1-851e-28239529b317",
+				"spark.dynamicAllocation.maxExecutors": "4",
+				"spark.autotune.trackingId": "b4e1bc0b-408d-47bf-8542-d7aec86ac925",
 				"spark.synapse.library.python.env": "name: unzip\r\nchannels:\r\n  - defaults\r\ndependencies:\r\n  - pip:\r\n      - py7zr==0.16.3\r\n",
 				"spark.synapse.library.python.env.name": "Spark-pip-unzip.yml"
 			}
@@ -52,7 +52,7 @@
 				"memory": 112,
 				"automaticScaleJobs": true
 			},
-			"sessionKeepAliveTimeout": 15
+			"sessionKeepAliveTimeout": 60
 		},
 		"cells": [
 			{
@@ -149,12 +149,12 @@
 					"container = 'abfss://apianalytics@dlsaesdwhtmp002data.dfs.core.windows.net'\n",
 					"\n",
 					"# 7z file to extract\n",
-					"inputFile = '/temp/downloaded/ApiAnalticsData.7z'\n",
+					"inputFile = '/temp/downloaded/ApiAnalyticsData.7z'\n",
 					"\n",
 					"# target directory for extracted files\n",
 					"targetDir = '/temp/extracted'"
 				],
-				"execution_count": 10
+				"execution_count": 13
 			},
 			{
 				"cell_type": "markdown",
@@ -187,7 +187,7 @@
 					"from os import listdir\r\n",
 					"from notebookutils import mssparkutils"
 				],
-				"execution_count": 11
+				"execution_count": 9
 			},
 			{
 				"cell_type": "markdown",
@@ -227,7 +227,7 @@
 					"    # release mount point\n",
 					"    mssparkutils.fs.unmount(mountPoint)"
 				],
-				"execution_count": 12
+				"execution_count": 14
 			}
 		]
 	}
