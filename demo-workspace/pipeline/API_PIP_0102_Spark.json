@@ -39,7 +39,10 @@
 							"type": "string"
 						},
 						"container": {
-							"value": "abfss://apianalytics@demosynapsedls01.dfs.core.windows.net",
+							"value": {
+								"value": "@variables('AdlsUri')",
+								"type": "Expression"
+							},
 							"type": "string"
 						}
 					},
@@ -86,7 +89,10 @@
 							"type": "string"
 						},
 						"container": {
-							"value": "abfss://apianalytics@demosynapsedls01.dfs.core.windows.net",
+							"value": {
+								"value": "@variables('AdlsUri')",
+								"type": "Expression"
+							},
 							"type": "string"
 						}
 					},
@@ -133,7 +139,10 @@
 							"type": "string"
 						},
 						"container": {
-							"value": "abfss://apianalytics@demosynapsedls01.dfs.core.windows.net",
+							"value": {
+								"value": "@variables('AdlsUri')",
+								"type": "Expression"
+							},
 							"type": "string"
 						}
 					},
@@ -180,7 +189,10 @@
 							"type": "string"
 						},
 						"container": {
-							"value": "abfss://apianalytics@demosynapsedls01.dfs.core.windows.net",
+							"value": {
+								"value": "@variables('AdlsUri')",
+								"type": "Expression"
+							},
 							"type": "string"
 						}
 					},
@@ -227,7 +239,10 @@
 							"type": "string"
 						},
 						"container": {
-							"value": "abfss://apianalytics@demosynapsedls01.dfs.core.windows.net",
+							"value": {
+								"value": "@variables('AdlsUri')",
+								"type": "Expression"
+							},
 							"type": "string"
 						}
 					},
@@ -345,7 +360,10 @@
 							"type": "string"
 						},
 						"container": {
-							"value": "abfss://apianalytics@dlsaesdwhtmp002data.dfs.core.windows.net",
+							"value": {
+								"value": "@variables('AdlsUri')",
+								"type": "Expression"
+							},
 							"type": "string"
 						}
 					},
@@ -773,6 +791,10 @@
 			"StorageFolderCurated": {
 				"type": "String",
 				"defaultValue": "/apianalytics/curated"
+			},
+			"AdlsUri": {
+				"type": "String",
+				"defaultValue": "abfss://apianalytics@dlsaesdwhtmp002data.dfs.core.windows.net"
 			}
 		},
 		"folder": {
