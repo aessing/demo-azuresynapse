@@ -21,7 +21,7 @@
 				"spark.dynamicAllocation.enabled": "true",
 				"spark.dynamicAllocation.minExecutors": "1",
 				"spark.dynamicAllocation.maxExecutors": "8",
-				"spark.autotune.trackingId": "bdfd4b4a-6fdf-4684-a6a2-e010ab23640e"
+				"spark.autotune.trackingId": "5828bb99-92e2-4c3c-a3f9-7d327ad7cdaf"
 			}
 		},
 		"metadata": {
@@ -37,17 +37,10 @@
 			"a365ComputeOptions": {
 				"id": "/subscriptions/f6c0b928-7078-4332-a106-e7a9c5253249/resourceGroups/demo-synapse-rg/providers/Microsoft.Synapse/workspaces/demosynapsesws01/bigDataPools/DemoSpark01",
 				"name": "DemoSpark01",
-				"type": "Spark",
-				"endpoint": "https://demosynapsesws01.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DemoSpark01",
 				"auth": {
 					"type": "AAD",
 					"authResource": "https://dev.azuresynapse.net"
-				},
-				"sparkVersion": "3.1",
-				"nodeCount": 10,
-				"cores": 16,
-				"memory": 112,
-				"automaticScaleJobs": true
+				}
 			},
 			"sessionKeepAliveTimeout": 30
 		},
@@ -129,7 +122,7 @@
 					"# Parameter Cell: https://docs.microsoft.com/en-us/azure/synapse-analytics/spark/apache-spark-development-using-notebooks#integrate-a-notebook\r\n",
 					"\r\n",
 					"# file system where the data is located\r\n",
-					"container = 'abfss://apianalytics@demosynapsedls01.dfs.core.windows.net'"
+					"container = 'abfss://apianalytics@dlsaesdwhtmp002data.dfs.core.windows.net'"
 				],
 				"execution_count": 30
 			},
