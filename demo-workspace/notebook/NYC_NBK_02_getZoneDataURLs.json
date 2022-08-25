@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "true",
 				"spark.dynamicAllocation.minExecutors": "1",
 				"spark.dynamicAllocation.maxExecutors": "1",
-				"spark.autotune.trackingId": "2df3f4db-c78f-439c-8f78-035453146635"
+				"spark.autotune.trackingId": "144bffe9-0cc0-4e39-b0ef-ab66cd7132da"
 			}
 		},
 		"metadata": {
@@ -28,7 +28,7 @@
 			"enableDebugMode": false,
 			"kernelspec": {
 				"name": "synapse_pyspark",
-				"display_name": "python"
+				"display_name": "Synapse PySpark"
 			},
 			"language_info": {
 				"name": "python"
@@ -111,7 +111,7 @@
 					"website_path = '/dataset/nyc-taxi-zones/resource/b8b92f4c-2d89-45b6-aeae-7467322e3e6d'\n",
 					"url = website_url + website_path"
 				],
-				"execution_count": 2
+				"execution_count": null
 			},
 			{
 				"cell_type": "markdown",
@@ -130,7 +130,7 @@
 					"soup = BeautifulSoup(html, 'html.parser')\n",
 					"anchors = soup.find_all('a', href=True)"
 				],
-				"execution_count": 3
+				"execution_count": null
 			},
 			{
 				"cell_type": "markdown",
@@ -157,7 +157,7 @@
 					"        elif \"data.cityofnewyork.us/api/views/\" in download_URL.get('href', None) and \"accessType=DOWNLOAD\" in download_URL.get('href', None):\n",
 					"            anchors_download.append(download_URL.get('href', None))"
 				],
-				"execution_count": 4
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -194,7 +194,7 @@
 					"# One URL not listed on the pages\n",
 					"anchors_fqdn.append('https://catalog.data.gov/harvest/object/c03a3d91-4a20-4625-b3b7-839544c490a8,metadata.json,/raw/taxizone_Metadata.json')"
 				],
-				"execution_count": 5
+				"execution_count": null
 			},
 			{
 				"cell_type": "markdown",
@@ -216,7 +216,7 @@
 					"             .withColumn('filepath', split(urlDF['import'], ',').getItem(2)) \\\n",
 					"             .drop('import')"
 				],
-				"execution_count": 6
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -224,7 +224,7 @@
 					"# Write URLs as file into the data lake\n",
 					"urlDF.repartition(1).write.format('parquet').mode('overwrite').save('abfss://nyctaxi@dlsaesdwhtmp002data.dfs.core.windows.net/config/ZoneDataURLs.parquet')"
 				],
-				"execution_count": 7
+				"execution_count": null
 			}
 		]
 	}
