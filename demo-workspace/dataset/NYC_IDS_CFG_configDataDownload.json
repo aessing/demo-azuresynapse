@@ -2,11 +2,8 @@
 	"name": "NYC_IDS_CFG_configDataDownload",
 	"properties": {
 		"linkedServiceName": {
-			"referenceName": "demosynapsesws01-WorkspaceDefaultSqlServer",
-			"type": "LinkedServiceReference",
-			"parameters": {
-				"DBName": "NYCTaxi"
-			}
+			"referenceName": "synw-aes-dwh-tmp-001-WorkspaceDefaultSqlServer",
+			"type": "LinkedServiceReference"
 		},
 		"folder": {
 			"name": "NYC Taxi"
@@ -32,8 +29,8 @@
 			}
 		],
 		"typeProperties": {
-			"schema": "config",
-			"table": "dataDownload"
+			"schema": "nyc",
+			"table": "dataDownloadConfig"
 		}
 	}
 }
