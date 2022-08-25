@@ -1,0 +1,22 @@
+{
+	"name": "Companion_CosmosDB_001_Movies",
+	"properties": {
+		"annotations": [],
+		"type": "CosmosDb",
+		"typeProperties": {
+			"connectionString": "AccountEndpoint=https://cosmos-aes-dwhcmp-tmp-001.documents.azure.com:443/;Database=movies",
+			"accountKey": {
+				"type": "AzureKeyVaultSecret",
+				"store": {
+					"referenceName": "Main_KeyVault_001",
+					"type": "LinkedServiceReference"
+				},
+				"secretName": "Companion-CosmosDB-001-AccountKey"
+			}
+		},
+		"connectVia": {
+			"referenceName": "AutoResolveIntegrationRuntime",
+			"type": "IntegrationRuntimeReference"
+		}
+	}
+}
