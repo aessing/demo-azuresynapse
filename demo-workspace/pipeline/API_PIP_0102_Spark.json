@@ -341,11 +341,11 @@
 							"type": "string"
 						},
 						"linkedService": {
-							"value": "demosynapsesws01-WorkspaceDefaultStorage",
+							"value": "Main_DataLake_001",
 							"type": "string"
 						},
 						"container": {
-							"value": "abfss://apianalytics@demosynapsedls01.dfs.core.windows.net",
+							"value": "abfss://apianalytics@dlsaesdwhtmp002data.dfs.core.windows.net",
 							"type": "string"
 						}
 					},
