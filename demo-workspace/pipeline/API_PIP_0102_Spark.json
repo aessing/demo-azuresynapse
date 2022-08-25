@@ -261,7 +261,7 @@
 					"source": {
 						"type": "BinarySource",
 						"storeSettings": {
-							"type": "AzureBlobFSReadSettings",
+							"type": "AzureBlobStorageReadSettings",
 							"recursive": false
 						},
 						"formatSettings": {
@@ -278,7 +278,7 @@
 				},
 				"inputs": [
 					{
-						"referenceName": "API_IDS_Datalake_Folder_Binary",
+						"referenceName": "API_IDS_Blob_File_Binary",
 						"type": "DatasetReference",
 						"parameters": {
 							"container": {
