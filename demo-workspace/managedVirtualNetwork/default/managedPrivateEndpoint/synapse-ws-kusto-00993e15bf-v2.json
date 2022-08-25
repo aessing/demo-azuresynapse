@@ -1,0 +1,10 @@
+{
+	"name": "synapse-ws-kusto-00993e15bf-v2",
+	"properties": {
+		"privateLinkResourceId": "/subscriptions/21194b02-afea-4d59-a0c9-9486eeb9d27f/resourceGroups/rg-aes-dwh-tmp-001/providers/Microsoft.Synapse/workspaces/synw-aes-dwh-tmp-001",
+		"groupId": "Kusto",
+		"fqdns": [
+			"demosdxpool.synw-aes-dwh-tmp-001.kusto.azuresynapse.net"
+		]
+	}
+}

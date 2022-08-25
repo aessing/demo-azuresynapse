@@ -1,0 +1,10 @@
+{
+	"name": "synapse-ws-sqlOnDemand--synw-aes-dwh-tmp-001",
+	"properties": {
+		"privateLinkResourceId": "/subscriptions/21194b02-afea-4d59-a0c9-9486eeb9d27f/resourceGroups/rg-aes-dwh-tmp-001/providers/Microsoft.Synapse/workspaces/synw-aes-dwh-tmp-001",
+		"groupId": "sqlOnDemand",
+		"fqdns": [
+			"synw-aes-dwh-tmp-001-ondemand.00993e15-bf51-40b8-a8e3-0fc759a1712c.sql.azuresynapse.net"
+		]
+	}
+}
