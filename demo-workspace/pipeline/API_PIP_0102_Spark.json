@@ -768,7 +768,7 @@
 			},
 			"StorageFolderSource": {
 				"type": "String",
-				"defaultValue": "/apianalytics/_source"
+				"defaultValue": "/apianalytics/data"
 			},
 			"StorageFolderCurated": {
 				"type": "String",
