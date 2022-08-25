@@ -9,7 +9,7 @@
 		"annotations": [],
 		"type": "AzureSqlDatabase",
 		"typeProperties": {
-			"connectionString": "Integrated Security=False;Encrypt=True;Connection Timeout=30;Data Source=demomdwhcmpsql001weu.database.windows.net;Initial Catalog=@{linkedService().dbname}"
+			"connectionString": "Integrated Security=False;Encrypt=True;Connection Timeout=30;Data Source=sql-aes-dwhcmp-tmp-001.database.windows.net;Initial Catalog=@{linkedService().dbname}"
 		},
 		"connectVia": {
 			"referenceName": "AutoResolveIntegrationRuntime",
