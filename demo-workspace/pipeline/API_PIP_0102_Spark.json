@@ -16,7 +16,7 @@
 					{
 						"activity": "Delete-Raw-Data",
 						"dependencyConditions": [
-							"Succeeded"
+							"Completed"
 						]
 					}
 				],
@@ -63,7 +63,7 @@
 					{
 						"activity": "Delete-Raw-Data",
 						"dependencyConditions": [
-							"Succeeded"
+							"Completed"
 						]
 					}
 				],
@@ -110,7 +110,7 @@
 					{
 						"activity": "Delete-Raw-Data",
 						"dependencyConditions": [
-							"Succeeded"
+							"Completed"
 						]
 					}
 				],
@@ -157,7 +157,7 @@
 					{
 						"activity": "Delete-Raw-Data",
 						"dependencyConditions": [
-							"Succeeded"
+							"Completed"
 						]
 					}
 				],
@@ -204,7 +204,7 @@
 					{
 						"activity": "Delete-Raw-Data",
 						"dependencyConditions": [
-							"Succeeded"
+							"Completed"
 						]
 					}
 				],
@@ -245,7 +245,7 @@
 					{
 						"activity": "Delete-Downloaded-Data",
 						"dependencyConditions": [
-							"Succeeded"
+							"Completed"
 						]
 					}
 				],
@@ -314,7 +314,7 @@
 					{
 						"activity": "Delete-Extracted-Data",
 						"dependencyConditions": [
-							"Succeeded"
+							"Completed"
 						]
 					}
 				],
