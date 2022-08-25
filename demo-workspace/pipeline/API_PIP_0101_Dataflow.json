@@ -26,7 +26,7 @@
 					"source": {
 						"type": "BinarySource",
 						"storeSettings": {
-							"type": "AzureBlobFSReadSettings",
+							"type": "AzureBlobStorageReadSettings",
 							"recursive": false
 						},
 						"formatSettings": {
@@ -43,7 +43,7 @@
 				},
 				"inputs": [
 					{
-						"referenceName": "API_IDS_Datalake_Folder_Binary",
+						"referenceName": "API_IDS_Blob_File_Binary",
 						"type": "DatasetReference",
 						"parameters": {
 							"container": {
@@ -185,9 +185,6 @@
 					"dataflow": {
 						"referenceName": "API_FLW_0101_TransformData",
 						"type": "DataFlowReference"
-					},
-					"staging": {
-						"folderPath": "apianalytics/temp/staging"
 					},
 					"compute": {
 						"coreCount": 32,
@@ -400,7 +397,7 @@
 			},
 			"StorageFolderSource": {
 				"type": "String",
-				"defaultValue": "/apianalytics/_source"
+				"defaultValue": "/apianalytics/data"
 			}
 		},
 		"folder": {
