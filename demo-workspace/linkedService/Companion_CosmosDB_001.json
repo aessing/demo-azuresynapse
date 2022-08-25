@@ -9,8 +9,15 @@
 		"annotations": [],
 		"type": "CosmosDb",
 		"typeProperties": {
-			"accountEndpoint": "https://demomdwhcmpcos001weu.documents.azure.com:443/",
-			"database": "@{linkedService().dbname}"
+			"connectionString": "AccountEndpoint=https://cosmos-aes-dwhcmp-tmp-001.documents.azure.com:443/;Database=@{linkedService().dbname}",
+			"accountKey": {
+				"type": "AzureKeyVaultSecret",
+				"store": {
+					"referenceName": "Main_KeyVault_001",
+					"type": "LinkedServiceReference"
+				},
+				"secretName": "Companion-CosmosDB-001-AccountKey"
+			}
 		},
 		"connectVia": {
 			"referenceName": "AutoResolveIntegrationRuntime",
