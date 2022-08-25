@@ -505,7 +505,10 @@
 				"outputs": [
 					{
 						"referenceName": "API_IDS_SQLPool_Customers",
-						"type": "DatasetReference"
+						"type": "DatasetReference",
+						"parameters": {
+							"dbname": "DemoSqlPool"
+						}
 					}
 				]
 			},
@@ -562,7 +565,10 @@
 				"outputs": [
 					{
 						"referenceName": "API_IDS_SQLPool_Services",
-						"type": "DatasetReference"
+						"type": "DatasetReference",
+						"parameters": {
+							"dbname": "DemoSqlPool"
+						}
 					}
 				]
 			},
@@ -619,7 +625,10 @@
 				"outputs": [
 					{
 						"referenceName": "API_IDS_SQLPool_Operations",
-						"type": "DatasetReference"
+						"type": "DatasetReference",
+						"parameters": {
+							"dbname": "DemoSqlPool"
+						}
 					}
 				]
 			},
@@ -676,7 +685,10 @@
 				"outputs": [
 					{
 						"referenceName": "API_IDS_SQLPool_Geodata",
-						"type": "DatasetReference"
+						"type": "DatasetReference",
+						"parameters": {
+							"dbname": "DemoSqlPool"
+						}
 					}
 				]
 			},
@@ -733,7 +745,10 @@
 				"outputs": [
 					{
 						"referenceName": "API_IDS_SQLPool_Timeseries",
-						"type": "DatasetReference"
+						"type": "DatasetReference",
+						"parameters": {
+							"dbname": "DemoSqlPool"
+						}
 					}
 				]
 			}
