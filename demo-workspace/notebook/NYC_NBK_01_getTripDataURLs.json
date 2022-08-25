@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "true",
 				"spark.dynamicAllocation.minExecutors": "1",
 				"spark.dynamicAllocation.maxExecutors": "1",
-				"spark.autotune.trackingId": "ebb54924-6294-4b9a-91f1-f4591fb2fb59"
+				"spark.autotune.trackingId": "15ee7d0b-2479-4e66-9824-89d227156859"
 			}
 		},
 		"metadata": {
@@ -164,13 +164,13 @@
 					"\n",
 					"def getFilepath(url):\n",
 					"    if \"yellow_tripdata\" in url:\n",
-					"        result = '/raw/tripdata_YellowTaxi.csv'\n",
+					"        result = '/raw/tripdata_YellowTaxi.parquet'\n",
 					"    elif \"green_tripdata\" in url:\n",
-					"        result = '/raw/tripdata_GreenTaxi.csv'\n",
+					"        result = '/raw/tripdata_GreenTaxi.parquet'\n",
 					"    elif \"fhv_tripdata\" in url:\n",
-					"        result = '/raw/tripdata_ForHireVehicle.csv'\n",
+					"        result = '/raw/tripdata_ForHireVehicle.parquet'\n",
 					"    elif \"fhvhv_tripdata\" in url:\n",
-					"        result = '/raw/tripdata_HighVolumeForHireVehicle.csv'\n",
+					"        result = '/raw/tripdata_HighVolumeForHireVehicle.parquet'\n",
 					"    elif \"/assets/tlc/downloads/pdf/trip_record\" in url:\n",
 					"        result = '/raw/manual_TripRecord.pdf'\n",
 					"    elif \"/assets/tlc/downloads/pdf/data_dictionary_trip_records\" in url:\n",
