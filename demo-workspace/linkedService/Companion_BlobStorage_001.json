@@ -4,7 +4,7 @@
 		"annotations": [],
 		"type": "AzureBlobStorage",
 		"typeProperties": {
-			"serviceEndpoint": "https://demomdwhcmpsto001weu.blob.core.windows.net",
+			"serviceEndpoint": "https://staesdwhcmptmp001.blob.core.windows.net",
 			"accountKind": "StorageV2"
 		},
 		"connectVia": {
