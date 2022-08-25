@@ -11,8 +11,8 @@
 				"language": "sql"
 			},
 			"currentConnection": {
-				"databaseName": "DemoPool01",
-				"poolName": "DemoPool01"
+				"databaseName": "DemoSqlPool",
+				"poolName": "DemoSqlPool"
 			},
 			"resultLimit": 5000
 		},
