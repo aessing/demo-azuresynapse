@@ -22,7 +22,7 @@
 				"spark.dynamicAllocation.enabled": "true",
 				"spark.dynamicAllocation.minExecutors": "1",
 				"spark.dynamicAllocation.maxExecutors": "4",
-				"spark.autotune.trackingId": "9f907fdc-21a7-4b4f-a160-9b7a6bed34f6",
+				"spark.autotune.trackingId": "e3e0cbbe-2aaa-4786-a907-a24747679ebb",
 				"spark.synapse.library.python.env": "name: unzip\r\nchannels:\r\n  - defaults\r\ndependencies:\r\n  - pip:\r\n      - py7zr==0.16.3\r\n",
 				"spark.synapse.library.python.env.name": "Spark-pip-unzip.yml"
 			}
@@ -154,7 +154,7 @@
 					"# target directory for extracted files\n",
 					"targetDir = '/temp/extracted'"
 				],
-				"execution_count": 26
+				"execution_count": 39
 			},
 			{
 				"cell_type": "markdown",
@@ -187,7 +187,7 @@
 					"from os import listdir\r\n",
 					"from notebookutils import mssparkutils"
 				],
-				"execution_count": 27
+				"execution_count": 40
 			},
 			{
 				"cell_type": "markdown",
@@ -210,10 +210,6 @@
 					"mssparkutils.fs.mount(container, mountPoint, { \"linkedService\": linkedService })\n",
 					"\n",
 					"try: \n",
-					"    # Create some needed folders or clean if already exists\n",
-					"    mssparkutils.fs.mkdirs(f\"{container}{targetDir}\")\n",
-					"    mssparkutils.fs.rm(f\"{container}{targetDir}\", False)\n",
-					"\n",
 					"    # job session id required to access mount point files\n",
 					"    jobId = mssparkutils.env.getJobId()\n",
 					"\n",
@@ -224,14 +220,14 @@
 					"\n",
 					"    # move from temporary to target path\n",
 					"    targetPath = f\"{container}{targetDir}\"\n",
-					"    mssparkutils.fs.rm(targetPath, recurse=True)\n",
+					"    mssparkutils.fs.rm(targetPath, True),\n",
 					"    mssparkutils.fs.mv(f\"{container}/extract-{jobId}\", targetPath, overwrite=True)\n",
 					"\n",
 					"finally:\n",
 					"    # release mount point\n",
 					"    mssparkutils.fs.unmount(mountPoint)"
 				],
-				"execution_count": 31
+				"execution_count": 62
 			}
 		]
 	}
