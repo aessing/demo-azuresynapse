@@ -216,7 +216,8 @@
 							"typeProperties": {
 								"scripts": [
 									{
-										"type": {
+										"type": "NonQuery",
+										"text": {
 											"value": "@concat('UPDATE [nyc].[configDataDownload] SET [Downloaded] = 1 WHERE [URL] = N''',item().url,''';')",
 											"type": "Expression"
 										}
