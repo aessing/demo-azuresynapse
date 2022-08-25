@@ -43,7 +43,11 @@
 							"type": "string"
 						}
 					},
-					"snapshot": true
+					"snapshot": true,
+					"sparkPool": {
+						"referenceName": "DemoSparkPool",
+						"type": "BigDataPoolReference"
+					}
 				}
 			},
 			{
@@ -86,7 +90,11 @@
 							"type": "string"
 						}
 					},
-					"snapshot": true
+					"snapshot": true,
+					"sparkPool": {
+						"referenceName": "DemoSparkPool",
+						"type": "BigDataPoolReference"
+					}
 				}
 			},
 			{
@@ -129,7 +137,11 @@
 							"type": "string"
 						}
 					},
-					"snapshot": true
+					"snapshot": true,
+					"sparkPool": {
+						"referenceName": "DemoSparkPool",
+						"type": "BigDataPoolReference"
+					}
 				}
 			},
 			{
@@ -172,7 +184,11 @@
 							"type": "string"
 						}
 					},
-					"snapshot": true
+					"snapshot": true,
+					"sparkPool": {
+						"referenceName": "DemoSparkPool",
+						"type": "BigDataPoolReference"
+					}
 				}
 			},
 			{
@@ -215,7 +231,11 @@
 							"type": "string"
 						}
 					},
-					"snapshot": true
+					"snapshot": true,
+					"sparkPool": {
+						"referenceName": "DemoSparkPool",
+						"type": "BigDataPoolReference"
+					}
 				}
 			},
 			{
@@ -329,7 +349,11 @@
 							"type": "string"
 						}
 					},
-					"snapshot": true
+					"snapshot": true,
+					"sparkPool": {
+						"referenceName": "DemoSparkPool",
+						"type": "BigDataPoolReference"
+					}
 				}
 			},
 			{
