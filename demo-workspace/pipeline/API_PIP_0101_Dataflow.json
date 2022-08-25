@@ -218,6 +218,13 @@
 							}
 						}
 					},
+					"staging": {
+						"linkedService": {
+							"referenceName": "Main_DataLake_001",
+							"type": "LinkedServiceReference"
+						},
+						"folderPath": "apianalytics/staging"
+					},
 					"compute": {
 						"coreCount": 16,
 						"computeType": "General"
