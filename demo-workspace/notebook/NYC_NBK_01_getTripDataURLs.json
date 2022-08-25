@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "true",
 				"spark.dynamicAllocation.minExecutors": "1",
 				"spark.dynamicAllocation.maxExecutors": "1",
-				"spark.autotune.trackingId": "6daa2c52-8142-4dba-9b05-3c6717beca1e"
+				"spark.autotune.trackingId": "7777c6d0-8fd1-4e56-aef6-a5bec6617d4a"
 			}
 		},
 		"metadata": {
@@ -125,7 +125,7 @@
 					"website_path = '/site/tlc/about/tlc-trip-record-data.page'\n",
 					"url = website_url + website_path"
 				],
-				"execution_count": null
+				"execution_count": 2
 			},
 			{
 				"cell_type": "markdown",
@@ -144,7 +144,7 @@
 					"soup = BeautifulSoup(html, 'html.parser')\n",
 					"anchors = soup('a')"
 				],
-				"execution_count": null
+				"execution_count": 3
 			},
 			{
 				"cell_type": "markdown",
@@ -188,7 +188,7 @@
 					"# Add all website url to all relative URLs\n",
 					"anchors_fqdn = []\n",
 					"for anchor in anchors_filtered:\n",
-					"    if anchor[0] is '/':\n",
+					"    if anchor[0] == '/':\n",
 					"        anchor = website_url + anchor\n",
 					"    if 'https://nyc-tlc.s3.amazonaws.com/trip+data/fhvhv_tripdata_2019-010.csv' in anchor:\n",
 					"        # Fix a bug in the trip data download page\n",
@@ -196,7 +196,7 @@
 					"\n",
 					"    anchors_fqdn.append(anchor + \",\" + getFilename(anchor) + \",\" + getFilepath(anchor))"
 				],
-				"execution_count": null
+				"execution_count": 4
 			},
 			{
 				"cell_type": "markdown",
@@ -243,7 +243,7 @@
 					"             .withColumn('filepath', split(urlDF['import'], ',').getItem(2)) \\\n",
 					"             .drop('import')"
 				],
-				"execution_count": null
+				"execution_count": 5
 			},
 			{
 				"cell_type": "code",
@@ -271,7 +271,7 @@
 					"# Write URLs as file into the data lake\n",
 					"urlDF.repartition(1).write.format('parquet').mode('overwrite').save('abfss://nyctaxi@dlsaesdwhtmp002data.dfs.core.windows.net/config/TripDataURLs.parquet')"
 				],
-				"execution_count": null
+				"execution_count": 6
 			}
 		]
 	}
