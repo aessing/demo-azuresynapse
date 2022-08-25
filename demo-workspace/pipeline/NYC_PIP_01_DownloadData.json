@@ -18,6 +18,10 @@
 					"notebook": {
 						"referenceName": "NYC_NBK_0101_getTripDataURLs",
 						"type": "NotebookReference"
+					},
+					"sparkPool": {
+						"referenceName": "DemoSparkPool",
+						"type": "BigDataPoolReference"
 					}
 				}
 			},
@@ -27,12 +31,6 @@
 				"dependsOn": [
 					{
 						"activity": "GetTripDataUrls",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					},
-					{
-						"activity": "GetZoneDataUrls",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -66,30 +64,17 @@
 				}
 			},
 			{
-				"name": "GetZoneDataUrls",
-				"type": "SynapseNotebook",
-				"dependsOn": [],
-				"policy": {
-					"timeout": "7.00:00:00",
-					"retry": 0,
-					"retryIntervalInSeconds": 30,
-					"secureOutput": false,
-					"secureInput": false
-				},
-				"userProperties": [],
-				"typeProperties": {
-					"notebook": {
-						"referenceName": "NYC_NBK_0102_getZoneDataURLs",
-						"type": "NotebookReference"
-					}
-				}
-			},
-			{
 				"name": "GetFilesToDownload",
 				"type": "Lookup",
 				"dependsOn": [
 					{
 						"activity": "ImportUrls",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "ImportURL",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -221,6 +206,29 @@
 							}
 						}
 					]
+				}
+			},
+			{
+				"name": "ImportURL",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "GetTripDataUrls",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"enableStaging": false
 				}
 			}
 		],

@@ -2,7 +2,7 @@
 	"name": "NYC_IDS_CFG_ZoneDataUrls",
 	"properties": {
 		"linkedServiceName": {
-			"referenceName": "demosynapsesws01-WorkspaceDefaultStorage",
+			"referenceName": "Main_DataLake_001",
 			"type": "LinkedServiceReference"
 		},
 		"folder": {
