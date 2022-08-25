@@ -22,7 +22,7 @@
 				"spark.dynamicAllocation.enabled": "true",
 				"spark.dynamicAllocation.minExecutors": "1",
 				"spark.dynamicAllocation.maxExecutors": "8",
-				"spark.autotune.trackingId": "1e5067d4-37a1-43db-b349-3e1b7082ba82"
+				"spark.autotune.trackingId": "d84bdba3-27da-4b3d-9d7f-ab7389414142"
 			}
 		},
 		"metadata": {
@@ -110,7 +110,7 @@
 					"# Name of the file, data and table that should be transformed\n",
 					"table = 'Customers'"
 				],
-				"execution_count": 23
+				"execution_count": 1
 			},
 			{
 				"cell_type": "markdown",
@@ -143,7 +143,7 @@
 					"from pyspark.sql.types import *\r\n",
 					"from pyspark.sql.functions import lower, col"
 				],
-				"execution_count": 24
+				"execution_count": 2
 			},
 			{
 				"cell_type": "code",
@@ -164,7 +164,7 @@
 					"rawPath = f\"{container}/raw/{table}.csv\"\r\n",
 					"curatedPath = f\"{container}/curated/{table.lower()}.parquet\""
 				],
-				"execution_count": 25
+				"execution_count": 3
 			},
 			{
 				"cell_type": "markdown",
@@ -196,7 +196,7 @@
 					"# Copy the data from extracted 7ZIP folder to the RAW area\r\n",
 					"mssparkutils.fs.cp(extractedPath, rawPath, False)"
 				],
-				"execution_count": 26
+				"execution_count": 4
 			},
 			{
 				"cell_type": "code",
@@ -216,7 +216,7 @@
 					"# Read the data from the RAW area into memory (dataframe)\n",
 					"df = spark.read.options(delimiter=';', header=True).csv(rawPath)"
 				],
-				"execution_count": 27
+				"execution_count": 5
 			},
 			{
 				"cell_type": "markdown",
@@ -252,7 +252,7 @@
 					"    .withColumn('CustomerName', df['CustomerName'].cast(StringType()))\n",
 					")"
 				],
-				"execution_count": 28
+				"execution_count": 6
 			},
 			{
 				"cell_type": "markdown",
@@ -284,7 +284,7 @@
 					"# Write the transformed data to the CURATED area in the data lake\r\n",
 					"curateddf.write.parquet(curatedPath, mode='overwrite')"
 				],
-				"execution_count": 29
+				"execution_count": 7
 			}
 		]
 	}
