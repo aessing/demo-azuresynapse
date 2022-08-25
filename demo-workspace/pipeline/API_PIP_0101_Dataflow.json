@@ -187,19 +187,34 @@
 						"type": "DataFlowReference",
 						"datasetParameters": {
 							"sinkCustomers2SQL": {
-								"dbname": "DemoSqlPool"
+								"dbname": {
+									"value": "@variables('SqlPool')",
+									"type": "Expression"
+								}
 							},
 							"sinkServices2SQL": {
-								"dbname": "DemoSqlPool"
+								"dbname": {
+									"value": "@variables('SqlPool')",
+									"type": "Expression"
+								}
 							},
 							"sinkTimeseries2SQL": {
-								"dbname": "DemoSqlPool"
+								"dbname": {
+									"value": "@variables('SqlPool')",
+									"type": "Expression"
+								}
 							},
 							"sinkOperations2SQL": {
-								"dbname": "DemoSqlPool"
+								"dbname": {
+									"value": "@variables('SqlPool')",
+									"type": "Expression"
+								}
 							},
 							"sinkGeodata2SQL": {
-								"dbname": "DemoSqlPool"
+								"dbname": {
+									"value": "@variables('SqlPool')",
+									"type": "Expression"
+								}
 							}
 						}
 					},
@@ -419,6 +434,10 @@
 			"StorageFolderSource": {
 				"type": "String",
 				"defaultValue": "/apianalytics/data"
+			},
+			"SqlPool": {
+				"type": "String",
+				"defaultValue": "DemoSqlPool"
 			}
 		},
 		"folder": {
