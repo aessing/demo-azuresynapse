@@ -22,7 +22,7 @@
 				"spark.dynamicAllocation.enabled": "true",
 				"spark.dynamicAllocation.minExecutors": "1",
 				"spark.dynamicAllocation.maxExecutors": "4",
-				"spark.autotune.trackingId": "819c83b2-ecc5-4f19-ba8a-16c1471a8309"
+				"spark.autotune.trackingId": "c97dabbd-f088-43f3-98d2-46c1844a54f6"
 			}
 		},
 		"metadata": {
@@ -152,7 +152,7 @@
 					"# target directory for extracted files\n",
 					"targetDir = '/temp/extracted'"
 				],
-				"execution_count": 39
+				"execution_count": 64
 			},
 			{
 				"cell_type": "markdown",
@@ -185,7 +185,7 @@
 					"from os import listdir\r\n",
 					"from notebookutils import mssparkutils"
 				],
-				"execution_count": 40
+				"execution_count": 65
 			},
 			{
 				"cell_type": "markdown",
@@ -225,7 +225,7 @@
 					"    # release mount point\n",
 					"    mssparkutils.fs.unmount(mountPoint)"
 				],
-				"execution_count": 63
+				"execution_count": 66
 			}
 		]
 	}
