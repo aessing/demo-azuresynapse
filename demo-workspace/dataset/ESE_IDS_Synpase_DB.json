@@ -2,14 +2,8 @@
 	"name": "ESE_IDS_Synpase_DB",
 	"properties": {
 		"linkedServiceName": {
-			"referenceName": "demomdwhsws001weu-WorkspaceDefaultSqlServer",
-			"type": "LinkedServiceReference",
-			"parameters": {
-				"DBName": {
-					"value": "@dataset().dbName",
-					"type": "Expression"
-				}
-			}
+			"referenceName": "synw-aes-dwh-tmp-001-WorkspaceDefaultSqlServer",
+			"type": "LinkedServiceReference"
 		},
 		"parameters": {
 			"schemaName": {
