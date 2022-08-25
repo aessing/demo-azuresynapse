@@ -2,12 +2,12 @@
 	"name": "NYC_NBK_02_getZoneDataURLs",
 	"properties": {
 		"folder": {
-			"name": "NYC Taxi"
+			"name": "NYC Taxi/01 Setup"
 		},
 		"nbformat": 4,
 		"nbformat_minor": 2,
 		"bigDataPool": {
-			"referenceName": "NYCTaxi",
+			"referenceName": "DemoSparkPool",
 			"type": "BigDataPoolReference"
 		},
 		"sessionProperties": {
@@ -17,30 +17,38 @@
 			"executorCores": 4,
 			"numExecutors": 1,
 			"conf": {
-				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.enabled": "true",
 				"spark.dynamicAllocation.minExecutors": "1",
-				"spark.dynamicAllocation.maxExecutors": "1"
+				"spark.dynamicAllocation.maxExecutors": "1",
+				"spark.autotune.trackingId": "2df3f4db-c78f-439c-8f78-035453146635"
 			}
 		},
 		"metadata": {
 			"saveOutput": true,
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "python"
+			},
 			"language_info": {
 				"name": "python"
 			},
 			"a365ComputeOptions": {
-				"id": "/subscriptions/f6c0b928-7078-4332-a106-e7a9c5253249/resourceGroups/demo-synapse-rg/providers/Microsoft.Synapse/workspaces/demosynapsesws01/bigDataPools/NYCTaxi",
-				"name": "NYCTaxi",
+				"id": "/subscriptions/21194b02-afea-4d59-a0c9-9486eeb9d27f/resourceGroups/rg-aes-dwh-tmp-001/providers/Microsoft.Synapse/workspaces/synw-aes-dwh-tmp-001/bigDataPools/DemoSparkPool",
+				"name": "DemoSparkPool",
 				"type": "Spark",
-				"endpoint": "https://demosynapsesws01.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/NYCTaxi",
+				"endpoint": "https://synw-aes-dwh-tmp-001.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DemoSparkPool",
 				"auth": {
 					"type": "AAD",
 					"authResource": "https://dev.azuresynapse.net"
 				},
-				"sparkVersion": "2.4",
-				"nodeCount": 10,
-				"cores": 4,
-				"memory": 28
-			}
+				"sparkVersion": "3.2",
+				"nodeCount": 3,
+				"cores": 16,
+				"memory": 112,
+				"automaticScaleJobs": true
+			},
+			"sessionKeepAliveTimeout": 30
 		},
 		"cells": [
 			{
@@ -214,7 +222,7 @@
 				"cell_type": "code",
 				"source": [
 					"# Write URLs as file into the data lake\n",
-					"urlDF.repartition(1).write.format('parquet').mode('overwrite').save('abfss://nyctaxi@demosynapsedls01.dfs.core.windows.net/config/ZoneDataURLs.parquet')"
+					"urlDF.repartition(1).write.format('parquet').mode('overwrite').save('abfss://nyctaxi@dlsaesdwhtmp002data.dfs.core.windows.net/config/ZoneDataURLs.parquet')"
 				],
 				"execution_count": 7
 			}
