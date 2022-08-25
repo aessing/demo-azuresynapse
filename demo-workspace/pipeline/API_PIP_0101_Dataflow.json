@@ -184,7 +184,24 @@
 				"typeProperties": {
 					"dataflow": {
 						"referenceName": "API_FLW_0101_TransformData",
-						"type": "DataFlowReference"
+						"type": "DataFlowReference",
+						"datasetParameters": {
+							"sinkCustomers2SQL": {
+								"dbname": "DemoSqlPool"
+							},
+							"sinkServices2SQL": {
+								"dbname": "DemoSqlPool"
+							},
+							"sinkTimeseries2SQL": {
+								"dbname": "DemoSqlPool"
+							},
+							"sinkOperations2SQL": {
+								"dbname": "DemoSqlPool"
+							},
+							"sinkGeodata2SQL": {
+								"dbname": "DemoSqlPool"
+							}
+						}
 					},
 					"compute": {
 						"coreCount": 16,
