@@ -48,7 +48,12 @@
 				"typeProperties": {
 					"dataflow": {
 						"referenceName": "NYC_FLW_01_ImportDownloadURLs",
-						"type": "DataFlowReference"
+						"type": "DataFlowReference",
+						"datasetParameters": {
+							"SynapseConfigTable": {
+								"dbname": "DemoSqlPool"
+							}
+						}
 					},
 					"staging": {
 						"linkedService": {
