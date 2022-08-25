@@ -9,7 +9,7 @@
 		"annotations": [],
 		"type": "CosmosDb",
 		"typeProperties": {
-			"connectionString": "AccountEndpoint=https://cosmos-aes-dwhcmp-tmp-001.documents.azure.com:443/;Database=movies",
+			"connectionString": "AccountEndpoint=https://cosmos-aes-dwhcmp-tmp-001.documents.azure.com:443/;Database=@{linkedService().dbname}",
 			"accountKey": {
 				"type": "AzureKeyVaultSecret",
 				"store": {
