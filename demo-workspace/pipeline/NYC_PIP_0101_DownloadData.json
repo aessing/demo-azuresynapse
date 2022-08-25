@@ -51,7 +51,10 @@
 						"type": "DataFlowReference",
 						"datasetParameters": {
 							"SynapseConfigTable": {
-								"dbname": "DemoSqlPool"
+								"dbname": {
+									"value": "@variables('DatabaseName')",
+									"type": "Expression"
+								}
 							}
 						}
 					},
@@ -91,13 +94,19 @@
 				"typeProperties": {
 					"source": {
 						"type": "SqlDWSource",
-						"sqlReaderQuery": "SELECT [url]\n      ,[filename]\n      ,[filepath]\n      ,[downloaded]\n  FROM [config].[dataDownload]\n WHERE [downloaded] = 0;",
+						"sqlReaderQuery": "SELECT [url]\n      ,[filename]\n      ,[filepath]\n      ,[downloaded]\n  FROM [nyc].[configDataDownload]\n WHERE [downloaded] = 0;",
 						"queryTimeout": "02:00:00",
 						"partitionOption": "None"
 					},
 					"dataset": {
 						"referenceName": "NYC_IDS_SQLPool_configDataDownload",
-						"type": "DatasetReference"
+						"type": "DatasetReference",
+						"parameters": {
+							"dbname": {
+								"value": "@variables('DatabaseName')",
+								"type": "Expression"
+							}
+						}
 					},
 					"firstRowOnly": false
 				}
@@ -154,8 +163,7 @@
 									}
 								},
 								"enableStaging": false,
-								"parallelCopies": 1,
-								"dataIntegrationUnits": 2
+								"parallelCopies": 4
 							},
 							"inputs": [
 								{
@@ -171,8 +179,8 @@
 							]
 						},
 						{
-							"name": "MarkFileAsDownloaded",
-							"type": "Lookup",
+							"name": "UpdateDownloadStatus",
+							"type": "Script",
 							"dependsOn": [
 								{
 									"activity": "DownloadFile",
@@ -189,26 +197,37 @@
 								"secureInput": false
 							},
 							"userProperties": [],
-							"typeProperties": {
-								"source": {
-									"type": "SqlDWSource",
-									"sqlReaderQuery": {
-										"value": "@concat('UPDATE [config].[dataDownload] SET [Downloaded] = 1 WHERE [URL] = N''',item().url,''';','SELECT [Downloaded] FROM [config].[dataDownload] WHERE [Downloaded] = 1 AND [URL] = N''',item().url,''';')",
+							"linkedServiceName": {
+								"referenceName": "synw-aes-dwh-tmp-001-WorkspaceDefaultSqlServer",
+								"type": "LinkedServiceReference",
+								"parameters": {
+									"DBName": {
+										"value": "@variables('DatabaseName')",
 										"type": "Expression"
-									},
-									"queryTimeout": "02:00:00",
-									"partitionOption": "None"
-								},
-								"dataset": {
-									"referenceName": "NYC_IDS_SQLPool_configDataDownload",
-									"type": "DatasetReference"
+									}
 								}
+							},
+							"typeProperties": {
+								"scripts": [
+									{
+										"type": {
+											"value": "@concat('UPDATE [nyc].[configDataDownload] SET [Downloaded] = 1 WHERE [URL] = N''',item().url,''';')",
+											"type": "Expression"
+										}
+									}
+								]
 							}
 						}
 					]
 				}
 			}
 		],
+		"variables": {
+			"DatabaseName": {
+				"type": "String",
+				"defaultValue": "DemoSqlPool"
+			}
+		},
 		"folder": {
 			"name": "NYC Taxi/01 Setup"
 		},
