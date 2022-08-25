@@ -6,6 +6,14 @@
 			"referenceName": "Main_DataLake_001",
 			"type": "LinkedServiceReference"
 		},
+		"parameters": {
+			"filepath": {
+				"type": "string"
+			},
+			"filename": {
+				"type": "string"
+			}
+		},
 		"folder": {
 			"name": "NYC Taxi"
 		},
@@ -15,11 +23,11 @@
 			"location": {
 				"type": "AzureBlobFSLocation",
 				"fileName": {
-					"value": "@item().filename",
+					"value": "@dataset().filename",
 					"type": "Expression"
 				},
 				"folderPath": {
-					"value": "@item().filepath",
+					"value": "@dataset().filepath",
 					"type": "Expression"
 				},
 				"fileSystem": "nyctaxi"
