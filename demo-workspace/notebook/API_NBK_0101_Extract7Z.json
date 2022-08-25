@@ -22,9 +22,7 @@
 				"spark.dynamicAllocation.enabled": "true",
 				"spark.dynamicAllocation.minExecutors": "1",
 				"spark.dynamicAllocation.maxExecutors": "4",
-				"spark.autotune.trackingId": "d9bfdb8f-82ca-4631-9318-54f8730143dc",
-				"spark.synapse.library.python.env": "name: unzip\r\nchannels:\r\n  - defaults\r\ndependencies:\r\n  - pip:\r\n      - py7zr==0.16.3\r\n",
-				"spark.synapse.library.python.env.name": "Spark-pip-unzip.yml"
+				"spark.autotune.trackingId": "819c83b2-ecc5-4f19-ba8a-16c1471a8309"
 			}
 		},
 		"metadata": {
