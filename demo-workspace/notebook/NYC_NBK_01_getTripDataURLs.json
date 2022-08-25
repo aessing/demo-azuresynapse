@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "true",
 				"spark.dynamicAllocation.minExecutors": "1",
 				"spark.dynamicAllocation.maxExecutors": "1",
-				"spark.autotune.trackingId": "15ee7d0b-2479-4e66-9824-89d227156859"
+				"spark.autotune.trackingId": "793d6953-3ca5-4af1-9261-de861f28a4c4"
 			}
 		},
 		"metadata": {
@@ -115,7 +115,7 @@
 					"from pyspark.sql.functions import split\n",
 					"from pyspark.sql.types import StructType, StructField, StringType"
 				],
-				"execution_count": 13
+				"execution_count": 19
 			},
 			{
 				"cell_type": "code",
@@ -125,7 +125,7 @@
 					"website_path = '/site/tlc/about/tlc-trip-record-data.page'\n",
 					"url = website_url + website_path"
 				],
-				"execution_count": 14
+				"execution_count": 20
 			},
 			{
 				"cell_type": "markdown",
@@ -144,7 +144,7 @@
 					"soup = BeautifulSoup(html, 'html.parser')\n",
 					"anchors = soup('a')"
 				],
-				"execution_count": 15
+				"execution_count": 21
 			},
 			{
 				"cell_type": "markdown",
@@ -192,7 +192,7 @@
 					"        anchor = website_url + anchor\n",
 					"    anchors_fqdn.append(anchor + \",\" + getFilename(anchor) + \",\" + getFilepath(anchor))"
 				],
-				"execution_count": 16
+				"execution_count": 22
 			},
 			{
 				"cell_type": "markdown",
@@ -239,7 +239,7 @@
 					"             .withColumn('filepath', split(urlDF['import'], ',').getItem(2)) \\\n",
 					"             .drop('import')"
 				],
-				"execution_count": 17
+				"execution_count": 23
 			},
 			{
 				"cell_type": "code",
@@ -267,7 +267,7 @@
 					"# Write URLs as file into the data lake\n",
 					"urlDF.repartition(1).write.format('parquet').mode('overwrite').save('abfss://nyctaxi@dlsaesdwhtmp002data.dfs.core.windows.net/config/TripDataURLs.parquet')"
 				],
-				"execution_count": 18
+				"execution_count": 24
 			}
 		]
 	}
