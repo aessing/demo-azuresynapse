@@ -4,7 +4,7 @@
 		"annotations": [],
 		"type": "AzureKeyVault",
 		"typeProperties": {
-			"baseUrl": "https://demomdwhakv001weu.vault.azure.net/"
+			"baseUrl": "https://kv-aes-dwh-tmp-001.vault.azure.net/"
 		}
 	}
 }
