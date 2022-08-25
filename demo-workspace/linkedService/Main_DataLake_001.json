@@ -10,5 +10,6 @@
 			"referenceName": "AutoResolveIntegrationRuntime",
 			"type": "IntegrationRuntimeReference"
 		}
-	}
+	},
+	"type": "Microsoft.Synapse/workspaces/linkedservices"
 }
