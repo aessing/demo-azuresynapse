@@ -9,7 +9,7 @@
 		"annotations": [],
 		"type": "AzureFileStorage",
 		"typeProperties": {
-			"connectionString": "DefaultEndpointsProtocol=https;AccountName=demomdwhcmpsto001weu;",
+			"connectionString": "DefaultEndpointsProtocol=https;AccountName=staesdwhcmptmp001;",
 			"accountKey": {
 				"type": "AzureKeyVaultSecret",
 				"store": {
