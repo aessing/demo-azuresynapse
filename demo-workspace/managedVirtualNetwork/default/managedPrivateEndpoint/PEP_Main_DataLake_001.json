@@ -1,0 +1,7 @@
+{
+	"name": "PEP_Main_DataLake_001",
+	"properties": {
+		"privateLinkResourceId": "/subscriptions/21194b02-afea-4d59-a0c9-9486eeb9d27f/resourceGroups/rg-aes-dwh-tmp-001/providers/Microsoft.Storage/storageAccounts/dlsaesdwhtmp002data",
+		"groupId": "dfs"
+	}
+}
