@@ -180,7 +180,17 @@
 							"outputs": [
 								{
 									"referenceName": "NYC_IDS_Datalake_DataDownload",
-									"type": "DatasetReference"
+									"type": "DatasetReference",
+									"parameters": {
+										"filepath": {
+											"value": "@item().filepath",
+											"type": "Expression"
+										},
+										"filename": {
+											"value": "@item().filename",
+											"type": "Expression"
+										}
+									}
 								}
 							]
 						},
