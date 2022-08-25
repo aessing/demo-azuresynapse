@@ -168,7 +168,13 @@
 							"inputs": [
 								{
 									"referenceName": "NYC_IDS_Web_DataDownload",
-									"type": "DatasetReference"
+									"type": "DatasetReference",
+									"parameters": {
+										"url": {
+											"value": "@item().url",
+											"type": "Expression"
+										}
+									}
 								}
 							],
 							"outputs": [
