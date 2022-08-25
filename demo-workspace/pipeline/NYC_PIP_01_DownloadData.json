@@ -16,7 +16,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"notebook": {
-						"referenceName": "NYC_NBK_01_getTripDataURLs",
+						"referenceName": "NYC_NBK_0101_getTripDataURLs",
 						"type": "NotebookReference"
 					}
 				}
@@ -79,7 +79,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"notebook": {
-						"referenceName": "NYC_NBK_02_getZoneDataURLs",
+						"referenceName": "NYC_NBK_0102_getZoneDataURLs",
 						"type": "NotebookReference"
 					}
 				}
