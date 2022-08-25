@@ -401,7 +401,7 @@
 					},
 					"parameters": {
 						"inputFile": {
-							"value": "/temp/downloaded/ApiAnalticsData.7z",
+							"value": "/temp/downloaded/ApiAnalyticsData.7z",
 							"type": "string"
 						},
 						"targetDir": {
