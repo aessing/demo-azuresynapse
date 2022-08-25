@@ -96,7 +96,7 @@
 						"partitionOption": "None"
 					},
 					"dataset": {
-						"referenceName": "NYC_IDS_CFG_configDataDownload",
+						"referenceName": "NYC_IDS_SQLPool_configDataDownload",
 						"type": "DatasetReference"
 					},
 					"firstRowOnly": false
@@ -159,13 +159,13 @@
 							},
 							"inputs": [
 								{
-									"referenceName": "NYC_IDS_SRC_DataDownload",
+									"referenceName": "NYC_IDS_Web_DataDownload",
 									"type": "DatasetReference"
 								}
 							],
 							"outputs": [
 								{
-									"referenceName": "NYC_IDS_SNK_DataDownload_RAW",
+									"referenceName": "NYC_IDS_Datalake_DataDownload",
 									"type": "DatasetReference"
 								}
 							]
@@ -200,7 +200,7 @@
 									"partitionOption": "None"
 								},
 								"dataset": {
-									"referenceName": "NYC_IDS_CFG_configDataDownload",
+									"referenceName": "NYC_IDS_SQLPool_configDataDownload",
 									"type": "DatasetReference"
 								}
 							}
