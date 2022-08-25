@@ -22,9 +22,7 @@
 				"spark.dynamicAllocation.enabled": "true",
 				"spark.dynamicAllocation.minExecutors": "1",
 				"spark.dynamicAllocation.maxExecutors": "4",
-				"spark.autotune.trackingId": "490968a2-7b98-4953-b36f-159a6564cb07",
-				"spark.synapse.library.python.env": "name: unzip\r\nchannels:\r\n  - defaults\r\ndependencies:\r\n  - pip:\r\n      - py7zr==0.16.3\r\n",
-				"spark.synapse.library.python.env.name": "Spark-pip-unzip.yml"
+				"spark.autotune.trackingId": "3b1627cb-35a5-40e7-98bf-2f71d630dfed"
 			}
 		},
 		"metadata": {
@@ -154,7 +152,7 @@
 					"# target directory for extracted files\n",
 					"targetDir = '/temp/extracted'"
 				],
-				"execution_count": 64
+				"execution_count": 3
 			},
 			{
 				"cell_type": "markdown",
@@ -187,7 +185,7 @@
 					"from os import listdir\r\n",
 					"from notebookutils import mssparkutils"
 				],
-				"execution_count": 65
+				"execution_count": 4
 			},
 			{
 				"cell_type": "markdown",
